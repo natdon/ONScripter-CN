@@ -1,5 +1,6 @@
 package cn.natdon.onscripterv2;
 
+
 import cn.natdon.onscripterv2.widget.VideoView;
 
 import android.annotation.SuppressLint;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 /**
@@ -38,12 +40,18 @@ public class Command {
 
 	// obj - MainActivity
 	public static final int MAINACTIVITY_PLAY_VIDEO = 38;
+	
+	// obj - ListAdapter, getData() - Game
+	public static final int ADD_ITEM_TO_LISTADAPTER = 102;
 
+	// obj - ListAdapter
+	public static final int DATASET_CHANGED_LISTADAPTER = 103;
+	
 	private static Handler Commander = new Handler() {
 
-		@SuppressLint("NewApi")
 		public void handleMessage(Message msg) {
 			VideoView videoview;
+			ArrayAdapter<Game> adapter;
 			switch(msg.what){
 			case LOOP_VIDEO_PREVIEW:
 				videoview = $(msg.obj);
@@ -55,8 +63,18 @@ public class Command {
 				listview.smoothScrollBy(msg.arg1, msg.arg2);
 				break;
 			case GENERATE_TEST_DATA:
-				GameAdapter adapter = $(msg.obj);
+				adapter = $(msg.obj);
 				Tester.fillTestData(adapter);
+				break;
+			case ADD_ITEM_TO_LISTADAPTER:
+				adapter = $(msg.obj);
+				adapter.add(Game.fromBundle(msg.getData()));
+				// Auto Notify DataSet Change
+				Command.invoke(DATASET_CHANGED_LISTADAPTER).of(adapter).only().sendDelayed(200);
+				break;
+			case DATASET_CHANGED_LISTADAPTER:
+				adapter = $(msg.obj);
+				adapter.notifyDataSetChanged();
 				break;
 			case MAINACTIVITY_PLAY_VIDEO:
 				ONScripter mainactivity = $(msg.obj);
@@ -160,3 +178,4 @@ public class Command {
 	}
 
 }
+

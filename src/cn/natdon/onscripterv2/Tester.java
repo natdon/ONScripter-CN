@@ -2,6 +2,7 @@ package cn.natdon.onscripterv2;
 
 
 import android.annotation.SuppressLint;
+import android.widget.ArrayAdapter;
 
 /**
  * Test use functions should be placed here
@@ -9,11 +10,9 @@ import android.annotation.SuppressLint;
  *
  */
 public class Tester {
-	
 
 	@SuppressLint("SdCardPath")
-	public static void fillTestData(GameAdapter items) {
-
+	public static void fillTestData(ArrayAdapter<Game> items) {
 		/*items.add(new Game() {{title="月は东に日は西に ～Operation Sanctuary～"; cover="http://www.august-soft.com/hani/event/cg_09.jpg"; video="/sdcard/test.mp4";}});
 		items.add(new Game() {{title="寒蝉鸣泣之时系列"; cover="http://www.forcos.com/upload/2009_07/09071414528628.jpg"; video="/sdcard/test2.mp4";}});
 		items.add(new Game() {{title="One Way Love～ミントちゃん物语"; cover="http://ec2.images-amazon.com/images/I/61LUkVZeNTL.jpg"; video="/sdcard/test3.mp4";}});
@@ -27,6 +26,5 @@ public class Tester {
 		items.add(new Game() {{title="Yuruyuri"; cover="http://www.emptyblue.it/data/wallpaper/Yuruyuri/yuruyuri_91341_thumb.jpg";}});
 		items.add(new Game() {{title="Remilia Scarlet"; cover="http://konachan.com/image/5dd13f43bd3e78625a99ba49195cab50/Konachan.com%20-%2040803%20remilia_scarlet%20touhou.jpg";}});*/
 	}
-	
 
 }
