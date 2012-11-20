@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <color name="black">#ff000000</color>
+    <color name="blue">#ff0000ff</color>
+    <color name="white">#ffffffff</color>
+    <color name="yellow">#ffff9600</color>
+    <color name="green">#ffb6de3c</color>
+    <color name="heavegray">#ff363636</color>
+    <color name="lightgray">#ff999999</color>
+    <color name="titletop">#ff4892bc</color>
+    <color name="red">#ffff0000</color>
+    <color name="pink">#ffff00ff</color>
+    <color name="button_black">#ff263a52</color>
+    <color name="weblink_blue">#ff0e67a0</color>
+    <color name="weblink_yellow">#ffffd200</color>
+    <color name="weblink_color">#ffffd200</color>
+    <color name="back_common_color">#ffeef0f0</color>
+    <color name="no_clor">#00000000</color>
+    <item type="color" name="button_top_fontcolor">@color/black</item>
+    <item type="color" name="button_userdefinedmsg_top_fontcolor">@color/black</item>
+    <item type="color" name="textview_top_fontcolor">@color/white</item>
+    <item type="color" name="textview_helpabout_context_backcolor">@color/back_common_color</item>
+    <item type="color" name="textview_helpabout_context_fontcolor">@color/black</item>
+    <item type="color" name="textview_userdefinedmsg_top_fontcolor">@color/black</item>
+    <item type="color" name="textview_login_fontcolor">@color/black</item>
+    <color name="textview_time_to_color">#ff0075dd</color>
+    <color name="textview_time_from_color">#ffdc8600</color>
+    <color name="textview_talking_back_color">#fff0f0f0</color>
+    <color name="textview_talking_common_color">#ff000000</color>
+    <color name="textview_send_to_color">#ff0075dd</color>
+    <color name="textview_recv_from_color">#ffdc8600</color>
+    <color name="textview_message_color">#fff0f0f0</color>
+    <color name="bright_foreground_dark">#ffffffff</color>
+    <color name="bright_foreground_dark_disabled">#80ffffff</color>
+    <color name="bright_foreground_light_disabled">#80000000</color>
+    <color name="bright_foreground_light">#ff000000</color>
+    <color name="transparent">#00000000</color>
+
+    <color name="sao_grey">#757575</color>
+    <color name="sao_orange">#FBAD06</color>
+    <color name="sao_white">#FFFFFF</color>
+    <color name="sao_transparent_white">#BFFFFFFF</color>
+
+</resources>

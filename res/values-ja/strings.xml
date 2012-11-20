@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ONScripter</string>
+	
+	<!-- Option -->
+	
+	<string name="Opt_ForceButtonShortcut">強制的にキーに割り付ける</string>
+	<string name="Opt_DisableRescale">画像を拡縮しない(pdaのみ)</string>
+	<string name="Opt_UseKeyEXE">KeyEXEを使う</string>
+	
+	<!-- Environment -->
+	
+	<string name="Env_PDAWidth">幅の指定(pdaのみ)</string>
+
+	<!-- Key -->
+	
+	<string name="Key_Space">SPACE</string>
+	<string name="Key_Enter">ENTER</string>
+	<string name="Key_Escape">ESC</string>
+	<string name="Key_LeftClick">左クリック</string>
+	<string name="Key_RightClick">右クリック</string>
+	<string name="Key_ForceSkip">強制スキップ</string>
+	<string name="Key_PrevChoice">前のボタン</string>
+	<string name="Key_NextChoice">次のボタン</string>
+	<string name="Key_WheelUp">上ホイール</string>
+	<string name="Key_WheelDown">下ホイール</string>
+	<string name="Key_SkipMode">スキップモード</string>
+	<string name="Key_OnePage">１ページ表示</string>
+	<string name="Key_AutoMode">オートモード</string>
+	<string name="Key_TextSpeedChange">テキスト速度変更</string>
+	<string name="Key_SlowTextSpeed">テキスト速度：遅く</string>
+	<string name="Key_NormalTextSpeed">テキスト速度：普通</string>
+	<string name="Key_FastTextSpeed">テキスト速度：速く</string>
+	
+	<!-- -->
+	
+	<string name="None">なし</string>
+	
+	<string name="Enable">有効</string>
+	<string name="Disable">無効</string>
+	
+	<string name="OK">OK</string>
+	<string name="Cancel">キャンセル</string>
+	
+	<string name="Yes">はい</string>
+	<string name="No">いいえ</string>
+	
+	<string name="Use">使う</string>
+	<string name="NotUse">使わない</string>
+	
+	<string name="Left">左</string>
+	<string name="Right">右</string>
+	<string name="Up">上</string>
+	<string name="Down">下</string>
+	<string name="Top">上</string>
+	<string name="Bottom">下</string>
+	<string name="Center">中央</string>
+	
+	<string name="LeftClick">左クリック</string>
+	<string name="RightClick">右クリック</string>
+	
+	<string name="Landscape">よこ向き</string>
+	<string name="Portrait">たて向き</string>
+	<string name="ReverseLandscape">よこ向き（逆）</string>
+	<string name="ReversePortrait">たて向き（逆）</string>
+	
+	<string name="Full">フル</string>
+	<string name="Unknown">不明</string>
+	
+	<string name="Invalid">無効</string>
+	<string name="Touch">タッチ</string>
+	<string name="TrackPad">トラックパッド</string>
+	<string name="GamePad">ゲームパッド</string>
+	
+	<string name="Show">表示する</string>
+	<string name="Hide">隠す</string>
+	
+	<string name="unit">ユニット</string>
+	
+	<string name="AsAxis">軸として使う</string>
+	<string name="AsButton">ボタンとして使う</string>
+	
+	<string name="Key">キー</string>
+	<string name="Button">ボタン</string>
+	
+	<string name="Error">エラー</string>
+
+	<string name="Other">その他</string>
+	<string name="Quit">終了</string>
+	
+	<!-- App Launcher -->
+	<string name="Launch_CurrentDirectory">現在のフォルダ</string>
+	<string name="Launch_ChangeDirectory">フォルダ\n変更</string>
+	<string name="Launch_ChooseDirectory">フォルダの選択</string>
+	<string name="Launch_SetDirectory">ここに決めた！</string>
+	<string name="Launch_CouldNotOpenDirectory">フォルダを開けません</string>
+	
+	<!-- App Launch Config -->
+	<string name="Conf_ExecuteModule">実行モジュール</string>
+	<string name="Conf_VideoDepth">表示色深度</string>
+	<string name="Conf_ScreenRatio">表示画面比</string>
+	<string name="Conf_ScreenOrientation">画面の向き</string>
+	<string name="Conf_SmoothVideo">拡大縮小時なめらかにする</string>
+	<string name="Conf_Linear">線形補間</string>
+	<string name="Conf_DontAskMeAgain">次回から表示しない</string>
+	<string name="Conf_NotUseAppLaunchConfig">起動設定を使用しません</string>
+	<string name="Conf_Change">　変更　</string>
+	<string name="Conf_Swap">入れ替え</string>
+	<string name="Conf_Run">実行</string>
+	
+	<!-- Check App Need Files -->
+	<string name="Need_Following">次の</string>
+	<string name="Need_FilesAreMissing">ファイルがみつかりません</string>
+	
+	<!-- Menu -->
+	<string name="Menu_Function">機能</string>
+	<string name="Menu_TouchMode">タッチモード</string>
+	<string name="Menu_Quit">終了</string>
+	<string name="Menu_AskQuit">終了しますか？</string>
+	<string name="Menu_KeyConfig">キー割当設定</string>
+	<string name="Menu_SelectKeyFunction">キーに割り当てる機能を選んでください</string>
+	<string name="Menu_EndMenuButton">Menuボタンを押して終了</string>
+	<string name="Menu_PressKeyOrButton">キーかボタンを押してください</string>
+	<string name="Menu_MouseCursor">マウスカーソル</string>
+	<string name="Menu_ButtonLeft">ボタン（左側）</string>
+	<string name="Menu_ButtonRight">ボタン（右側）</string>
+	<string name="Menu_ButtonTop">ボタン（上側）</string>
+	<string name="Menu_ButtonBottom">ボタン（下側）</string>
+	<string name="Menu_VideoXMargin">画面の左右の余白</string>
+	<string name="Menu_VideoYMargin">画面の上下の余白</string>
+	<string name="Menu_VideoXPosition">画面の位置（横）</string>
+	<string name="Menu_VideoYPosition">画面の位置（縦）</string>
+	<string name="Menu_GamePadPosition">ゲームパッドの位置</string>
+	<string name="Menu_GamePadSize">ゲームパッドの大きさ</string>
+	<string name="Menu_GamePadOpacity">ゲームパッドの不透明度</string>
+	<string name="Menu_GamePadArrowButton">ゲームパッド方向ボタン</string>
+	<string name="Menu_GamePadActionButton">ゲームパッドアクションボタン</string>
+	<string name="Menu_AppLaunchConfig">起動オプション設定</string>
+</resources>

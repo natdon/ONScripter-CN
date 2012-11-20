@@ -1,0 +1,77 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    android:background="@android:color/black">
+
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/alt_background"
+        android:scaleType="centerCrop"
+        android:src="@drawable/dbkg_und_blur" />
+    
+    <ListView
+        android:id="@+id/games"
+        android:layout_width="311dip"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="24dip"
+        android:layout_marginTop="8dip"
+        android:layout_marginBottom="8dip"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="3dip"
+        android:scrollbars="none"
+        android:requiresFadingEdge="vertical"
+        android:cacheColorHint="#00000000"
+        android:fadingEdgeLength="48dip" />
+
+    <RelativeLayout
+        android:id="@+id/coverframe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+	    android:layout_toRightOf="@id/games"
+        android:layout_marginBottom="80dip"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:layout_marginTop="40dip">
+        
+	    <ImageView
+	        android:id="@+id/cover"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:contentDescription="@string/alt_cover"
+	        android:scaleType="fitCenter"
+	        android:src="@drawable/dbkg_und" />
+		
+	    <RelativeLayout
+	        android:id="@+id/videoframe"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#000000"
+            android:visibility="gone">
+
+	        <cn.natdon.onscripterv2.widget.VideoView
+	            android:id="@+id/surface_view"
+	            android:visibility="gone"
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
+    
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/gametitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/coverframe"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="60dip"/>
+    
+</RelativeLayout>

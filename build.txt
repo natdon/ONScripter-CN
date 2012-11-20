@@ -1,0 +1,33 @@
+＜ビルド方法＞
+Android SDKとAndroid NDKをインストールし
+パスを通しておいてから、このディレクトリに移動し
+以下のコマンドでビルドする。
+$ android update project -p .
+$ ndk-build
+$ ant debug
+
+＜パッケージ名の変更箇所＞
+[1]AndroidManifest.xml
+package="jp.katane.xxx"
+android:versionCode=""
+android:versionName=""
+
+[2]build.xml
+<project name="xxx" default="help">
+
+[3]Javaソース（src/*.java）
+先頭部分の以下を変更。
+package jp.katane.xxx;
+
+[4]jni/Android.mk
+SDL_JAVA_PACKAGE_PATH    := jp_katane_xxx
+SDL_ANDROID_PACKAGE_NAME := jp.katane.xxx
+
+[5]res/values/string.xml, res/values-ja/strings.xml
+<string name="app_name">XXX</string>
+
+[6]jni/Appication.mk
+ターゲットの変更
+APP_ABI := armeabi mips x86
+STL使わないならコメントアウト
+APP_STL := stlport_static

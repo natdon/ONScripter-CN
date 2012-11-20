@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ONScripter-GBK</string>
+
+	<!-- Option -->
+	
+	<string name="Opt_ForceButtonShortcut">Force Button Shortcut</string>
+	<string name="Opt_DisableRescale">关闭缩放</string>
+	<string name="Opt_RenderFontOutline">字体描边</string>
+	
+	<!-- Environment -->
+	
+	<string name="Env_PDAWidth">Width (pda only)</string>
+
+    	<string name="go">go</string>
+    	<string name="nulltime">--:--:--</string>
+
+	<!-- Key -->
+	
+	<string name="Key_Space">空格</string>
+	<string name="Key_Enter">回车</string>
+	<string name="Key_Escape">ESC</string>
+	<string name="Key_LeftClick">左键</string>
+	<string name="Key_RightClick">右键</string>
+	<string name="Key_ForceSkip">强制快进</string>
+	<string name="Key_PrevChoice">上</string>
+	<string name="Key_NextChoice">下</string>
+	<string name="Key_WheelUp">左</string>
+	<string name="Key_WheelDown">右</string>
+	<string name="Key_SkipMode">快进模式</string>
+	<string name="Key_OnePage">显示一页</string>
+	<string name="Key_AutoMode">自动阅读模式</string>
+	<string name="Key_TextSpeedChange">改变文字显示速度</string>
+	<string name="Key_SlowTextSpeed">低速</string>
+	<string name="Key_NormalTextSpeed">普通</string>
+	<string name="Key_FastTextSpeed">快速</string>
+	<string name="button_vol_up">音量+</string>
+    	<string name="button_vol_down">音量-</string>
+	<string name="button_get_default_screenshot">截图</string>
+   	 <string name="button_get_full_screenshot">截图</string>
+	<string name="button_Menu">菜单</string>
+	
+	<!-- -->
+	
+	<string name="None">无</string>
+	
+	<string name="Enable">开启</string>
+	<string name="Disable">关闭</string>
+	
+	<string name="OK">确定</string>
+	<string name="Cancel">取消</string>
+	
+	<string name="Yes">是</string>
+	<string name="No">否</string>
+	
+	<string name="Use">使用</string>
+	<string name="NotUse">不使用</string>
+	
+	<string name="Left">左</string>
+	<string name="Right">右</string>
+	<string name="Up">上</string>
+	<string name="Down">下</string>
+	<string name="Top">顶部</string>
+	<string name="Bottom">底部</string>
+	<string name="Center">居中</string>
+	
+	<string name="LeftClick">左键</string>
+	<string name="RightClick">右键</string>
+	
+	<string name="Landscape">横屏显示</string>
+	<string name="Portrait">竖屏显示</string>
+	<string name="ReverseLandscape">翻转横屏显示</string>
+	<string name="ReversePortrait">翻转竖屏显示</string>
+	
+	<string name="Full">全屏</string>
+	<string name="Unknown">未知</string>
+	
+	<string name="Invalid">触摸无效</string>
+	<string name="Touch">触摸模式</string>
+	<string name="TrackPad">轨迹模式</string>
+	<string name="GamePad">手柄模式</string>
+	
+	<string name="Show">显示</string>
+	<string name="Hide">隐藏</string>
+	
+	<string name="unit">个</string>
+	
+	<string name="AsAxis">显示为轴心</string>
+	<string name="AsButton">显示为按钮</string>
+	
+	<string name="Key">键值</string>
+	<string name="Button">按钮</string>
+	
+	<string name="Error">错误</string>
+
+	<string name="Other">其它</string>
+	<string name="Quit">退出</string>
+	
+	
+	<!-- App Launcher -->
+	<string name="Launch_CurrentDirectory">当前目录</string>
+	<string name="Launch_ChangeDirectory">改变目录</string>
+	<string name="Launch_ChooseDirectory">选择目录</string>
+	<string name="Launch_SetDirectory">设置目录</string>
+	<string name="Launch_CouldNotOpenDirectory">无法打开目录</string>
+	
+	<!-- App Launch Config -->
+	<string name="Conf_ExecuteModule">版本选择</string>
+	<string name="Conf_VideoDepth">色位深度</string>
+	<string name="Conf_ScreenRatio">屏幕比例</string>
+	<string name="Conf_ScreenOrientation">屏幕方向</string>
+	<string name="Conf_SmoothVideo">平滑显示</string>
+	<string name="Conf_Linear">线性插值</string>
+	<string name="Conf_DontAskMeAgain">不再显示</string>
+	<string name="Conf_NotUseAppLaunchConfig">不使用设置</string>
+	<string name="Conf_Change">修改</string>
+	<string name="Conf_Swap">互换</string>
+	<string name="Conf_Run"> 运行 </string>
+	
+	<!-- Check App Need Files -->
+	<string name="Need_Following">.</string>
+	<string name="Need_FilesAreMissing">找不到以下文件</string>
+	
+	<!-- Menu -->
+	<string name="Menu_Function">文字显示速度</string>
+	<string name="Menu_TouchMode">触摸模式</string>
+	<string name="Menu_Quit">退出</string>
+	<string name="Menu_AskQuit">退出</string>
+	<string name="Menu_KeyConfig">按键设置</string>
+	<string name="Menu_SelectKeyFunction">选择按键功能</string>
+	<string name="Menu_EndMenuButton">按菜单键结束</string>
+	<string name="Menu_PressKeyOrButton">点击一个按键</string>
+	<string name="Menu_MouseCursor">鼠标指针</string>
+	<string name="Menu_ButtonLeft">按键 (左)</string>
+	<string name="Menu_ButtonRight">按键 (右)</string>
+	<string name="Menu_ButtonTop">按键 (顶部)</string>
+	<string name="Menu_ButtonBottom">按键 (底部)</string>
+	<string name="Menu_VideoXMargin">屏幕 X-边距</string>
+	<string name="Menu_VideoYMargin">屏幕 Y-边距</string>
+	<string name="Menu_VideoXPosition">屏幕 X-位置</string>
+	<string name="Menu_VideoYPosition">屏幕 Y-位置</string>
+	<string name="Menu_GamePadPosition">手柄位置</string>
+	<string name="Menu_GamePadSize">手柄大小</string>
+	<string name="Menu_GamePadOpacity">手柄透明度</string>
+	<string name="Menu_GamePadArrowButton">手柄方向按钮</string>
+	<string name="Menu_GamePadActionButton">手柄功能按钮</string>
+	<string name="Menu_AppLaunchConfig">ons设置显示</string>
+	
+	<string name="menu_settings">Settings</string>
+    <string name="title_activity_main">SAO用户界面</string>
+    <string name="alt_cover">封面图片</string>
+    <string name="alt_background">背景</string>
+    <string name="alt_icon">图标</string>
+    
+    <string name="mediacontroller_play_pause">Play/Pause</string>
+
+	<string name="info">ONScripter Ver2.0\n感谢ACGF所有热心的朋友\n游戏下载可访问 mobi.acgfuture.com\n或点击访问论坛\n\n
+
+2.0.6更新\n
+1.增加字体描边功能\n\n
+2.0.5更新\n
+1.允许非WIFI环境自动更新\n
+2.其它bug修复\n\n
+2.0.4更新\n
+1.增加比例全屏\n\n
+2.0.3更新\n
+1.修复快捷方式启动崩溃的问题\n\n
+2.0.2更新\n
+1.修复虚拟按键无法关闭的问题\n\n
+2.0.1更新\n
+1.使用新内核,全新版本,新功能请自行摸索\n
+2.针对4.0适配,推荐4.0设备使用\n
+3.测试版,可能不支持部分机型\n
+4.剩下的自己感受吧\n
+
+返回键呼出菜单改为点击一次返回键再点击屏幕呼出\n
+
+自定义背景：将bg.png或bg.gif放到ons目录下即可\n
+自定义设置背景:将bg2.png放到ons目录下即可\n
+自定义按键背景:将btn.png放到ons目录下即可\n
+自定义游戏图标:将icon.png放到游戏目录下即可\n
+
+</string>
+
+</resources>
