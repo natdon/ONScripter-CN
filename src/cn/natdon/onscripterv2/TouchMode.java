@@ -37,6 +37,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+import android.view.ScaleGestureDetector.OnScaleGestureListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.AbsoluteLayout;
@@ -94,6 +95,7 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 	private int mScreenHeight = 0;
 
 	private MainView mMainView = null;
+
 	
 	private class OnButtonTouchListener implements View.OnTouchListener
 	{
@@ -114,12 +116,21 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 					break;
 				case MotionEvent.ACTION_UP:
 					mMainView.nativeKey( mKey, 0 );
+					
+					Integer sdlKey = (Integer)Globals.SDLKeyAdditionalKeyMap.get(new Integer(mKey));
+					if(sdlKey != null){
+						
+						if(Globals.SDLKeyFunctionNameMap.get(sdlKey).equals(mMainView.getResources().getString(R.string.button_get_default_screenshot)))
+							mMainView.ShowToast("截图成功,保存在"+Globals.CurrentDirectoryPath);
+					}
+					
 					break;
 			}
 			return true;
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private Button newButtonToLayout(LinearLayout layout, int key)
 	{
 		Drawable d = Drawable.createFromPath(Globals.CurrentDirectoryPathForLauncher+"/btn.png");
@@ -127,8 +138,10 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 		Button button = new Button(mMainView.getActivity());
 		if(d != null)
 		button.setBackgroundDrawable(d);
+		button.setHeight(ONScripter.dh/4);
+		button.setWidth(ONScripter.dw/4);
 		button.setOnTouchListener(new OnButtonTouchListener(mMainView, key));
-		layout.addView(button, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT, 1));
+		layout.addView(button, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
 		return button;
 	}
 	
@@ -144,6 +157,8 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 		mButtonLeftArray = new Button[Globals.BUTTON_LEFT_MAX];
 		for(int i = 0; i < mButtonLeftArray.length; i ++){
 			mButtonLeftArray[i] = newButtonToLayout(mLayoutLeft, Globals.BUTTON_LEFT_KEY_ARRAY[i]);
+			if(Locals.gWindowScreen)
+				mButtonLeftArray[i].setVisibility(View.GONE);
 		}
 
 		SVRight = new ScrollView(mMainView.getActivity());
@@ -154,6 +169,8 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 		mButtonRightArray = new Button[Globals.BUTTON_RIGHT_MAX];
 		for(int i = 0; i < mButtonRightArray.length; i ++){
 			mButtonRightArray[i] = newButtonToLayout(mLayoutRight, Globals.BUTTON_RIGHT_KEY_ARRAY[i]);
+			if(Locals.gWindowScreen)
+				mButtonRightArray[i].setVisibility(View.GONE);
 		}
 		
 		SVTop = new HorizontalScrollView(mMainView.getActivity());
@@ -164,6 +181,8 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 		mButtonTopArray = new Button[Globals.BUTTON_BOTTOM_MAX];
 		for(int i = 0; i < mButtonTopArray.length; i ++){
 			mButtonTopArray[i] = newButtonToLayout(mLayoutTop, Globals.BUTTON_TOP_KEY_ARRAY[i]);
+			if(Locals.gWindowScreen)
+				mButtonTopArray[i].setVisibility(View.GONE);
 		}
 		
 		SVBottom = new HorizontalScrollView(mMainView.getActivity());
@@ -174,6 +193,8 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 		mButtonBottomArray = new Button[Globals.BUTTON_BOTTOM_MAX];
 		for(int i = 0; i < mButtonBottomArray.length; i ++){
 			mButtonBottomArray[i] = newButtonToLayout(mLayoutBottom, Globals.BUTTON_BOTTOM_KEY_ARRAY[i]);
+			if(Locals.gWindowScreen)
+				mButtonBottomArray[i].setVisibility(View.GONE);
 		}
 	}
 	
@@ -280,7 +301,6 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 				mButtonLeftArray[i].setVisibility(View.GONE);
 			}
 			mLayoutLeft.setVisibility(View.VISIBLE);
-			mLayoutLeft.setLayoutParams(new AbsoluteLayout.LayoutParams(lw, lh/4*mButtonRightArray.length, lx, ly));
 
 			SVLeft.setLayoutParams(new AbsoluteLayout.LayoutParams(lw, LayoutParams.FILL_PARENT, lx, ly));
 			
@@ -312,7 +332,7 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 			
 			
 			mLayoutRight.setVisibility(View.VISIBLE);
-			mLayoutRight.setLayoutParams(new AbsoluteLayout.LayoutParams(rw, rh/4*mButtonRightArray.length, rx, ry));
+			//mLayoutRight.setLayoutParams(new AbsoluteLayout.LayoutParams(rw, rh/4*mButtonRightArray.length, rx, ry));
 			
 			SVRight.setLayoutParams(new AbsoluteLayout.LayoutParams(rw, LayoutParams.FILL_PARENT, rx, ry));
 			
@@ -343,7 +363,6 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 				mButtonTopArray[i].setVisibility(View.GONE);
 			}
 			mLayoutTop.setVisibility(View.VISIBLE);
-			mLayoutTop.setLayoutParams(new AbsoluteLayout.LayoutParams(tw/4*mButtonRightArray.length, th, tx, ty));
 			
 			SVTop.setLayoutParams(new AbsoluteLayout.LayoutParams(LayoutParams.FILL_PARENT, th, tx, ty));
 			
@@ -374,7 +393,6 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 				mButtonBottomArray[i].setVisibility(View.GONE);
 			}
 			mLayoutBottom.setVisibility(View.VISIBLE);
-			mLayoutBottom.setLayoutParams(new AbsoluteLayout.LayoutParams(bw/4*mButtonRightArray.length, bh, bx, by));
 
 			SVBottom.setLayoutParams(new AbsoluteLayout.LayoutParams(LayoutParams.FILL_PARENT, bh, bx, by));
 			

@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.Date;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
@@ -47,6 +48,7 @@ import android.text.format.Formatter;
 import android.widget.Toast;
 import android.content.Intent;
 
+@SuppressLint("NewApi")
 public class MainView extends AbsoluteLayout
 {
 	public MainView(ONScripter context)
@@ -1125,6 +1127,13 @@ public class MainView extends AbsoluteLayout
 		mKeyConfigTextView.setText(mActivity.getString(R.string.Menu_KeyConfig) + " (" + mActivity.getString(R.string.Menu_EndMenuButton) + ")");
 		mKeyConfigTextView.setTextColor(Color.WHITE);
 		mKeyConfigTextView.setBackgroundColor(Color.BLACK);
+		mKeyConfigTextView.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				leaveKeyConfigMode();
+			}
+		});
 		
 		addView(mKeyConfigTextView, new AbsoluteLayout.LayoutParams(mGLViewWidth, AbsoluteLayout.LayoutParams.WRAP_CONTENT, mGLViewX, mGLViewY));
 		

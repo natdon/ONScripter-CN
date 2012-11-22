@@ -116,7 +116,7 @@ class Globals {
 	
 	//Video Setting
 	
-	public static final int[] VIDEO_DEPTH_BPP_ITEMS = {16, 32}; //do not change
+	public static final int[] VIDEO_DEPTH_BPP_ITEMS = {16,24, 32}; //do not change
 	
 	public static final int[][] VIDEO_RATIO_ITEMS = {
 		{4,3},	//4:3
@@ -155,7 +155,8 @@ class Globals {
 		{1024,614},
 		{1024,768},
 		{1280,720},
-		{1280,800}
+		{1280,800},
+		{1920,1080}
 	};
 
 	public static boolean VIDEO_NEED_DEPTH_BUFFER = false;
@@ -233,10 +234,10 @@ class Globals {
 	public static final int BUTTON_TOP_MAX    = 15; //MAX <= 15
 	public static final int BUTTON_BOTTOM_MAX = 15; //MAX <= 15
 	
-	public static int ButtonLeftNum   = 6; //Num <= BUTTON_LEFT_MAX;
-	public static int ButtonRightNum  = 6; //Num <= BUTTON_RIGHT_MAX;
-	public static int ButtonTopNum    = 6; //Num <= BUTTON_TOP_MAX;
-	public static int ButtonBottomNum = 6; //Num <= BUTTON_BOTTOM_MAX;
+	public static int ButtonLeftNum   = 10; //Num <= BUTTON_LEFT_MAX;
+	public static int ButtonRightNum  = 10; //Num <= BUTTON_RIGHT_MAX;
+	public static int ButtonTopNum    = 10; //Num <= BUTTON_TOP_MAX;
+	public static int ButtonBottomNum = 10; //Num <= BUTTON_BOTTOM_MAX;
 
 	public static int[] BUTTON_LEFT_KEY_ARRAY = new int[BUTTON_LEFT_MAX]; //do not change
 	public static int[] BUTTON_RIGHT_KEY_ARRAY = new int[BUTTON_RIGHT_MAX]; //do not change
@@ -365,6 +366,10 @@ class Globals {
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_LEFT_KEY_ARRAY[3]), new Integer(SDL_1_2_Keycodes.SDLK_RIGHT));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_LEFT_KEY_ARRAY[4]), new Integer(SDL_1_2_Keycodes.SDLK_UP));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_LEFT_KEY_ARRAY[5]), new Integer(SDL_1_2_Keycodes.SDLK_DOWN));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_LEFT_KEY_ARRAY[6]), new Integer(SDL_1_2_Keycodes.SDLK_m));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_LEFT_KEY_ARRAY[7]), new Integer(SDL_1_2_Keycodes.SDLK_i));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_LEFT_KEY_ARRAY[8]), new Integer(SDL_1_2_Keycodes.SDLK_r));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_LEFT_KEY_ARRAY[9]), new Integer(SDL_1_2_Keycodes.SDLK_u));
 		
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_RIGHT_KEY_ARRAY[0]), new Integer(SDL_1_2_Keycodes.SDLK_RCLICK));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_RIGHT_KEY_ARRAY[1]), new Integer(SDL_1_2_Keycodes.SDLK_LCLICK));
@@ -372,6 +377,10 @@ class Globals {
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_RIGHT_KEY_ARRAY[3]), new Integer(SDL_1_2_Keycodes.SDLK_RIGHT));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_RIGHT_KEY_ARRAY[4]), new Integer(SDL_1_2_Keycodes.SDLK_UP));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_RIGHT_KEY_ARRAY[5]), new Integer(SDL_1_2_Keycodes.SDLK_DOWN));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_RIGHT_KEY_ARRAY[6]), new Integer(SDL_1_2_Keycodes.SDLK_m));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_RIGHT_KEY_ARRAY[7]), new Integer(SDL_1_2_Keycodes.SDLK_i));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_RIGHT_KEY_ARRAY[8]), new Integer(SDL_1_2_Keycodes.SDLK_r));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_RIGHT_KEY_ARRAY[9]), new Integer(SDL_1_2_Keycodes.SDLK_u));
 		
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_TOP_KEY_ARRAY[0]), new Integer(SDL_1_2_Keycodes.SDLK_UP));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_TOP_KEY_ARRAY[1]), new Integer(SDL_1_2_Keycodes.SDLK_DOWN));
@@ -379,6 +388,10 @@ class Globals {
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_TOP_KEY_ARRAY[3]), new Integer(SDL_1_2_Keycodes.SDLK_RIGHT));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_TOP_KEY_ARRAY[4]), new Integer(SDL_1_2_Keycodes.SDLK_LCLICK));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_TOP_KEY_ARRAY[5]), new Integer(SDL_1_2_Keycodes.SDLK_RCLICK));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_TOP_KEY_ARRAY[6]), new Integer(SDL_1_2_Keycodes.SDLK_m));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_TOP_KEY_ARRAY[7]), new Integer(SDL_1_2_Keycodes.SDLK_i));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_TOP_KEY_ARRAY[8]), new Integer(SDL_1_2_Keycodes.SDLK_r));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_TOP_KEY_ARRAY[9]), new Integer(SDL_1_2_Keycodes.SDLK_u));
 		
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_BOTTOM_KEY_ARRAY[0]), new Integer(SDL_1_2_Keycodes.SDLK_UP));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_BOTTOM_KEY_ARRAY[1]), new Integer(SDL_1_2_Keycodes.SDLK_DOWN));
@@ -386,6 +399,10 @@ class Globals {
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_BOTTOM_KEY_ARRAY[3]), new Integer(SDL_1_2_Keycodes.SDLK_RIGHT));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_BOTTOM_KEY_ARRAY[4]), new Integer(SDL_1_2_Keycodes.SDLK_LCLICK));
 		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_BOTTOM_KEY_ARRAY[5]), new Integer(SDL_1_2_Keycodes.SDLK_RCLICK));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_BOTTOM_KEY_ARRAY[6]), new Integer(SDL_1_2_Keycodes.SDLK_m));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_BOTTOM_KEY_ARRAY[7]), new Integer(SDL_1_2_Keycodes.SDLK_i));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_BOTTOM_KEY_ARRAY[8]), new Integer(SDL_1_2_Keycodes.SDLK_r));
+		SDLKeyAdditionalKeyMap.put(new Integer(BUTTON_BOTTOM_KEY_ARRAY[9]), new Integer(SDL_1_2_Keycodes.SDLK_u));
 		
 		//GamePad (Touch)
 		

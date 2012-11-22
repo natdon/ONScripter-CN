@@ -930,6 +930,16 @@ bool ONScripter::keyPressEvent( SDL_KeyboardEvent *event )
           //}
         }
 
+		else if ( !useescspc_flag && event->keysym.sym == SDLK_r){
+           if( system_menu_mode = SYSTEM_WINDOWERASE)
+				   enterTextDisplayMode();
+            else
+                system_menu_mode = SYSTEM_WINDOWERASE;
+				executeSystemCall();
+        }
+
+		
+
 	else if ( !useescspc_flag && event->keysym.sym == SDLK_e){
             //current_button_state.button  = -1;
             if ( WAIT_TEXT_MODE){

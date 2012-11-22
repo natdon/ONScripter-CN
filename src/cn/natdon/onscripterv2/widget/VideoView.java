@@ -27,6 +27,7 @@ import io.vov.vitamio.MediaPlayer.OnPreparedListener;
 import io.vov.vitamio.MediaPlayer.OnSeekCompleteListener;
 import io.vov.vitamio.MediaPlayer.OnSubtitleUpdateListener;
 import io.vov.vitamio.MediaPlayer.OnVideoSizeChangedListener;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +76,7 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 
 	private float mAspectRatio = 0;
 	private int mVideoLayout = VIDEO_LAYOUT_SCALE;
+	public static final int VIDEO_LAYOUT_PREVIOUS = -1;
 	public static final int VIDEO_LAYOUT_ORIGIN = 0;
 	public static final int VIDEO_LAYOUT_SCALE = 1;
 	public static final int VIDEO_LAYOUT_STRETCH = 2;
@@ -137,6 +139,7 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 	 *            video aspect ratio, will audo detect if 0.
 	 */
 	public void setVideoLayout(int layout, float aspectRatio) {
+		if(layout == VIDEO_LAYOUT_PREVIOUS) layout = mVideoLayout;
 		LayoutParams lp = getLayoutParams();
 		int windowWidth, windowHeight;
 		if(this.getParent() instanceof View) {
@@ -265,7 +268,7 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 	private void attachMediaController() {
 		if (mMediaPlayer != null && mMediaController != null) {
 			mMediaController.setMediaPlayer(this);
-			View anchorView = this.getParent() instanceof View ? (View) this.getParent() : this;
+			View anchorView = this.getRootView(); // this.getParent() instanceof View ? (View) this.getParent() : this;
 			mMediaController.setAnchorView(anchorView);
 			mMediaController.setEnabled(isInPlaybackState());
 
@@ -361,7 +364,6 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 	};
 
 	private OnInfoListener mInfoListener = new OnInfoListener() {
-		
 		public boolean onInfo(MediaPlayer mp, int what, int extra) {
 			Log.d("onInfo: (%d, %d)", what, extra);
 			if (mOnInfoListener != null) {
@@ -378,7 +380,6 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 	};
 
 	private OnSeekCompleteListener mSeekCompleteListener = new OnSeekCompleteListener() {
-		
 		public void onSeekComplete(MediaPlayer mp) {
 			Log.d("onSeekComplete");
 			if (mOnSeekCompleteListener != null)
@@ -387,14 +388,12 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 	};
 
 	private OnSubtitleUpdateListener mSubtitleUpdateListener = new OnSubtitleUpdateListener() {
-		
 		public void onSubtitleUpdate(byte[] pixels, int width, int height) {
 			Log.i("onSubtitleUpdate: bitmap subtitle, %dx%d", width, height);
 			if (mOnSubtitleUpdateListener != null)
 				mOnSubtitleUpdateListener.onSubtitleUpdate(pixels, width, height);
 		}
 
-		
 		public void onSubtitleUpdate(String text) {
 			Log.i("onSubtitleUpdate: %s", text);
 			if (mOnSubtitleUpdateListener != null)
@@ -479,13 +478,6 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
-		if (isInPlaybackState() && mMediaController != null)
-			toggleMediaControlsVisiblity();
-		return false;
-	}
-
-	@Override
 	public boolean onTrackballEvent(MotionEvent ev) {
 		if (isInPlaybackState() && mMediaController != null)
 			toggleMediaControlsVisiblity();
@@ -516,7 +508,7 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 		return super.onKeyDown(keyCode, event);
 	}
 
-	private void toggleMediaControlsVisiblity() {
+	public void toggleMediaControlsVisiblity() {
 		if (mMediaController.isShowing()) {
 			mMediaController.hide();
 		} else {
@@ -699,7 +691,7 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 		return null;
 	}
 
-	protected boolean isInPlaybackState() {
+	public boolean isInPlaybackState() {
 		return (mMediaPlayer != null && mCurrentState != STATE_ERROR && mCurrentState != STATE_IDLE && mCurrentState != STATE_PREPARING);
 	}
 

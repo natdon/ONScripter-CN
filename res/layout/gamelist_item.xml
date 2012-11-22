@@ -31,4 +31,39 @@
         android:textColor="#757575"
         android:singleLine="true" />
     
+    <RelativeLayout
+        android:id="@+id/start_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:paddingLeft="10dip"
+        android:paddingRight="10dip"
+        android:clickable="true"
+        android:visibility="gone">
+        
+        <ImageView
+	        android:id="@+id/btn_play"
+	        android:layout_width="48dip"
+	        android:layout_height="48dip"
+	        android:layout_marginRight="10dip"
+	        android:contentDescription="@string/alt_play"
+	        android:layout_alignParentRight="true"
+	        android:clickable="true"
+	        android:src="@drawable/play_button" />
+        
+        <ImageView
+	        android:id="@+id/btn_config"
+	        android:layout_width="48dip"
+	        android:layout_height="48dip"
+	        android:layout_marginRight="10dip"
+	        android:contentDescription="@string/alt_config"
+	        android:layout_toLeftOf="@id/btn_play"
+	        android:clickable="true"
+	        android:src="@drawable/config_button" />
+        
+        
+    </RelativeLayout>
+        
+        
+    
 </RelativeLayout>

@@ -37,8 +37,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -109,6 +107,7 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 import cn.natdon.onscripterv2.VideoPlayer.activity.PlayerActivity;
 import cn.natdon.onscripterv2.decoder.BackgroundDecoder;
 import cn.natdon.onscripterv2.decoder.CoverDecoder;
@@ -123,7 +122,7 @@ import com.umeng.update.UmengUpdateAgent;
 
 
 @SuppressLint("NewApi")
-public class ONScripter extends Activity implements OnItemClickListener,Button.OnClickListener, DialogInterface.OnClickListener{
+public class ONScripter extends Activity implements OnItemClickListener,Button.OnClickListener, DialogInterface.OnClickListener,OnTouchListener{
 
 public static TextView about, Repair, Language, ONSSetting, SetOrientation, DirSetting, VerChange ,TextSize, OnlineVideo, ColorText;
 public static PopupWindow m_popupWindow,button_popupWindow,light_popupWindow,wd_popupWindow,ver_popupWindow,size_popupWindow,font_popupWindow,time_popupWindow;	
@@ -208,6 +207,8 @@ private boolean mIsLandscape = true;
 	private TextView gametitle;
 	private VideoView preview;
 	private RelativeLayout videoframe;
+	
+	private ImageView btn_settings, btn_about;
 
 	private GameAdapter items;
 	
@@ -222,6 +223,8 @@ private boolean mIsLandscape = true;
 		gametitle = $(R.id.gametitle);
 		preview = $(R.id.surface_view);
 		videoframe = $(R.id.videoframe);
+		btn_settings = $(R.id.btn_settings);
+		btn_about = $(R.id.btn_about);
 	}
 
 	private void initImageManager() {
@@ -231,7 +234,7 @@ private boolean mIsLandscape = true;
 			imgMgr = new ImageManager(new FileCache(
 					new File(
 							Environment.getExternalStorageDirectory(),
-							"saoui/.cover")));
+							"ons/.cover")));
 		}else{
 			imgMgr = new ImageManager(new FileCache(
 					new File(
@@ -430,23 +433,7 @@ private boolean mIsLandscape = true;
 		dh = disp.getHeight();
 
 
-		/*android.content.pm.Signature[] sigs;
-		try {
-			String s = "30820237308201a0a00302010202044eb7a114300d06092a864886f70d01010505003060310b3009060355040613026368310e300c060355040813056368696e61310e300c060355040713056368696e61310f300d060355040a13066e6174646f6e310f300d060355040b13066e6174646f6e310f300d060355040313066e6174646f6e301e170d3131313130373039313235325a170d3339303332353039313235325a3060310b3009060355040613026368310e300c060355040813056368696e61310e300c060355040713056368696e61310f300d060355040a13066e6174646f6e310f300d060355040b13066e6174646f6e310f300d060355040313066e6174646f6e30819f300d06092a864886f70d010101050003818d0030818902818100bec1bac249e85e0279a5364f6115d8dbeb894466c600c8f6ca318937662e59fb05287c79499fa9d6646d897b34fdf21e1ae62b58042f4a8d0070a5a5307f34d0a863a0ec498f5183a8cfc74ea9e75a8572e76f40106e830daaf8aaf097267138476d867f8c676e35da61b81fffc9540373acc5a2a2bf88b61066d21ddbca1f050203010001300d06092a864886f70d0101050500038181005cb3dc98fe22b343ab6d229068f5c10f04e2bcf934adbc42f377516caa01e7fb797fab46158db788f2a9077b304ab13ff55d83b42f72d220da91c38296c87cb14d1cce9e20843202d6f3d56d733ebc91ea663b2b8992f0d3f1decfa927f8b3d2c3ea14a0e283034f9351956603461efa863e47fed3418941fc123c737b047bc4"
-; 
-			sigs = getBaseContext().getPackageManager().getPackageInfo( "cn.natdon.onscripterv2", 64).signatures;
-			
-			String a=sigs[0].toCharsString();
-			if(a.equals(s)){}
-			else{
-				s.codePointCount(1, 9999);
-				android.os.Process.killProcess(android.os.Process.myPid());
-			}
-			
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		
 
 //
 
@@ -508,8 +495,17 @@ private boolean mIsLandscape = true;
 			games.setAdapter(items);
 			games.setOnItemClickListener(this);
 			
-			Command.invoke(Command.RUN).send();
-			loadCurrentDirectory();
+			Command.invoke(Command.RUN).of(
+					new Runnable() { public void run() {loadCurrentDirectory();}}
+			).sendDelayed(500);
+			
+			btn_settings.setOnClickListener(this);
+			btn_about.setOnClickListener(this);
+			items.setOnConfigClickListener(this);
+			items.setOnPlayClickListener(this);
+			
+			preview.setOnTouchListener(this);
+			
 	}
 
 	
@@ -577,69 +573,6 @@ private boolean mIsLandscape = true;
 		}
 
 
-		
-		private Game scanGameDir(File gamedir) {
-			Game g = new Game();
-			g.title = gamedir.getName();
-			File media = new File(gamedir, "media.json");
-			if(media.exists()) {
-				try {
-					JSONObject data = new JSONObject(U.read(media));
-					g.readJSON(data, true);
-				} catch (Exception e) {}
-			}
-			if(g.cover != null && g.background != null && g.video != null && g.icon != null) return g;
-			String[] files = gamedir.list();
-			for(String file: files) {
-				String name = file.toLowerCase();
-				if(name.equals("cover.jpg") || name.equals("cover.png")) {
-					if(g.cover == null) 
-						g.cover = new File(gamedir, file).getAbsolutePath();
-				}
-				if(name.equals("background.jpg") || name.equals("background.png") ||
-				   name.equals("bkg.jpg") || name.equals("bkg.png")) {
-					if(g.background == null) 
-						g.background = new File(gamedir, file).getAbsolutePath();
-				}
-				if(name.equals("preview.mp4") || name.equals("preview.avi") || name.equals("preview.mpg") ||
-				   name.equals("pv.mp4") || name.equals("pv.avi") || name.equals("pv.mpg")) {
-					if(g.video == null) 
-						g.video = new File(gamedir, file).getAbsolutePath();
-				}
-				if(name.equals("icon.jpg") || name.equals("icon.png")) {
-					if(g.icon == null) 
-						g.icon = new File(gamedir, file).getAbsolutePath();
-				}
-			}
-			if(g.cover != null && g.video != null) return g;
-			for(String file: files) {
-				String name = file.toLowerCase();
-				if(name.endsWith(".jpg") || name.endsWith(".png")) {
-					if(g.cover == null) 
-						g.cover = new File(gamedir, file).getAbsolutePath();
-				}
-				if(name.startsWith("preview.") && ( 
-				   name.endsWith(".avi") || name.endsWith(".mp4") || name.endsWith(".mpg") || name.endsWith(".rmvb") || 
-				   name.endsWith(".mpeg") || name.endsWith(".flv") ||  name.endsWith(".rm") || name.endsWith(".f4v") || 
-				   name.endsWith(".hlv") || name.endsWith(".wmv") || name.endsWith(".mkv")
-				   )) {
-					if(g.video == null) 
-						g.video = new File(gamedir, file).getAbsolutePath();
-				}
-			}
-			if(g.video != null) return g;
-			for(String file: files) {
-				String name = file.toLowerCase();
-				if(name.endsWith(".avi") || name.endsWith(".mp4") || name.endsWith(".mpg") || name.endsWith(".rmvb") || 
-				   name.endsWith(".mpeg") || name.endsWith(".flv") ||  name.endsWith(".rm") || name.endsWith(".f4v") || 
-				   name.endsWith(".hlv") || name.endsWith(".wmv") || name.endsWith(".mkv")
-				   ) {
-					if(g.video == null) 
-						g.video = new File(gamedir, file).getAbsolutePath();
-				}
-			}
-			return g;
-		}
 			
 		
 		public void loadCurrentDirectory()
@@ -699,7 +632,7 @@ private boolean mIsLandscape = true;
 							Looper.prepare();
 							for(File file: mDirFileArray) {
 								if(!file.isHidden() && file.isDirectory()) {
-									Game g = scanGameDir(file);
+									Game g = Game.scanGameDir(file);
 									if(g != null) {
 										// Add Game to Game List
 										
@@ -744,10 +677,10 @@ private boolean mIsLandscape = true;
 			alertDialog.show();
 		}
 		
-		public void onClick(View v)
+	/*	public void onClick(View v)
 		{
 			chooseDir();
-		}
+		}*/
 		
 		private AlertDialog mDirBrowserDialog = null;
 		private File[] mDirBrowserDirFileArray = null;
@@ -1985,8 +1918,9 @@ private boolean mIsLandscape = true;
 	}
 
 	public static void wdupdatePosition(float a,float b,float c,float d) {
-		// View的当前位�?		wdparams.x = (int)( a - c);  
-     		wdparams.y = (int) (b - d);  
+		// View current position		
+		wdparams.x = (int)( a - c);  
+     	wdparams.y = (int) (b - d);  
 		wdwm.updateViewLayout(wdlayout, wdparams);
 	}
 
@@ -2358,7 +2292,8 @@ private boolean mIsLandscape = true;
 			}
 		});
 
-		Button btnleft2 = new Button(this); //�?		btnleft2.setBackgroundColor(Color.argb(10, 10, 10, 10));
+		Button btnleft2 = new Button(this); //left
+		btnleft2.setBackgroundColor(Color.argb(10, 10, 10, 10));
 		btnleft2.setTextSize(textsize);
 		btnleft2.setTextColor(Color.WHITE);
 		btnleft2.setText(getResources().getString(R.string.Key_WheelUp));
@@ -2490,8 +2425,8 @@ private boolean mIsLandscape = true;
 		}
 	}
 
-	private void updatePosition() {
-		// View的当前位置?		params.x = (int) (x - 30);
+	private void updatePosition() {		
+		params.x = (int) (x - 30);
 		params.y = (int) (y - 60);
 		wm.updateViewLayout(popbtn, params);
 	}
@@ -2898,7 +2833,11 @@ private boolean mIsLandscape = true;
 
 		if(items.getSelectedPosition() != position) {
 
-			releaseVideoPlay();
+			releaseVideoPlay();   
+			  
+			Globals.CurrentDirectoryPath = mDirFileArray[position].getAbsolutePath();
+			
+			myname = gametitle.getText().toString().trim();   
 
 			// Set Selection
 			items.setSelectedPosition(position);
@@ -2926,6 +2865,100 @@ private boolean mIsLandscape = true;
 
 			gametitle.setText(item.title);
 		}
+	}
+	
+	public void onClick(View v) {
+		// TODO Handle Click Events Here
+		//Game item = items.getItem(items.getSelectedPosition());
+		switch(v.getId()) {
+		case R.id.btn_settings:
+			
+			break;
+		case R.id.btn_about:
+			
+			break;
+		case R.id.btn_config:
+			runAppLaunchConfig();
+			break;
+		case R.id.btn_play:
+			WriteSetting(myname);
+			ReadSetting(myname);
+			if(!Locals.gWindowScreen)
+				runApp();
+			else{
+				runWD();
+			}
+			break;
+		}
+	}
+	
+	private RelativeLayout.LayoutParams videoframelayout = null;
+	private RelativeLayout.LayoutParams fullscreenlayout = 
+			new RelativeLayout.LayoutParams(
+					LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+	
+	private void toggleFullscreen() {
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) videoframe.getLayoutParams();
+		if(videoframelayout == null) {
+			videoframelayout = params;
+		}
+		if(!isVideoFullscreen()) {
+			videoframe.setLayoutParams(fullscreenlayout);
+		}else{
+			videoframe.setLayoutParams(videoframelayout);
+		}
+		Command.invoke(Command.UPDATE_VIDEO_SIZE).of(preview).send();
+	}
+	
+	private boolean isVideoFullscreen() {
+		return videoframelayout != null && videoframe.getLayoutParams() != videoframelayout;
+	}
+
+	private long last_videotouch = 0;
+	
+	public boolean onTouch(View v, MotionEvent event) {
+		switch(v.getId()) {
+		case R.id.surface_view:
+			int action = event.getAction() & MotionEvent.ACTION_MASK;
+			if(action == MotionEvent.ACTION_UP) {
+				if(System.currentTimeMillis() - last_videotouch < 200) {
+					toggleFullscreen();
+				}else{
+					if (preview.isPlaying())
+						preview.toggleMediaControlsVisiblity();
+				}
+				last_videotouch = System.currentTimeMillis();
+			}
+			break;
+		}
+		return true;
+	}
+	
+	private long last_backkey_pressed = 0;
+	
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent msg) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        	if(isVideoFullscreen()) {
+        		toggleFullscreen();
+        		return true;
+        	}
+        	if(preview.isInPlaybackState()) {
+        		releaseVideoPlay();
+        		return true;
+        	}
+            if (msg.getEventTime()-last_backkey_pressed<2000) {
+                finish();
+            } else {
+                Toast.makeText(
+                		getApplicationContext(), 
+                		R.string.notify_exit, Toast.LENGTH_SHORT
+                		).show();
+                last_backkey_pressed=msg.getEventTime();
+            }
+            return true;
+        }
+		return super.onKeyDown(keyCode, msg);
 	}
 	
 	/**********************************************************************************************************/

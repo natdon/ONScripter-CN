@@ -128,7 +128,7 @@
 	<string name="Menu_AskQuit">退出</string>
 	<string name="Menu_KeyConfig">按键设置</string>
 	<string name="Menu_SelectKeyFunction">选择按键功能</string>
-	<string name="Menu_EndMenuButton">按菜单键结束</string>
+	<string name="Menu_EndMenuButton">按菜单键或点击此处结束</string>
 	<string name="Menu_PressKeyOrButton">点击一个按键</string>
 	<string name="Menu_MouseCursor">鼠标指针</string>
 	<string name="Menu_ButtonLeft">按键 (左)</string>
@@ -151,6 +151,11 @@
     <string name="alt_cover">封面图片</string>
     <string name="alt_background">背景</string>
     <string name="alt_icon">图标</string>
+    <string name="alt_about">关于</string>
+    <string name="alt_settings">设置</string>
+    <string name="alt_config">选项</string>
+    <string name="alt_play">运行</string>
+    <string name="notify_exit">再按一次回退键退出</string>
     
     <string name="mediacontroller_play_pause">Play/Pause</string>
 

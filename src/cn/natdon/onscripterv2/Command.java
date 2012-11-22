@@ -1,15 +1,12 @@
 package cn.natdon.onscripterv2;
 
 
-import cn.natdon.onscripterv2.widget.VideoView;
-
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import cn.natdon.onscripterv2.widget.VideoView;
 
 /**
  * This class is the utility for UIHandler
@@ -31,6 +28,9 @@ public class Command {
 
 	// obj - VideoView
 	public static final int RELEASE_VIDEO_PREVIEW = 14;
+
+	// obj - VideoView
+	public static final int UPDATE_VIDEO_SIZE = 16;
 
 	// obj - GameAdapter
 	public static final int GENERATE_TEST_DATA = 184;
@@ -83,6 +83,10 @@ public class Command {
 			case RELEASE_VIDEO_PREVIEW:
 				videoview = $(msg.obj);
 				videoview.setVideoURI(null);
+				break;
+			case UPDATE_VIDEO_SIZE:
+				videoview = $(msg.obj);
+				videoview.setVideoLayout(VideoView.VIDEO_LAYOUT_PREVIOUS, 0.0f);
 				break;
 			default:
 				if(msg.obj instanceof Runnable) {

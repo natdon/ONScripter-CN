@@ -1248,6 +1248,61 @@ bool ONScripterLabel::keyPressEvent( SDL_KeyboardEvent *event )
 						SDL_FreeSurface( surface );
           
         }
+
+		else if ( !useescspc_flag && event->keysym.sym == SDLK_m){
+            //current_button_state.button  = -1;
+            //if (rmode_flag && event_mode & WAIT_TEXT_MODE){
+               music_volume +=10 ;
+                 se_volume +=10;
+                 voice_volume +=10;
+             Mix_VolumeMusic( music_volume * MIX_MAX_VOLUME / 100 );
+             Mix_VolumeMusic( se_volume * MIX_MAX_VOLUME / 100 );
+             Mix_VolumeMusic( voice_volume * MIX_MAX_VOLUME / 100 );
+          //}
+        }
+        else if ( !useescspc_flag && event->keysym.sym == SDLK_w){
+            //current_button_state.button  = -1;
+           // if (rmode_flag && event_mode & WAIT_TEXT_MODE){
+               music_volume =0 ;
+                 se_volume =0;
+                 voice_volume =0;
+             Mix_VolumeMusic( music_volume * MIX_MAX_VOLUME / 100 );
+             Mix_VolumeMusic( se_volume * MIX_MAX_VOLUME / 100 );
+             Mix_VolumeMusic( voice_volume * MIX_MAX_VOLUME / 100 );
+         // }
+        }
+        else if ( !useescspc_flag && event->keysym.sym == SDLK_i){
+            //current_button_state.button  = -1;
+           // if (rmode_flag && event_mode & WAIT_TEXT_MODE){
+               if(music_volume>0&& se_volume>0&& voice_volume>0){
+                 
+                 music_volume -= 10 ;
+                 se_volume -= 10;
+                 voice_volume -= 10;
+             Mix_VolumeMusic( music_volume * MIX_MAX_VOLUME / 100 );
+             Mix_VolumeMusic( se_volume * MIX_MAX_VOLUME / 100 );
+             Mix_VolumeMusic( voice_volume * MIX_MAX_VOLUME / 100 );}
+          //}
+        }
+		else if ( !useescspc_flag && event->keysym.sym == SDLK_d){
+            //current_button_state.button  = -1;
+            //if (rmode_flag && event_mode & WAIT_TEXT_MODE){
+               music_volume =100 ;
+                 se_volume =100;
+                 voice_volume =100;
+             Mix_VolumeMusic( music_volume * MIX_MAX_VOLUME / 100 );
+             Mix_VolumeMusic( se_volume * MIX_MAX_VOLUME / 100 );
+             Mix_VolumeMusic( voice_volume * MIX_MAX_VOLUME / 100 );
+          //}
+        }
+
+		else if ( !useescspc_flag && event->keysym.sym == SDLK_r){
+           if( system_menu_mode = SYSTEM_WINDOWERASE)
+				   enterTextDisplayMode();
+            else
+                system_menu_mode = SYSTEM_WINDOWERASE;
+				executeSystemCall();
+        }
 	
         else if (useescspc_flag && (event->keysym.sym == SDLK_ESCAPE)){
             current_button_state.set(-10);
