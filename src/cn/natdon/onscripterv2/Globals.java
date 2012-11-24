@@ -341,6 +341,7 @@ class Globals {
 		SDLKeyFunctionNameMap.put(new Integer(SDL_1_2_Keycodes.SDLK_u), "button_get_default_screenshot");
 		//SDLKeyFunctionNameMap.put(new Integer(SDL_1_2_Keycodes.SDLK_y), "button_get_full_screenshot");
 		SDLKeyFunctionNameMap.put(new Integer(SDL_1_2_Keycodes.SDLK_MENU), "button_Menu");
+		SDLKeyFunctionNameMap.put(new Integer(SDL_1_2_Keycodes.SDLK_r), "button_hide_window");
 	}
 	
 	public static TreeMap<Integer,Integer> SDLKeyAdditionalKeyMap = new TreeMap<Integer,Integer>(); //do not change

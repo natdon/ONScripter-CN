@@ -51,8 +51,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -108,7 +106,6 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import cn.natdon.onscripterv2.VideoPlayer.activity.PlayerActivity;
 import cn.natdon.onscripterv2.decoder.BackgroundDecoder;
 import cn.natdon.onscripterv2.decoder.CoverDecoder;
 import cn.natdon.onscripterv2.widget.MediaController;
@@ -161,8 +158,6 @@ private boolean mIsLandscape = true;
 	public static String mysetting;
 	private static final String SHORT_CUT_EXTRAS = "cn.natdon.onscripterv2";
 	public static int textsize;
-
-	private PackageInfo packageInfo = null;
 
 	private WindowManager.LayoutParams lp;
 	
@@ -374,7 +369,7 @@ private boolean mIsLandscape = true;
 	public void playVideo(char[] filename) {
 		if (Locals.gDisableVideo == false) {
 			try {
-				String filename2 = "file:/" + Globals.CurrentDirectoryPath + "/"
+				String filename2 = "file:/"+ "/"+Globals.CurrentDirectoryPath + "/"
 						+ new String(filename);
 				filename2 = filename2.replace('\\', '/');
 				Log.v("ONS", "playVideo: " + filename2);
@@ -385,18 +380,12 @@ private boolean mIsLandscape = true;
 					startActivityForResult(i, -1);
 				} else {
 
-					if( packageInfo != null){
+					
 					Intent in = new Intent();
 					in.putExtra("one", filename2);
-					in.putExtra("two", false);
-					in.setClass(ONScripter.this, PlayerActivity.class);
+					in.setClass(ONScripter.this, VitamioPlayer.class);
 					ONScripter.this.startActivity(in);
-					}else{
-					Intent in = new Intent();
-					in.putExtra("one", filename2);
-					in.setClass(ONScripter.this, MyVideoPlayer.class);
-					startActivity(in);
-					}
+					
 				}
 				overridePendingTransition(android.R.anim.fade_in,
 						android.R.anim.fade_out);
@@ -405,6 +394,8 @@ private boolean mIsLandscape = true;
 			}
 		}
 	}
+	
+	
 	
 	@SuppressWarnings("deprecation")
 	@Override
@@ -433,18 +424,12 @@ private boolean mIsLandscape = true;
 		dh = disp.getHeight();
 
 
-		
+		//Intent stop = new Intent(this, restartservice.class);
+		//this.stopService(stop);
 
 //
 
-		try {
-						packageInfo = ONScripter.this.getPackageManager().getPackageInfo("cn.natdon.onsaddlib",
-								0);
-
-					} catch (NameNotFoundException e) {
-						packageInfo = null;
-						e.printStackTrace();
-					}
+		
 		this.registerReceiver(mBatteryInfoReceiver, new IntentFilter(
 				Intent.ACTION_BATTERY_CHANGED));
 		df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   
@@ -489,27 +474,25 @@ private boolean mIsLandscape = true;
 			initImageManager();
 
 			configureVideoPlayer();
-
+			
 			// Initializing data and binding to ListView
 			items = new GameAdapter(this, R.layout.gamelist_item, new ArrayList<Game>());
 			games.setAdapter(items);
 			games.setOnItemClickListener(this);
-			
 			Command.invoke(Command.RUN).of(
 					new Runnable() { public void run() {loadCurrentDirectory();}}
 			).sendDelayed(500);
+			
+			
 			
 			btn_settings.setOnClickListener(this);
 			btn_about.setOnClickListener(this);
 			items.setOnConfigClickListener(this);
 			items.setOnPlayClickListener(this);
 			
-			preview.setOnTouchListener(this);
+			
 			
 	}
-
-	
-
 
 	public boolean checkCurrentDirectory(boolean quitting)
 	{
@@ -1469,7 +1452,8 @@ private boolean mIsLandscape = true;
 				mRunButton3.setTextSize(24.0f);
 				mRunButton3.setOnClickListener(new OnClickListener(){
 					public void onClick(View v){
-						runAppLauncher();
+						setContentView(R.layout.activity_main);
+						
 						DialogOpen = false;
 					}
 				});
@@ -1681,6 +1665,7 @@ private boolean mIsLandscape = true;
 	public void runApp()
 	{
 		nativeInitJavaCallbacks();
+		
 		if(Locals.gFontSize)
 		nativeFontSize(myfontsize,myfontsize,myfontsize+2,myfontsize+2);
 		if(Locals.gFontColor)
@@ -2742,7 +2727,6 @@ private boolean mIsLandscape = true;
 		if(preview.isPlaying()){
 			preview.stopPlayback();
 		}
-		
 		preview.setVisibility(View.GONE);
 
 		if(videoframe.getVisibility() == View.VISIBLE) {
@@ -2875,9 +2859,10 @@ private boolean mIsLandscape = true;
 			
 			break;
 		case R.id.btn_about:
-			
+			About();
 			break;
 		case R.id.btn_config:
+			releaseVideoPlay();
 			runAppLaunchConfig();
 			break;
 		case R.id.btn_play:

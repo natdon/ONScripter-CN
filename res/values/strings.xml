@@ -39,6 +39,7 @@
 	<string name="button_get_default_screenshot">截图</string>
    	 <string name="button_get_full_screenshot">截图</string>
 	<string name="button_Menu">菜单</string>
+	<string name="button_hide_window">隐藏对话框</string>
 	
 	<!-- -->
 	
