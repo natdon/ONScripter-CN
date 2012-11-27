@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SweepGradient;
 import android.os.Bundle;
+import android.view.ContextThemeWrapper;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -32,9 +33,9 @@ public class ColorPickerDialog extends Dialog {
      * @param title 对话框标题
      * @param listener 回调
      */
-    public ColorPickerDialog(Context context, String title, 
+    public ColorPickerDialog(Context context, int theme,String title, 
     		OnColorChangedListener listener) {
-    	this(context, Color.BLACK, title, listener);
+    	this(context, theme ,Color.BLACK, title, listener);
     }
     
     /**
@@ -44,14 +45,15 @@ public class ColorPickerDialog extends Dialog {
      * @param title 标题
      * @param listener 回调
      */
-    public ColorPickerDialog(Context context, int initialColor, 
+    public ColorPickerDialog(Context context, int theme,int initialColor, 
     		String title, OnColorChangedListener listener) {
-        super(context);
+        super(context,theme);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.context = context;
         mListener = listener;
         mInitialColor = initialColor;
         this.title = title;
+        
     }
 
     @Override
@@ -61,6 +63,7 @@ public class ColorPickerDialog extends Dialog {
 		int height = (int) (manager.getDefaultDisplay().getHeight() );
 		int width = (int) (manager.getDefaultDisplay().getWidth() * 0.7f);
 		ColorPickerView myView = new ColorPickerView(context, height, width);
+		myView.setBackgroundColor(getContext().getResources().getColor(R.color.sao_transparent_white));
         setContentView(myView);
         setTitle(title);
     }

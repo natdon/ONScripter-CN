@@ -41,6 +41,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -51,6 +54,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -142,7 +147,7 @@ private boolean mIsLandscape = true;
 	private boolean DialogOpen =false;
 	private boolean mInLauncher = true;
 
-	private int myfontsize;
+	private int myfontsize,myfontpx;
 	private int myfont_color1,myfont_color2,myfont_color3,cbColor;
 	private float x, y;
 	private float startX, startY;
@@ -408,8 +413,6 @@ private boolean mIsLandscape = true;
 		
 		//setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ); //for Test
 
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -479,6 +482,7 @@ private boolean mIsLandscape = true;
 			items = new GameAdapter(this, R.layout.gamelist_item, new ArrayList<Game>());
 			games.setAdapter(items);
 			games.setOnItemClickListener(this);
+			
 			Command.invoke(Command.RUN).of(
 					new Runnable() { public void run() {loadCurrentDirectory();}}
 			).sendDelayed(500);
@@ -490,7 +494,7 @@ private boolean mIsLandscape = true;
 			items.setOnConfigClickListener(this);
 			items.setOnPlayClickListener(this);
 			
-			
+			preview.setOnTouchListener(this);
 			
 	}
 
@@ -1223,7 +1227,7 @@ private boolean mIsLandscape = true;
 								e.putBoolean("OtherPL", set_OtherPL);
 
 								set_FontSize = false;
-								e.putBoolean("FontSize", set_FontColor);
+								e.putBoolean("FontSize", set_FontSize);
 
 								set_FontColor = false;
 								e.putBoolean("FontColor", set_FontColor);
@@ -1536,21 +1540,21 @@ private boolean mIsLandscape = true;
 		set_FontSize = spset.getBoolean("FontSize", set_FontSize);
 		if (set_FontSize) {
 			FontSize.setChecked(true);
+			myfontsize = spset.getInt("getfontsize", 0);
 		}
 		set_FontColor = spset.getBoolean("FontColor", set_FontColor);
 		if (set_FontColor) {
 			FontColor.setChecked(true);
+			myfont_color1 = spset.getInt("fontr", 255);
+			myfont_color2 = spset.getInt("fontg", 255);
+			myfont_color3 = spset.getInt("fontb", 255);
+			
 		}
 		set_keepON = spset.getBoolean("keepON", set_keepON);
 		if (set_keepON) {
 			keepON.setChecked(true);
 		}
 
-		myfontsize = spset.getInt("myfontsize", 0);
-
-		myfont_color1 = spset.getInt("fontr", 255);
-		myfont_color2 = spset.getInt("fontg", 255);
-		myfont_color3 = spset.getInt("fontb", 255);
 		cbColor = spset.getInt("cbcolor", Color.BLACK);
 		FontColor.setTextColor(cbColor);
 
@@ -1583,7 +1587,7 @@ private boolean mIsLandscape = true;
 		set_FontSize = spset.getBoolean("FontSize", set_FontSize);
 		if (set_FontSize){
 			Locals.gFontSize = true;
-		myfontsize = spset.getInt("myfontsize", 0);
+		myfontsize = spset.getInt("getfontsize", 0);
 		}
 		set_FontColor= spset.getBoolean("FontColor", set_FontColor);
 		if (set_FontColor){
@@ -1667,12 +1671,14 @@ private boolean mIsLandscape = true;
 		nativeInitJavaCallbacks();
 		
 		if(Locals.gFontSize)
-		nativeFontSize(myfontsize,myfontsize,myfontsize+2,myfontsize+2);
+		nativeFontSize(myfontsize,myfontsize,myfontpx,myfontpx);
 		if(Locals.gFontColor)
 		nativeFontColor(Locals.gFontColor,myfont_color1,myfont_color2,myfont_color3);
 
 		if(Locals.Logout)
 		debug.Logcat_out(Globals.CurrentDirectoryPath);
+		
+		isRunning = true;
 
 		if(!checkCurrentDirectory(true)){
 			return;
@@ -1715,7 +1721,7 @@ private boolean mIsLandscape = true;
 		nativeInitJavaCallbacks();
 
 		if(Locals.gFontSize)
-		nativeFontSize(myfontsize,myfontsize,myfontsize+2,myfontsize+2);
+		nativeFontSize(myfontsize,myfontsize,myfontpx,myfontpx);
 		if(Locals.gFontColor)
 		nativeFontColor(Locals.gFontColor,myfont_color1,myfont_color2,myfont_color3);
 
@@ -2052,11 +2058,13 @@ private boolean mIsLandscape = true;
 		font_btn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 
-				myfontsize=TextSeekBar.getProgress();
+				myfontsize=TextSeekBar.getProgress()+15;
+				myfontpx = myfontsize+2;
 
 				Editor e = getSharedPreferences(myname, MODE_PRIVATE).edit();
 		
-				e.putInt("myfontsize", myfontsize);
+				e.putInt("getfontsize", myfontsize);
+				e.putInt("getfontsize", myfontpx);
 				e.commit();
 				font_popupWindow.dismiss();
 			}
@@ -2073,10 +2081,11 @@ private boolean mIsLandscape = true;
 			public void onClick(View v) {
 
 				myfontsize=0;
+				myfontpx=0;
 
 				Editor e = getSharedPreferences(myname, MODE_PRIVATE).edit();
 		
-				e.putInt("myfontsize", myfontsize);
+				e.putInt("getfontsize", myfontsize);
 
 				e.commit();
 				font_popupWindow.dismiss();
@@ -2475,7 +2484,7 @@ private boolean mIsLandscape = true;
 
 	public void ColorDialog()
 	{
-		Colordialog = new ColorPickerDialog(this, FontColor.getTextColors().getDefaultColor(), 
+		Colordialog = new ColorPickerDialog(this, R.style.TextAppearanceDialogWindowTitle,FontColor.getTextColors().getDefaultColor(), 
 						"FontColor", 
 						new ColorPickerDialog.OnColorChangedListener() {
 					
@@ -2821,7 +2830,7 @@ private boolean mIsLandscape = true;
 			  
 			Globals.CurrentDirectoryPath = mDirFileArray[position].getAbsolutePath();
 			
-			myname = gametitle.getText().toString().trim();   
+			
 
 			// Set Selection
 			items.setSelectedPosition(position);
@@ -2848,6 +2857,8 @@ private boolean mIsLandscape = true;
 			
 
 			gametitle.setText(item.title);
+			
+			myname = gametitle.getText().toString().trim();   
 		}
 	}
 	
@@ -2993,6 +3004,9 @@ private boolean mIsLandscape = true;
 			wm.removeView(popbtn);
 		}
 		MobclickAgent.onPause(this);
+		
+		if(!Locals.gWindowScreen && isRunning)
+			showTaskbarNotification();
 		super.onPause();
 	}
 
@@ -3006,6 +3020,8 @@ private boolean mIsLandscape = true;
 			mView.onResume();
 		}
 		_isPaused = false;
+		
+		hideTaskbarNotification();
 	}
 
 	@Override
@@ -3021,6 +3037,7 @@ private boolean mIsLandscape = true;
 		mysetting = null;
 		super.onDestroy();
 		destroyImageManager();
+		hideTaskbarNotification();
 		System.exit(0);
 	}
 
@@ -3039,10 +3056,10 @@ private boolean mIsLandscape = true;
 		super.onConfigurationChanged(newConfig);
 		// Do nothing here
 	}
-/*
+
 	public void showTaskbarNotification()
 	{
-		showTaskbarNotification("SDL application paused", "SDL application", "Application is paused, click to activate");
+		showTaskbarNotification("ONScripter正在后台运行", "ONScripter "+getApplicationVersion(), "ONScripter正在后台运行, 点击恢复。");
 	}
 
 	// Stolen from SDL port by Mamaich
@@ -3050,8 +3067,9 @@ private boolean mIsLandscape = true;
 	{
 		NotificationManager NotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		Intent intent = new Intent(this, ONScripter.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
 		Notification n = new Notification(R.drawable.icon, text0, System.currentTimeMillis());
+		n.flags |=Notification.FLAG_ONGOING_EVENT|Notification.FLAG_NO_CLEAR;
 		n.setLatestEventInfo(this, text1, text2, pendingIntent);
 		NotificationManager.notify(NOTIFY_ID, n);
 	}
@@ -3062,19 +3080,19 @@ private boolean mIsLandscape = true;
 		NotificationManager.cancel(NOTIFY_ID);
 	}
 
-	public int getApplicationVersion()
+	public String getApplicationVersion()
 	{
 		try {
 			PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-			return packageInfo.versionCode;
+			return packageInfo.versionName;
 		} catch (PackageManager.NameNotFoundException e) {
 			System.out.println("libSDL: Cannot get the version of our own package: " + e);
 		}
-		return 0;
+		return null;
 	}
 
 	static int NOTIFY_ID = 12367098; // Random ID
-*/
+
 	public static ONScripter instance = null;
 	public static MainView mView = null;
 

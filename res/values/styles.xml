@@ -3,6 +3,12 @@
 	 <style name="TextAppearanceDialogWindowTitle">
         <item name="android:textSize">18.0sp</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:background">@color/sao_transparent_white</item>
+         <item name="android:windowBackground">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
 
 	<style name="MediaController_SeekBar">
