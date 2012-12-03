@@ -87,10 +87,8 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -115,6 +113,9 @@ import cn.natdon.onscripterv2.decoder.BackgroundDecoder;
 import cn.natdon.onscripterv2.decoder.CoverDecoder;
 import cn.natdon.onscripterv2.widget.MediaController;
 import cn.natdon.onscripterv2.widget.VideoView;
+
+import cn.natdon.onscripterv2.VideoPlayer.activity.PlayerActivity;
+import cn.natdon.onscripterv2.anim.AnimationListener;
 
 import com.footmark.utils.cache.FileCache;
 import com.footmark.utils.image.ImageManager;
@@ -297,57 +298,43 @@ private boolean mIsLandscape = true;
 		}
 	}
 
-	private Animation animCoverOut = AnimationFactory.coverOutAnimation(new AnimationListener() {
+	private Animation animCoverOut = GetAnimation.For.MainInterface.ToHideCover(new AnimationListener() {
 
 		public void onAnimationEnd(Animation animation) {
-			animCoverOut = AnimationFactory.coverOutAnimation(this);
+			animCoverOut = GetAnimation.For.MainInterface.ToHideCover(this);
 			displayCover();
 		}
 
-		public void onAnimationRepeat(Animation animation) {}
-
-		public void onAnimationStart(Animation animation) {}
-
 	});
 
-	private Animation animBackgroundOut = AnimationFactory.bkgOutAnimation(new AnimationListener() {
+	private Animation animBackgroundOut = GetAnimation.For.MainInterface.ToHideBackground(new AnimationListener() {
 
 		public void onAnimationEnd(Animation arg0) {
-			animBackgroundOut = AnimationFactory.bkgOutAnimation(this);
+			animBackgroundOut = GetAnimation.For.MainInterface.ToHideBackground(this);
 			if(background.getTag() instanceof Bitmap) {
 				background.setImageBitmap((Bitmap) background.getTag());
 				background.setBackgroundDrawable(null);
 				background.setTag(null);
-				background.startAnimation(AnimationFactory.bkgInAnimation());
+				background.startAnimation(GetAnimation.For.MainInterface.ToShowBackground(null));
 			}
 		}
 
-		public void onAnimationRepeat(Animation animation) {}
-
-		public void onAnimationStart(Animation animation) {}
-
 	});
 
-	private Animation animHideVideo = AnimationFactory.hideVideoPlayerAnimation(new AnimationListener(){
+	private Animation animHideVideo = GetAnimation.For.MainInterface.ToHideVideoPlayerFrame(new AnimationListener(){
 
 		public void onAnimationEnd(Animation animation) {
 			videoframe.setVisibility(View.GONE);
 		}
 
-		public void onAnimationRepeat(Animation animation) {}
-
-		public void onAnimationStart(Animation animation) {}
-
 	});
 
-	private Animation animPlayVideo = AnimationFactory.videoPlayerAnimation(new AnimationListener(){
+	private Animation animPlayVideo = GetAnimation.For.MainInterface.ToShowVideoPlayerFrame(new AnimationListener(){
 
 		public void onAnimationEnd(Animation animation) {
 			startVideoPlay();
 		}
-
-		public void onAnimationRepeat(Animation animation) {}
-
+		
 		public void onAnimationStart(Animation animation) {
 			videoframe.setVisibility(View.VISIBLE);
 		}
@@ -388,7 +375,7 @@ private boolean mIsLandscape = true;
 					
 					Intent in = new Intent();
 					in.putExtra("one", filename2);
-					in.setClass(ONScripter.this, VitamioPlayer.class);
+					in.setClass(ONScripter.this, PlayerActivity.class);
 					ONScripter.this.startActivity(in);
 					
 				}
@@ -2709,13 +2696,17 @@ private boolean mIsLandscape = true;
 	
 	@SuppressWarnings("deprecation")
 	private void displayCover() {
-		Object o = cover.getTag();
+		final Object o = cover.getTag();
 		if(o instanceof Bitmap) {
 			cover.setTag(null);
-			cover.setImageBitmap((Bitmap) o);
-			cover.setBackgroundDrawable(null);
-			cover.startAnimation(AnimationFactory.coverInAnimation());
-			Command.invoke(Command.MAINACTIVITY_PLAY_VIDEO).of(this).only().sendDelayed(3000);
+			cover.startAnimation(GetAnimation.For.MainInterface.ToShowCover(new AnimationListener (){
+
+				public void onAnimationStart(Animation animation) {
+					cover.setImageBitmap((Bitmap) o);
+					cover.setBackgroundDrawable(null);
+				}
+				
+			}));
 		}
 	}
 
@@ -2763,7 +2754,8 @@ private boolean mIsLandscape = true;
 
 			protected void act() {
 				cover.setTag(image().bmp());
-				displayCover();
+				if(!animCoverOut.hasStarted())
+					displayCover();
 				String background = CoverDecoder.getThumbernailCache(url);
 				// Exception for Web Images
 				if(background == null)
@@ -2792,7 +2784,7 @@ private boolean mIsLandscape = true;
 			protected void act() {
 				if(animBackgroundOut.hasEnded()||!animBackgroundOut.hasStarted()) {
 					super.act();
-					background.startAnimation(AnimationFactory.bkgInAnimation());
+					background.startAnimation(GetAnimation.For.MainInterface.ToShowBackground(null));
 				}else{
 					background.setTag(image().bmp());
 				}
@@ -2826,11 +2818,7 @@ private boolean mIsLandscape = true;
 
 		if(items.getSelectedPosition() != position) {
 
-			releaseVideoPlay();   
-			  
-			Globals.CurrentDirectoryPath = mDirFileArray[position].getAbsolutePath();
-			
-			
+			releaseVideoPlay();
 
 			// Set Selection
 			items.setSelectedPosition(position);
@@ -2842,6 +2830,7 @@ private boolean mIsLandscape = true;
 			}
 			if(item.cover != null) {
 				updateCover(item.cover, item.background == null);
+				Command.invoke(Command.MAINACTIVITY_PLAY_VIDEO).of(this).only().sendDelayed(3000);
 			}else{
 				// If no cover but video, play video directly
 				if(item.video != null) {
@@ -2854,12 +2843,15 @@ private boolean mIsLandscape = true;
 					background.setImageResource(R.drawable.dbkg_und_blur);
 				}
 			}
-			
 
 			gametitle.setText(item.title);
 			
-			myname = gametitle.getText().toString().trim();   
+			Globals.CurrentDirectoryPath = mDirFileArray[position].getAbsolutePath();
+
+			myname = gametitle.getText().toString().trim();  
 		}
+		
+		items.showPanel(view);
 	}
 	
 	public void onClick(View v) {

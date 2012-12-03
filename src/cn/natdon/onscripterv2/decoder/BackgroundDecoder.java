@@ -48,7 +48,14 @@ public class BackgroundDecoder extends BitmapDecoder {
 
 			rtn = BitmapFactory.decodeFile(path);
 
-			rtn = fastblur(rtn, 30);
+			int radius = 30;
+			
+			if(Math.min(rtn.getWidth(), rtn.getHeight()) < 256)
+				radius = 10;
+			else if(Math.min(rtn.getWidth(), rtn.getHeight()) < 64)
+				radius = 5;
+			
+			rtn = fastblur(rtn, radius);
 
 			if(thumbnailcache != null) {
 				fout = thumbnailcache.put(id);

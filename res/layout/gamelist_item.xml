@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content">
     
     <!-- 1x = 9dip -->
@@ -8,13 +8,13 @@
     <ImageView
         android:id="@+id/icon"
         android:layout_width="36dip"
-        android:layout_height="36dip"
+        android:layout_height="60dip"
         android:contentDescription="@string/alt_icon"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="18dip"
         android:layout_marginRight="9dip"
-        android:layout_marginTop="24dip"
-        android:layout_marginBottom="24dip"
+        android:paddingTop="12dip"
+        android:paddingBottom="12dip"
         android:layout_centerVertical="true"
         android:src="@drawable/test_icon_0" />
     
@@ -34,10 +34,9 @@
     <RelativeLayout
         android:id="@+id/start_panel"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:paddingLeft="10dip"
-        android:paddingRight="10dip"
+        android:layout_height="60dip"
+        android:paddingLeft="40dip"
+        android:paddingRight="40dip"
         android:clickable="true"
         android:visibility="gone">
         
@@ -48,6 +47,7 @@
 	        android:layout_marginRight="10dip"
 	        android:contentDescription="@string/alt_play"
 	        android:layout_alignParentRight="true"
+	        android:layout_centerVertical="true"
 	        android:clickable="true"
 	        android:src="@drawable/play_button" />
         
@@ -58,6 +58,7 @@
 	        android:layout_marginRight="10dip"
 	        android:contentDescription="@string/alt_config"
 	        android:layout_toLeftOf="@id/btn_play"
+	        android:layout_centerVertical="true"
 	        android:clickable="true"
 	        android:src="@drawable/config_button" />
         

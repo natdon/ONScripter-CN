@@ -1,12 +1,13 @@
 package cn.natdon.onscripterv2;
 
+import cn.natdon.onscripterv2.anim.StateIO;
+import cn.natdon.onscripterv2.widget.VideoView;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import cn.natdon.onscripterv2.widget.VideoView;
 
 /**
  * This class is the utility for UIHandler
@@ -32,9 +33,6 @@ public class Command {
 	// obj - VideoView
 	public static final int UPDATE_VIDEO_SIZE = 16;
 
-	// obj - GameAdapter
-	public static final int GENERATE_TEST_DATA = 184;
-
 	// obj - listview, arg1 - distance, arg2 - duration
 	public static final int SCROLL_LIST_FOR_DISTANCE_IN_ANY_MILLIS = 10;
 
@@ -47,11 +45,18 @@ public class Command {
 	// obj - ListAdapter
 	public static final int DATASET_CHANGED_LISTADAPTER = 103;
 	
+	// obj - StateIO, arg1 - cond, arg2 - next state
+	public static final int STATE_CONTROL_COND = 209;
+	
+	// obj - StateIO, arg1 - next state
+	public static final int STATE_CONTROL = 208;
+	
 	private static Handler Commander = new Handler() {
 
 		public void handleMessage(Message msg) {
 			VideoView videoview;
 			ArrayAdapter<Game> adapter;
+			StateIO sio;
 			switch(msg.what){
 			case LOOP_VIDEO_PREVIEW:
 				videoview = $(msg.obj);
@@ -61,10 +66,6 @@ public class Command {
 			case SCROLL_LIST_FOR_DISTANCE_IN_ANY_MILLIS:
 				ListView listview = $(msg.obj);
 				listview.smoothScrollBy(msg.arg1, msg.arg2);
-				break;
-			case GENERATE_TEST_DATA:
-				adapter = $(msg.obj);
-				Tester.fillTestData(adapter);
 				break;
 			case ADD_ITEM_TO_LISTADAPTER:
 				adapter = $(msg.obj);
@@ -88,6 +89,12 @@ public class Command {
 				videoview = $(msg.obj);
 				videoview.setVideoLayout(VideoView.VIDEO_LAYOUT_PREVIOUS, 0.0f);
 				break;
+			case STATE_CONTROL:
+				sio = $(msg.obj);
+				sio.gotoState(msg.arg1);
+			case STATE_CONTROL_COND:
+				sio = $(msg.obj);
+				sio.gotoState(msg.arg1, msg.arg2);
 			default:
 				if(msg.obj instanceof Runnable) {
 					Runnable runnable = $(msg.obj);
@@ -182,4 +189,3 @@ public class Command {
 	}
 
 }
-

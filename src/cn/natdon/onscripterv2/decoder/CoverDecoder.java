@@ -95,7 +95,7 @@ public class CoverDecoder extends BitmapDecoder {
 
 			if(thumbnailcache != null) {
 				fout = thumbnailcache.put(id);
-				rtn.compress(CompressFormat.JPEG, 90, fout);
+				rtn.compress(CompressFormat.PNG, 90, fout);
 				fout.close();
 				thumbnailcache.acknowledge(id);
 			}
