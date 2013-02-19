@@ -30,7 +30,7 @@ public class AnimationAutomata implements StateIO {
 	private int lastIssue = 0;
 	
 	private Map<Long, Animation> animations = new HashMap<Long, Animation>();
-	private Map<Long, List<AutomataAction>> actions = new HashMap<Long, List<AutomataAction>>();
+	private Map<Long, ArrayList<AutomataAction>> actions = new HashMap<Long, ArrayList<AutomataAction>>();
 	
 	private Animation current = null;
 	
@@ -102,7 +102,7 @@ public class AnimationAutomata implements StateIO {
 	 */
 	public AnimationAutomata addAction(int from, int to, AutomataAction action) {
 		long key = makeLong(from, to);
-		List<AutomataAction> list = actions.get(key);
+		ArrayList<AutomataAction> list = actions.get(key);
 		if(list == null) {
 			list = new ArrayList<AutomataAction>();
 			actions.put(key, list);
@@ -121,6 +121,17 @@ public class AnimationAutomata implements StateIO {
 		this.setAction(cesFrom, cesTo, srcFrom, srcTo);
 		return this;
 	}
+	
+	/**
+	 * Add the action of given path to current editing path
+	 * @param srcFrom
+	 * @param srcTo
+	 * @return
+	 */
+	public AnimationAutomata addAction(int srcFrom, int srcTo) {
+		this.addAction(cesFrom, cesTo, srcFrom, srcTo);
+		return this;
+	}
 
 	/**
 	 * Assign actions of one path to another
@@ -133,6 +144,27 @@ public class AnimationAutomata implements StateIO {
 	public AnimationAutomata setAction(int from, int to, int srcFrom, int srcTo) {
 		long key = makeLong(from, to);
 		actions.put(key, actions.get(makeLong(srcFrom, srcTo)));
+		return this;
+	}
+	
+	/**
+	 * Copy actions of one path to another
+	 * @param from
+	 * @param to
+	 * @param srcFrom
+	 * @param srcTo
+	 * @return
+	 */
+	public AnimationAutomata addAction(int from, int to, int srcFrom, int srcTo) {
+		long key = makeLong(from, to);
+		ArrayList<AutomataAction> list = actions.get(key);
+		if(list == null) {
+			list = new ArrayList<AutomataAction>();
+			actions.put(key, list);
+		}
+		for(AutomataAction action : actions.get(makeLong(srcFrom, srcTo))) {
+			list.add(action);
+		}
 		return this;
 	}
 	
@@ -239,6 +271,7 @@ public class AnimationAutomata implements StateIO {
 			anim.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
 				
 				public void onAnimationEnd(Animation animation) {
+					m_isAnimating = false;
 					if(action != null)
 					for(AutomataAction a : action) {
 						a.setAutomata(AnimationAutomata.this);
@@ -247,12 +280,12 @@ public class AnimationAutomata implements StateIO {
 				}
 				
 				public void onAnimationStart(Animation animation) {
+					m_isAnimating = true;
 					if(action != null)
 					for(AutomataAction a : action) {
 						a.setAutomata(AnimationAutomata.this);
 						a.onAnimationStart(animation);
 					}
-					
 				}
 				
 				public void onAnimationRepeat(Animation animation) {
@@ -271,6 +304,13 @@ public class AnimationAutomata implements StateIO {
 			for(AutomataAction a : action) {
 				a.setAutomata(AnimationAutomata.this);
 				a.onStateChanged(before, after);
+			}
+			if(anim == null) {
+				for(AutomataAction a : action) {
+					a.setAutomata(AnimationAutomata.this);
+					a.onAnimationStart(null);
+					a.onAnimationEnd(null);
+				}
 			}
 		}
 	}
@@ -305,6 +345,12 @@ public class AnimationAutomata implements StateIO {
 	// Utility Function
 	public static long makeLong(int low, int high) { 
 		return ((long)low & 0xFFFFFFFFl) | (((long)high << 32) & 0xFFFFFFFF00000000l); 
+	}
+	
+	private boolean m_isAnimating = false;
+	
+	public boolean isAnimating() {
+		return m_isAnimating;
 	}
 	
 }

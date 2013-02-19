@@ -168,7 +168,7 @@ class Settings
 		Globals.CurrentDirectoryValidPathArray = (String[])curDirValidPathList.toArray(new String[0]);
 	}
 
-	public static void LoadGlobals( ONScripter activity )
+	public static void LoadGlobals( Activity activity )
 	{
 		if(globalsSettingsLoaded) // Prevent starting twice
 		{
@@ -281,9 +281,9 @@ class Settings
 		globalsSettingsLoaded = true;
 	}
 	
-	public static void SaveGlobals( ONScripter activity )
+	public static void SaveGlobals( Activity mActivity )
 	{
-		SharedPreferences sp = activity.getSharedPreferences("pref", Context.MODE_PRIVATE);
+		SharedPreferences sp = mActivity.getSharedPreferences("pref", Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sp.edit();
 		editor.clear();
 		if(Globals.CurrentDirectoryPathForLauncher != null){
@@ -317,7 +317,7 @@ class Settings
 		editor.commit();
 	}
 	
-	public static void LoadLocals( ONScripter activity )
+	public static void LoadLocals( ONScripter onScripter )
 	{
 		if(localsSettingsLoaded)
 		{
@@ -442,7 +442,7 @@ class Settings
 		localsSettingsLoaded = true;
 	}
 	
-	public static void SaveLocals( ONScripter activity )
+	public static void SaveLocals( Activity mActivity )
 	{
 		String path = Globals.CurrentDirectoryPath + "/" + LOCALS_SETTINGS_FILENAME;
 		

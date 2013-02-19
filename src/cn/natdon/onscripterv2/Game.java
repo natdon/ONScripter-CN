@@ -26,6 +26,9 @@ public class Game {
 
 	// Optional Path/To/Video/File
 	public String video;
+
+	// Optional Path/To/Audio/File
+	public String audio;
 	
 	public void readJSON(JSONObject json) throws JSONException {
 		readJSON(json, false);
@@ -50,6 +53,9 @@ public class Game {
 		if(json.has("video"))
 		if(overlay || video == null)
 		video = json.getString("video");
+		if(json.has("audio"))
+		if(overlay || audio == null)
+		audio = json.getString("audio");
 	}
 
 	public static Game fromBundle(Bundle bundle) {
@@ -60,6 +66,7 @@ public class Game {
 		g.background = bundle.getString("background");
 		g.icon = bundle.getString("icon");
 		g.video = bundle.getString("video");
+		g.audio = bundle.getString("audio");
 		return g;
 	}
 	
@@ -71,6 +78,7 @@ public class Game {
 		b.putString("background", background);
 		b.putString("icon", icon);
 		b.putString("video", video);
+		b.putString("audio", audio);
 		return b;
 	}
 	
@@ -84,7 +92,8 @@ public class Game {
 				g.readJSON(data, true);
 			} catch (Exception e) {}
 		}
-		if(g.cover != null && g.background != null && g.video != null && g.icon != null) return g;
+		if(	g.cover != null && g.background != null && g.video != null && 
+			g.icon != null && g.audio != null) return g;
 		String[] files = gamedir.list();
 		for(String file: files) {
 			String name = file.toLowerCase();
@@ -98,23 +107,35 @@ public class Game {
 					g.background = new File(gamedir, file).getAbsolutePath();
 			}
 			if(name.equals("preview.mp4") || name.equals("preview.avi") || name.equals("preview.mpg") ||
-			   name.equals("pv.mp4") || name.equals("pv.avi") || name.equals("pv.mpg")) {
+			   name.equals("pv.mp4") || name.equals("pv.avi") || name.equals("pv.mpg")||
+			   name.equals("op.mp4") || name.equals("op.avi") || name.equals("op.mpg")) {
 				if(g.video == null) 
 					g.video = new File(gamedir, file).getAbsolutePath();
+			}
+			if(name.equals("theme.mp3") || name.equals("theme.flac") || name.equals("theme.ogg") ||
+			   name.equals("theme.wma") ||
+			   name.equals("track.mp3") || name.equals("track.flac") || name.equals("track.ogg") || 
+			   name.equals("track.wma")) {
+				if(g.audio == null) 
+					g.audio = new File(gamedir, file).getAbsolutePath();
 			}
 			if(name.equals("icon.jpg") || name.equals("icon.png")) {
 				if(g.icon == null) 
 					g.icon = new File(gamedir, file).getAbsolutePath();
 			}
 		}
-		if(g.cover != null && g.video != null) return g;
+		if(g.cover != null && g.video != null && g.audio != null) return g;
 		for(String file: files) {
 			String name = file.toLowerCase();
 			if(name.endsWith(".jpg") || name.endsWith(".png")) {
 				if(g.cover == null) 
 					g.cover = new File(gamedir, file).getAbsolutePath();
 			}
-			if(name.startsWith("preview.") && U.supportMedia(name)) {
+			if(U.supportAudioMedia(name)) {
+				if(g.audio == null) 
+					g.audio = new File(gamedir, file).getAbsolutePath();
+			}
+			if(name.startsWith("preview.") && U.supportVideoMedia(name)) {
 				if(g.video == null) 
 					g.video = new File(gamedir, file).getAbsolutePath();
 			}
@@ -122,7 +143,7 @@ public class Game {
 		if(g.video != null) return g;
 		for(String file: files) {
 			String name = file.toLowerCase();
-			if(U.supportMedia(name)) {
+			if(U.supportVideoMedia(name)) {
 				if(g.video == null) 
 					g.video = new File(gamedir, file).getAbsolutePath();
 			}

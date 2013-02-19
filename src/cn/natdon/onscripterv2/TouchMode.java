@@ -4,49 +4,22 @@
 
 package cn.natdon.onscripterv2;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
-import android.view.MotionEvent;
-import android.view.KeyEvent;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.TextView;
-import android.util.Log;
-import java.io.*;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.os.Environment;
-import android.os.StatFs;
-import java.util.Locale;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.zip.GZIPInputStream;
-import java.util.Collections;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import java.lang.String;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.RectF;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.SurfaceView;
-import android.view.ViewGroup;
-import android.view.ScaleGestureDetector.OnScaleGestureListener;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.AbsoluteLayout;
 import android.widget.AbsoluteLayout.LayoutParams;
-import android.widget.ScrollView;
+import android.widget.Button;
 import android.widget.HorizontalScrollView;
-import android.content.Intent;
-import android.app.PendingIntent;
-import android.app.AlarmManager;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import cn.natdon.onscripterv2.Button.OkCancelButton;
 
 
 class TouchMode implements DifferentTouchInput.OnInputEventListener
@@ -95,6 +68,8 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 	private int mScreenHeight = 0;
 
 	private MainView mMainView = null;
+	
+	private ONSVariable onsVariable;
 
 	
 	private class OnButtonTouchListener implements View.OnTouchListener
@@ -138,8 +113,8 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 		Button button = new Button(mMainView.getActivity());
 		if(d != null)
 		button.setBackgroundDrawable(d);
-		button.setHeight(ONScripter.dh/4);
-		button.setWidth(ONScripter.dw/4);
+		button.setHeight(onsVariable.dh/4);
+		button.setWidth(onsVariable.dw/4);
 		button.setOnTouchListener(new OnButtonTouchListener(mMainView, key));
 		layout.addView(button, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
 		return button;

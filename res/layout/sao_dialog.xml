@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:id="@+id/iconView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon" />
+
+            <TextView
+                android:id="@+id/titleView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="TextView" 
+                android:textSize="21sp"/>
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/sc1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/infoView2"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\n本版本包含大量兯操功能,渣机渣rom渣rp者谨慎使用\n\n使用教程:拖动到底部点击查看使用教程"
+                    android:textColor="@color/red" />
+                
+                 <TextView
+                    android:id="@+id/infoView3"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\nONScripter Ver2.0\n本体:natdon\nUI\\UE:羽の篠"
+                    android:textColor="@color/blue"  />
+
+                <TextView
+                    android:id="@+id/infoView1"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TextView" />
+                <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <cn.natdon.onscripterv2.Button.OkCancelButton
+            android:layout_weight="1"
+            android:id="@+id/okbutton2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="确定" />
+
+        <cn.natdon.onscripterv2.Button.OkCancelButton
+            android:layout_weight="1"
+            android:id="@+id/urlbutton1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="使用教程" />
+    </LinearLayout>
+            </LinearLayout>
+            
+            
+        </ScrollView>
+        
+    </LinearLayout>
+
+
+    
+</LinearLayout>

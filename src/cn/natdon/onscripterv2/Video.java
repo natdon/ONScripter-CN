@@ -62,10 +62,11 @@ import android.util.Log;
 
 class DemoRenderer extends GLSurfaceView_SDL.Renderer
 {	
-	public DemoRenderer(ONScripter _context)
+	public DemoRenderer(ONSView onsView)
 	{
-		context = _context;
+		context = onsView;
 	}
+	
 	
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		Log.i("libSDL","libSDL: DemoRenderer.onSurfaceCreated(): paused " + mPaused + " mFirstTimeStart " + mFirstTimeStart );
@@ -79,11 +80,12 @@ class DemoRenderer extends GLSurfaceView_SDL.Renderer
 	public void onSurfaceChanged(GL10 gl, int w, int h) {
 		Log.i("libSDL","libSDL: DemoRenderer.onSurfaceChanged(): paused " + mPaused + " mFirstTimeStart " + mFirstTimeStart );
 		if(Locals.gWindowScreen){
-		w=ONScripter.wdw;
-		h=ONScripter.wdh;
+			
+		w=ONSVariable.wdw;
+		h=ONSVariable.wdh;
 		}
 		if(Locals.gFullScreen){
-		w=ONScripter.dw;
+		w=ONSVariable.dw;
 		h=w/4*3;
 		}
 
@@ -101,7 +103,6 @@ class DemoRenderer extends GLSurfaceView_SDL.Renderer
 	}
 
 	public void onDrawFrame(GL10 gl) {
-
 		mGl = gl;
 		//DrawLogo(mGl);
 		SwapBuffers();
@@ -170,7 +171,7 @@ class DemoRenderer extends GLSurfaceView_SDL.Renderer
 	private native void nativeGlContextLost();
 	public native void nativeGlContextRecreated();
 
-	private ONScripter context = null;
+	private ONSView context = null;
 	
 	private GL10 mGl = null;
 	private EGL10 mEgl = null;
@@ -186,11 +187,11 @@ class DemoRenderer extends GLSurfaceView_SDL.Renderer
 }
 
 class DemoGLSurfaceView extends GLSurfaceView_SDL {
-	public DemoGLSurfaceView(ONScripter context) {
-		super(context);
+	public DemoGLSurfaceView(ONSView onsView) {
+		super(onsView);
 		
 		setEGLConfigChooser(Locals.VideoDepthBpp, Globals.VIDEO_NEED_DEPTH_BUFFER, Globals.VIDEO_NEED_STENCIL_BUFFER, Globals.VIDEO_NEED_GLES2);
-		mRenderer = new DemoRenderer(context);
+		mRenderer = new DemoRenderer(onsView);
 		setRenderer(mRenderer);
 	}
 

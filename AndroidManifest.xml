@@ -1,17 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="cn.natdon.onscripterv2"
-      android:versionCode="6"
-      android:versionName="2.0.6"
+      android:versionCode="9"
+      android:versionName="2.0.9"
       android:installLocation="preferExternal">
 	  <!--android:debuggable="true"-->
+	  
+	  <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15"/>
+     <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.VIBRATE"></uses-permission>
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.READ_LOGS"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+	  
     <application android:label="@string/app_name"
-		 android:icon="@drawable/icon">
+		 android:icon="@drawable/icon"
+		 android:theme="@style/AppTheme">
         <activity android:name=".start"
                   android:label="@string/app_name"
 		  android:screenOrientation="landscape"
                   android:launchMode="singleInstance"
-                  android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+                  >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -19,17 +35,32 @@
         </activity>
 
 <activity android:name=".ONScripter"
+    	  
                   android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale|uiMode|screenSize|smallestScreenSize"
                   android:screenOrientation="landscape"
                   android:launchMode="singleInstance"
-                  android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+                 >
+        </activity>
+<activity 
+            android:name=".GameConfigActivity"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@style/ConfigActivity">
+        </activity>
+        
+<activity android:name=".ONSView"
+                  android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale|uiMode|screenSize|smallestScreenSize"
+                  android:screenOrientation="landscape"
+                  android:launchMode="singleInstance"
+                  >
         </activity>
 
  <activity android:name=".VitamioPlayer"
                   android:label="@string/app_name"
+                  android:theme="@style/ActivityTheme"
                   android:configChanges="keyboardHidden|orientation"
                   android:screenOrientation="landscape"
-                  android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+                  >
             
         </activity>
         
@@ -37,14 +68,15 @@
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation"
                   android:screenOrientation="landscape"
-                  android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+                  >
             
         </activity>
 <activity android:name=".VideoPlayer.activity.PlayerActivity"
                   android:label="@string/app_name"
+                  android:theme="@style/ActivityTheme"
                   android:configChanges="keyboardHidden|orientation"
                   android:screenOrientation="landscape"
-                  android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+                  >
             
         </activity>
 
@@ -55,17 +87,5 @@
 </service>
 	<meta-data android:value="501df88b5270150e8a000005" android:name="UMENG_APPKEY"></meta-data>
     </application>
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="16"/>
-     <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
-    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.READ_LOGS"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_SURFACE_FLINGER"></uses-permission>
-	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    
 </manifest> 

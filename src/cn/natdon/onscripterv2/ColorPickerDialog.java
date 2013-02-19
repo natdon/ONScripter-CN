@@ -63,7 +63,7 @@ public class ColorPickerDialog extends Dialog {
 		int height = (int) (manager.getDefaultDisplay().getHeight() );
 		int width = (int) (manager.getDefaultDisplay().getWidth() * 0.7f);
 		ColorPickerView myView = new ColorPickerView(context, height, width);
-		myView.setBackgroundColor(getContext().getResources().getColor(R.color.sao_transparent_white));
+		//myView.setBackgroundColor(getContext().getResources().getColor(R.color.sao_transparent_white));
         setContentView(myView);
         setTitle(title);
     }

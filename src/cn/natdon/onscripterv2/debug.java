@@ -32,7 +32,7 @@ public static void Logcat_out(String path){
         	
         		try  
                 {  
-		    Process cprocess = Runtime.getRuntime().exec("logcat -c"); 
+        			Process cprocess = Runtime.getRuntime().exec("logcat -c"); 
                     Process process = Runtime.getRuntime().exec(shell);  
                     InputStream inputStream = process.getInputStream();  
                       

@@ -23,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import cn.natdon.onscripterv2.ONSView;
 import cn.natdon.onscripterv2.R;
 import cn.natdon.onscripterv2.VideoPlayer.helper.SystemUtility;
 import cn.natdon.onscripterv2.VideoPlayer.player.AbsMediaPlayer;
@@ -420,6 +421,7 @@ public class PlayerActivity extends Activity implements
 		mPlayListArray.add(videofile);
 		uri = videofile;
 		selectMediaPlayer(uri, false);
+		
 	}
 	
 	

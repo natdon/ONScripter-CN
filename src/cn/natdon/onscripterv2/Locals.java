@@ -61,7 +61,7 @@ class Locals {
 	
 	public static int VideoXRatio = 4;     //r <= 0:FULL;
 	public static int VideoYRatio = 3;     //r <= 0:FULL;
-	public static int VideoDepthBpp = 32;  //16 or 32
+	public static int VideoDepthBpp = 16;  //16 or 32
 	public static boolean VideoSmooth = true;
 	
 	//Touch Mode Setting

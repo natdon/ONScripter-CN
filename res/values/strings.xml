@@ -157,11 +157,24 @@
     <string name="alt_config">选项</string>
     <string name="alt_play">运行</string>
     <string name="notify_exit">再按一次回退键退出</string>
+    <string name="error_play_audio">播放主题音乐时出现错误，播放取消</string>
+    <string name="error_play_video">播放预览视频时出现错误，播放取消</string>
+    
+    <string name="error_repeated_playfail">如果您一直出现播放问题，我们建议您使用菜单中的\'退出\'彻底退出程序并重新启动</string>
     
     <string name="mediacontroller_play_pause">Play/Pause</string>
 
-	<string name="info">ONScripter Ver2.0\n感谢ACGF所有热心的朋友\n游戏下载可访问 mobi.acgfuture.com\n或点击访问论坛\n\n
+	<string name="info">\n
 
+2.0.9更新\n
+1.全新UI,详细使用方法查看使用教程\n
+2.增加EN版,修复触摸错位\n
+3.新增加BG预览、BGM预览、视频预览\n
+4.使用全新的视频解码器，可以手动选择硬解\\软解\n
+5.支持硬件加速\n
+6.自带手机跑分功能，可以测试设备的运行效率\n
+7.增加大量功能\n
+8.修复各种bug\n\n
 2.0.6更新\n
 1.增加字体描边功能\n\n
 2.0.5更新\n
@@ -174,15 +187,11 @@
 2.0.2更新\n
 1.修复虚拟按键无法关闭的问题\n\n
 2.0.1更新\n
-1.使用新内核,全新版本,新功能请自行摸索\n
+1.使用新内核,全新版本\n
 2.针对4.0适配,推荐4.0设备使用\n
-3.测试版,可能不支持部分机型\n
-4.剩下的自己感受吧\n
 
 返回键呼出菜单改为点击一次返回键再点击屏幕呼出\n
 
-自定义背景：将bg.png或bg.gif放到ons目录下即可\n
-自定义设置背景:将bg2.png放到ons目录下即可\n
 自定义按键背景:将btn.png放到ons目录下即可\n
 自定义游戏图标:将icon.png放到游戏目录下即可\n
 

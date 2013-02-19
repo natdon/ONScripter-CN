@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="360dip"
+    android:layout_height="fill_parent"
+    android:layout_marginRight="15dip"
+    android:layout_marginTop="15dip"
+    android:layout_gravity="right">
+    
+    <RelativeLayout 
+        android:id="@+id/panel_config_edit"
+        android:layout_width="fill_parent"
+        android:layout_height="90dip"
+        android:layout_alignParentBottom="true"
+	    android:layout_marginLeft="15dip"
+	    android:layout_marginRight="15dip"
+        android:background="#EFCECECE">
+        
+		<LinearLayout 
+		    android:id="@+id/editor_exec"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent">
+	        
+		</LinearLayout>
+		
+		<RelativeLayout 
+		    android:id="@+id/editor_text_field"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent">
+	        
+		</RelativeLayout>
+		
+		<RelativeLayout 
+		    android:id="@+id/editor_file_field"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent">
+	        
+		</RelativeLayout>
+		
+		<RelativeLayout 
+		    android:id="@+id/editor_bool_field"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent">
+	        
+		</RelativeLayout>
+		
+    </RelativeLayout>
+	
+    <ListView 
+        android:id="@+id/config_list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="75dip"
+        android:background="@drawable/config_upper">
+    </ListView>
+    
+</RelativeLayout>

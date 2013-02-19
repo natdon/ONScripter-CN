@@ -27,7 +27,6 @@ import io.vov.vitamio.MediaPlayer.OnPreparedListener;
 import io.vov.vitamio.MediaPlayer.OnSeekCompleteListener;
 import io.vov.vitamio.MediaPlayer.OnSubtitleUpdateListener;
 import io.vov.vitamio.MediaPlayer.OnVideoSizeChangedListener;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -509,6 +508,8 @@ public class VideoView extends SurfaceView implements MediaController.MediaPlaye
 	}
 
 	public void toggleMediaControlsVisiblity() {
+		if(mMediaController == null)
+			return;
 		if (mMediaController.isShowing()) {
 			mMediaController.hide();
 		} else {

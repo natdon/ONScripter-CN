@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
@@ -69,6 +70,14 @@ public class VitamioPlayer extends Activity{
 	
 	void Playvideo(String path)
 	{
+		if(Locals.gWindowScreen)
+		{
+			Locals.ScreenHide = true;
+			ONSView.mView.ScreenHide();
+			ONSView.mView.setVisibility(View.GONE);
+			ONSView.mView.onPause();
+		}
+		
 		if(isVideoInitialized){
 			mVideoView = (VideoView) findViewById(R.id.surface_view);
 			mVideoView.setVideoPath(path);
@@ -87,6 +96,10 @@ public class VitamioPlayer extends Activity{
 				public void onCompletion(MediaPlayer arg0) {
 					mVideoView.stopPlayback();
 					finish();
+					Locals.ScreenHide = false;
+					ONSView.mView.ScreenHide();
+					ONSView.mView.setVisibility(View.VISIBLE);
+					ONSView.mView.onResume();
 				}
 			});
 		}
@@ -122,7 +135,15 @@ public class VitamioPlayer extends Activity{
 	}
 	
 	
-	
+	public boolean onKeyUp(int keyCode, KeyEvent msg) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        	Locals.ScreenHide = false;
+			ONSView.mView.ScreenHide();
+			ONSView.mView.setVisibility(View.VISIBLE);
+			ONSView.mView.onResume();
+        }
+		return super.onKeyUp(keyCode, msg);
+	}
 	
 
 }

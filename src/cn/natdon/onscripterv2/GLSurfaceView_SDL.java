@@ -1020,7 +1020,6 @@ public class GLSurfaceView_SDL extends SurfaceView implements SurfaceHolder.Call
                  *  Update the asynchronous state (window size)
                  */
               while(true) { // Loop until we're re-created GL context and successfully called swap()
-
                 int w, h;
                 boolean changed = false;
                 synchronized (this) {

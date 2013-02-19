@@ -47,6 +47,7 @@ class Globals {
 		System.loadLibrary("bz2");
 		System.loadLibrary("lua");
 		System.loadLibrary("mad");
+		System.loadLibrary("tremor");
 		System.loadLibrary("sdl_mixer");
 		System.loadLibrary("sdl_image");
 		System.loadLibrary("sdl_ttf");
@@ -82,7 +83,7 @@ class Globals {
 	};
 	
 	public static final String[] APP_NEED_FILENAME_ARRAY = {
-		"0.txt|0.TXT|00.txt|00.TXT|nscript.dat|onscript.nt|ONSCRIPT.NT|onscript.nt2|ONSCRIPT.NT2|NSCRIPT.DAT|nscript.___|NSCRIPT.___",
+		"0.txt|0.TXT|00.txt|00.TXT|nscript.dat|onscript.nt|ONSCRIPT.NT|onscript.nt2|ONSCRIPT.NT2|onscript.nt3|NSCRIPT.DAT|nscript.___|NSCRIPT.___",
 		"default.ttf|default.TTF|DEFAULT.TTF|DEFAULT.ttf"
 	
 		//"example.dat",

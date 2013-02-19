@@ -31,40 +31,24 @@ import io.vov.vitamio.Vitamio;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
-import android.content.Intent.ShortcutIconResource;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -72,21 +56,22 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
+import android.os.PowerManager;
 import android.text.InputType;
-import android.text.format.Formatter;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
@@ -97,25 +82,35 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import cn.natdon.onscripterv2.Button.OkCancelButton;
+import cn.natdon.onscripterv2.Button.RunButton;
+import cn.natdon.onscripterv2.Button.SaoButton;
+import cn.natdon.onscripterv2.Button.ShortcutButton;
+import cn.natdon.onscripterv2.Button.SwapButton;
+import cn.natdon.onscripterv2.Class.Shortcut;
+import cn.natdon.onscripterv2.Class.UnZip;
+import cn.natdon.onscripterv2.Downloader.DataDownloader;
+import cn.natdon.onscripterv2.anim.AnimationAutomata;
+import cn.natdon.onscripterv2.anim.AnimationBuilder;
+import cn.natdon.onscripterv2.anim.AutomataAction;
+import cn.natdon.onscripterv2.anim.StateRunner;
+import cn.natdon.onscripterv2.command.Command;
+import cn.natdon.onscripterv2.command.CommandHandler;
 import cn.natdon.onscripterv2.decoder.BackgroundDecoder;
 import cn.natdon.onscripterv2.decoder.CoverDecoder;
+import cn.natdon.onscripterv2.widget.AudioPlayer;
 import cn.natdon.onscripterv2.widget.MediaController;
 import cn.natdon.onscripterv2.widget.VideoView;
-
-import cn.natdon.onscripterv2.VideoPlayer.activity.PlayerActivity;
-import cn.natdon.onscripterv2.anim.AnimationListener;
+import cn.natdon.onscripterv2.widget.VideoViewContainer;
 
 import com.footmark.utils.cache.FileCache;
 import com.footmark.utils.image.ImageManager;
@@ -125,72 +120,33 @@ import com.umeng.update.UmengUpdateAgent;
 
 
 @SuppressLint("NewApi")
-public class ONScripter extends Activity implements OnItemClickListener,Button.OnClickListener, DialogInterface.OnClickListener,OnTouchListener{
+public class ONScripter extends Activity implements OnItemClickListener,Button.OnClickListener, DialogInterface.OnClickListener,OnTouchListener, Runnable{
 
 public static TextView about, Repair, Language, ONSSetting, SetOrientation, DirSetting, VerChange ,TextSize, OnlineVideo, ColorText;
-public static PopupWindow m_popupWindow,button_popupWindow,light_popupWindow,wd_popupWindow,ver_popupWindow,size_popupWindow,font_popupWindow,time_popupWindow;	
-private boolean mIsLandscape = true;
-	private boolean mButtonVisible = true;
-	private boolean mScreenCentered = false;
-	private boolean mButtonAtLeft = false;
-	private boolean set_checkWS = false;
-	private boolean set_checkSP = false;
-	private boolean set_OtherPL = false;
-	private boolean set_checkDR = false;
-	private boolean set_keepON = false;
-	private boolean set_FullScreen = false;
-	private boolean set_ScaleFullScreen = false;
-	private boolean set_Cursor = false;
-	private boolean set_FontSize = false;
-	private boolean set_FontColor = false;
-	private boolean isMoved = false;
-	private boolean isRunning = false;
-	private boolean DialogOpen =false;
-	private boolean mInLauncher = true;
-
-	private int myfontsize,myfontpx;
-	private int myfont_color1,myfont_color2,myfont_color3,cbColor;
-	private float x, y;
-	private float startX, startY;
-	private float light=0;
-	private SimpleDateFormat df;
-	private String oldtime, nowtime, battery,myTime;
+public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popupWindow,font_popupWindow,config_popupWindow,setting_popupWindow,video_popupWindow;	
 	
-	private Drawable bg = null;
 	private Drawable bg2 = null;
 
-	public String myname, Gamenames, Videopath = "";
+	public String myname, Gamenames;
 	public static String extra;
 	public static String mysetting;
-	private static final String SHORT_CUT_EXTRAS = "cn.natdon.onscripterv2";
-	public static int textsize;
+	
+	private DataDownloader downloader = null;
+	private AlertDialog.Builder alertDialogBuilder = null;
+	private AlertDialog ErroralertDialog = null;
+	private ProgressDialog progDialog = null;
+	private PowerManager.WakeLock wakeLock = null;
+	
+	private int num_file = 0;
+	private byte[] buf = null;
+	
 
-	private WindowManager.LayoutParams lp;
-	
-	public static LinearLayout wdlayout = null;
-	public static int wdw ,wdh;
-	public static int dw, dh;
-	private static final int TOUCH_SLOP = 50;
-	public static WindowManager wm;
-	public static WindowManager wdwm;
-	public static WindowManager.LayoutParams wdparams = new WindowManager.LayoutParams();
-	public static WindowManager.LayoutParams params = new WindowManager.LayoutParams();
-	
 
 
 	private ColorPickerDialog Colordialog;
-	
 
-	private LinearLayout layout1 = null;
-	private LinearLayout Btnlayout;
-	private LinearLayout Fulllayout = null;
-	private HorizontalScrollView HSV = null;
-	private ScrollView FullSV = null;
-	private ImageButton popbtn;
 
-	private native int nativeFontSize(int font_x,int font_y,int font_px,int font_py);
-	private native int nativeFontColor(boolean usecolor,int fcolor1,int fcolor2,int fcolor3);
-	private native int nativeInitJavaCallbacks();
+	public ONScripter mActivity;
 	
 	/******************************************************************************************************************/
 	
@@ -199,35 +155,40 @@ private boolean mIsLandscape = true;
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 	}
 
-	private static volatile boolean isVideoInitialized = false;
-
-	private ImageManager imgMgr;
-
+	private static final String DIRECTORY = "ONS";
+	
+	// Controls Initialization Block {{{
 	private ListView games;
 	private ImageView cover, background;
 	private TextView gametitle;
+	private VideoViewContainer videoframe;
 	private VideoView preview;
-	private RelativeLayout videoframe;
-	
 	private ImageView btn_settings, btn_about;
-
-	private GameAdapter items;
 	
+	private int mPlaybackErrCounter = 0;
+	private static final int PLAYBACK_ERR_TOLERANCE = 3;
+	private static final int PLAYBACK_ERR_IGNORED_TOLERANCE = 5;
+
 	private <T> T $(int id) {
 		return U.$(findViewById(id));
 	}
-
+	
 	private void findViews() {
 		games = $(R.id.games);
 		cover = $(R.id.cover);
 		background = $(R.id.background);
 		gametitle = $(R.id.gametitle);
-		preview = $(R.id.surface_view);
 		videoframe = $(R.id.videoframe);
+		preview = videoframe.getVideoView();
 		btn_settings = $(R.id.btn_settings);
 		btn_about = $(R.id.btn_about);
 	}
 
+	// }}}
+	
+	// ImageManager Block {{{
+	private ImageManager imgMgr;
+	
 	private void initImageManager() {
 		destroyImageManager();
 		if(Environment.MEDIA_MOUNTED.equals(
@@ -235,7 +196,7 @@ private boolean mIsLandscape = true;
 			imgMgr = new ImageManager(new FileCache(
 					new File(
 							Environment.getExternalStorageDirectory(),
-							"ons/.cover")));
+							DIRECTORY + "/.cover")));
 		}else{
 			imgMgr = new ImageManager(new FileCache(
 					new File(
@@ -249,35 +210,102 @@ private boolean mIsLandscape = true;
 			imgMgr.shutdown();
 	}
 
+	// }}}
+	
+	// VideoPlayer Block {{{
+	private static volatile boolean isVideoInitialized = false;
+
+	private AudioPlayer mAudioPlayer = null;
+	
 	private void configureVideoPlayer() {
 		preview.setVideoQuality(MediaPlayer.VIDEOQUALITY_HIGH);
 		preview.setOnCompletionListener(new OnCompletionListener() {
 
 			public void onCompletion(MediaPlayer player) {
-				Command.invoke(Command.LOOP_VIDEO_PREVIEW).of(preview).send();
+				mPlaybackErrCounter = 0;
+				Command.invoke(LOOP_VIDEO_PREVIEW).args(preview).send();
 			}
 
 		});
 		preview.setOnErrorListener(new OnErrorListener() {
 
-			
 			public boolean onError(MediaPlayer player, int framework_err, int impl_err) {
-				releaseVideoPlay();
+				mStatePreview.gotoState(STATE_COVER_VISIBLE);
+				mPlaybackErrCounter++;
+				if(mPlaybackErrCounter < PLAYBACK_ERR_TOLERANCE) {
+					Toast.makeText(getApplicationContext(), 
+							R.string.error_play_video, Toast.LENGTH_LONG).show();
+				} else {
+					if(mPlaybackErrCounter < PLAYBACK_ERR_IGNORED_TOLERANCE) {
+						Toast.makeText(getApplicationContext(), 
+								R.string.error_repeated_playfail, Toast.LENGTH_LONG).show();
+					}
+				}
 				return true;
 			}
 
 		});
 		preview.setMediaController(new MediaController(this));
 
+		mAudioPlayer = new AudioPlayer(this);
+		mAudioPlayer.setMediaController(new MediaController(this), preview.getRootView());
+		
+		mAudioPlayer.setOnCompletionListener(new OnCompletionListener() {
+
+			public void onCompletion(MediaPlayer player) {
+				mPlaybackErrCounter = 0;
+				Command.invoke(LOOP_AUDIO_PLAY).args(mAudioPlayer).send();
+			}
+
+		});
+		
+		mAudioPlayer.setOnErrorListener(new OnErrorListener() {
+
+			public boolean onError(MediaPlayer player, int framework_err, int impl_err) {
+				mPlaybackErrCounter++;
+				if(mPlaybackErrCounter < PLAYBACK_ERR_TOLERANCE) {
+					Toast.makeText(getApplicationContext(), 
+							R.string.error_play_audio, Toast.LENGTH_LONG).show();
+				} else {
+					if(mPlaybackErrCounter < PLAYBACK_ERR_IGNORED_TOLERANCE) {
+						Toast.makeText(getApplicationContext(), 
+								R.string.error_repeated_playfail, Toast.LENGTH_LONG).show();
+					}
+				}
+				return true;
+			}
+
+		});
+		
+		cover.setOnClickListener(new OnClickListener() {
+
+			long lastClick = 0;
+			
+			public void onClick(View v) {
+				if(mAudioPlayer.isInPlaybackState()) {
+					mAudioPlayer.toggleMediaControlsVisiblity();
+				} else {
+					long time = System.currentTimeMillis();
+					if(time - lastClick < 500) {
+						Command.invoke(ACTION_AFTER_DISPLAY_COVER)
+						.args(ONScripter.this).only().send();
+						lastClick = 0;
+					}else{
+						lastClick = time;
+					}
+				}
+			}
+			
+		});
+		
 		// Initialize the Vitamio codecs
 		if(!Vitamio.isInitialized(this)) {
 			new AsyncTask<Object, Object, Boolean>() {
-				@Override
+
 				protected void onPreExecute() {
 					isVideoInitialized = false;
 				}
 
-				@Override
 				protected Boolean doInBackground(Object... params) {
 					Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 					boolean inited = Vitamio.initialize(ONScripter.this);
@@ -285,10 +313,12 @@ private boolean mIsLandscape = true;
 					return inited;
 				}
 
-				@Override
 				protected void onPostExecute(Boolean inited) {
 					if (inited) {
 						isVideoInitialized = true;
+						
+						// Play video if exists
+						Command.invoke(ACTION_AFTER_DISPLAY_COVER).args(ONScripter.this).only().sendDelayed(3000);
 					}
 				}
 
@@ -297,60 +327,323 @@ private boolean mIsLandscape = true;
 			isVideoInitialized = true;
 		}
 	}
+	
+	// }}}
 
-	private Animation animCoverOut = GetAnimation.For.MainInterface.ToHideCover(new AnimationListener() {
+	// Game Entries Block {{{
+	private GameAdapter items;
+	
 
-		public void onAnimationEnd(Animation animation) {
-			animCoverOut = GetAnimation.For.MainInterface.ToHideCover(this);
-			displayCover();
-		}
+	// }}}
+	
+	// Background Image Animation & Action Block {{{
+	private StateRunner mStateBackground = new StateRunner(STATE_BKG_VISIBLE);;
 
-	});
-
-	private Animation animBackgroundOut = GetAnimation.For.MainInterface.ToHideBackground(new AnimationListener() {
-
-		public void onAnimationEnd(Animation arg0) {
-			animBackgroundOut = GetAnimation.For.MainInterface.ToHideBackground(this);
-			if(background.getTag() instanceof Bitmap) {
-				background.setImageBitmap((Bitmap) background.getTag());
-				background.setBackgroundDrawable(null);
-				background.setTag(null);
-				background.startAnimation(GetAnimation.For.MainInterface.ToShowBackground(null));
+	private static final int STATE_BKG_HIDDEN = 3000;
+	private static final int STATE_BKG_VISIBLE = 3001;
+	
+	private void setupBackgroundAutomata() {
+		AnimationAutomata.refer(mStateBackground).target(background)
+		
+		.edit(STATE_BKG_VISIBLE, STATE_BKG_HIDDEN)
+		.setAnimation(AnimationBuilder.create()
+				.alpha(1, 0).animateFor(1000).accelerated(1.5f)
+				.build())
+		.addAction(new AutomataAction() {
+			public void onAnimationEnd(Animation animation) {
+				Command.invoke(TRY_DISPLAY_BKG)
+				.args(ONScripter.this).send();
 			}
-		}
-
-	});
-
-	private Animation animHideVideo = GetAnimation.For.MainInterface.ToHideVideoPlayerFrame(new AnimationListener(){
-
-		public void onAnimationEnd(Animation animation) {
-			videoframe.setVisibility(View.GONE);
-		}
-
-	});
-
-	private Animation animPlayVideo = GetAnimation.For.MainInterface.ToShowVideoPlayerFrame(new AnimationListener(){
-
-		public void onAnimationEnd(Animation animation) {
-			startVideoPlay();
-		}
+		})
 		
-		public void onAnimationStart(Animation animation) {
-			videoframe.setVisibility(View.VISIBLE);
+		.edit(STATE_BKG_HIDDEN, STATE_BKG_VISIBLE)
+		.setAnimation(AnimationBuilder.create()
+				.alpha(0, 1).animateFor(1000).decelerated(1.5f)
+				.build())
+		;
+	}
+
+	public void tryDisplayBackground() {
+		if(background.getTag() instanceof Bitmap && !mStateBackground.isAnyAnimatingAutomata()) {
+			background.setImageBitmap((Bitmap) background.getTag());
+			background.setBackgroundDrawable(null);
+			background.setTag(null);
+			mStateBackground.gotoState(STATE_BKG_HIDDEN, STATE_BKG_VISIBLE);
 		}
+		if(background.getTag() instanceof Drawable) {
+			background.setImageDrawable((Drawable) background.getTag());
+			background.setBackgroundDrawable(null);
+			background.setTag(null);
+			mStateBackground.gotoState(STATE_BKG_HIDDEN, STATE_BKG_VISIBLE);
+		}
+	}
+
+	private void updateBackground(String url) {
+		Object o = background.getTag();
+		if(o instanceof ImageSetter) {
+			((ImageSetter) o).cancel();
+		}
+		mStateBackground.gotoState(STATE_BKG_HIDDEN);
+		imgMgr.requestImageAsync(url, new ImageSetter(background) {
+
+			protected void act() {
+				background.setTag(image().bmp());
+				Command.invoke(TRY_DISPLAY_BKG)
+				.args(ONScripter.this).send();
+			}
+
+		}, new BackgroundDecoder());
+	}
+	// }}}
 		
-		private void startVideoPlay() {
-			Game item = items.getItem(items.getSelectedPosition());
-			if(item.video != null && isVideoInitialized) {
+	// Cover/VideoPlayer/AudioPlayer Animation & Action Block {{{
+	private StateRunner mStatePreview = new StateRunner(STATE_COVER_VISIBLE);
+
+	private static final int STATE_COVER_HIDDEN = 2000;
+	private static final int STATE_COVER_VISIBLE = 2001;
+	private static final int STATE_AUDIO_PLAY = 2002;
+	private static final int STATE_VIDEO_PLAY = 2003;
+	
+	private void setupCoverPreviewAutomata() {
+		AnimationAutomata.refer(mStatePreview).target(cover)
+		
+		.edit(STATE_COVER_VISIBLE, STATE_COVER_HIDDEN)
+		.setAnimation(AnimationBuilder.create()
+				// Set the valtype of the value to be inturrpted
+				.valtype(Animation.RELATIVE_TO_SELF)
+				// Add a Scale Animation
+				.scale(1.0f, 0.6f, 1.0f, 0.6f, 0.5f, 0.5f).animateFor(100)
+				// Add an Alpha Animation
+				.alpha(1, 0).animateFor(100)
+				// Build Animation
+				.build())
+		.addAction(new AutomataAction() {
+			public void Before(Animation animation) {
+				getAutomata().target().setVisibility(View.VISIBLE);
+			}
+			public void After(Animation animation) {
+				getAutomata().target().setVisibility(View.GONE);
+				Command.invoke(TRY_DISPLAY_COVER).only()
+				.args(ONScripter.this).send();
+			}
+		})
+		
+		.edit(STATE_COVER_HIDDEN, STATE_COVER_VISIBLE)
+		.setAnimation(AnimationBuilder.create()
+				// Set the valtype of the value to be inturrpted
+				.valtype(Animation.RELATIVE_TO_SELF)
+				// Add a Scale Animation
+				.scale(0.5f, 1.0f, 0.5f, 1.0f, 0.5f, 0.5f).overshoot()
+				.animateFor(300)
+				// Add an Alpha Animation
+				.alpha(0, 1).animateFor(300)
+				.build())
+		.addAction(new AutomataAction() {
+			public void Before(Animation animation) {
+				getAutomata().target().setVisibility(View.VISIBLE);
+			}
+		})
+		
+		.edit(STATE_COVER_VISIBLE, STATE_AUDIO_PLAY)
+		.addAction(new AutomataAction() {
+			public void onStateChanged(int from, int to) {
+				startAudioPlay();
+			}
+			private void startAudioPlay() {
+				Game item = items.getSelectedItem();
+				if(item.audio != null && isVideoInitialized) {
+					mAudioPlayer.setAudioURI(null);
+					mAudioPlayer.setAudioPath(item.audio);
+				}
+			}
+		})
+		
+		.edit(STATE_AUDIO_PLAY, STATE_COVER_VISIBLE)
+		.addAction(new AutomataAction() {
+			public void onStateChanged(int from, int to) {
+				releaseAudioPlay();
+			}
+			private void releaseAudioPlay() {
+				mAudioPlayer.stopPlayback();
+				mAudioPlayer.setAudioURI(null);
+				mAudioPlayer.setMediaControlsVisibility(false);
+			}
+		})
+		
+		.edit(STATE_AUDIO_PLAY, STATE_COVER_HIDDEN)
+		.setAnimation(STATE_COVER_VISIBLE, STATE_COVER_HIDDEN)
+		.addAction(STATE_COVER_VISIBLE, STATE_COVER_HIDDEN)
+		.addAction(STATE_AUDIO_PLAY, STATE_COVER_VISIBLE)
+		
+		.edit(STATE_COVER_VISIBLE, STATE_VIDEO_PLAY)
+		// Code Control Video Play/Stop cannot dependent on the animation of cover
+		.setAnimation(AnimationBuilder.create()
+				.alpha(1, 0).animateFor(300)
+				.build())
+		.addAction(new AutomataAction() {
+			public void Before(Animation animation) {
+				getAutomata().target().setVisibility(View.VISIBLE);
+			}
+			public void After(Animation animation) {
+				getAutomata().target().setVisibility(View.GONE);
+			}
+		})
+		
+		.edit(STATE_VIDEO_PLAY, STATE_COVER_VISIBLE)
+		.setAnimation(AnimationBuilder.create()
+				.alpha(0, 1).animateFor(300)
+				.build())
+		.setAction(STATE_COVER_HIDDEN, STATE_COVER_VISIBLE)
+				
+		.edit(STATE_VIDEO_PLAY, STATE_COVER_HIDDEN)
+		.setAction(STATE_COVER_VISIBLE, STATE_COVER_HIDDEN)
+		
+		;
+		
+		AnimationAutomata.refer(mStatePreview).target(videoframe)
+		
+		.edit(STATE_COVER_VISIBLE, STATE_VIDEO_PLAY)
+		.setAnimation(AnimationBuilder.create()
+				.alpha(0, 1).animateFor(300)
+				.build())
+		.addAction(new AutomataAction() {
+			public void Before(Animation animation) {
+				getAutomata().target().setVisibility(View.VISIBLE);
+			}
+			public void After(Animation animation) {
+				startVideoPlay();
+			}
+			private void startVideoPlay() {
+				Game item = items.getSelectedItem();
+				if(item.video != null && isVideoInitialized) {
 					videoframe.setVisibility(View.VISIBLE);
-					preview.setVisibility(View.VISIBLE);
-					Command.revoke(Command.RELEASE_VIDEO_PREVIEW, preview);
+					Command.revoke(RELEASE_VIDEO_PREVIEW);
 					preview.setVideoURI(null);
 					preview.setVideoPath(item.video);
+				}
+			}
+		})
+		
+		.edit(STATE_COVER_HIDDEN, STATE_VIDEO_PLAY)
+		.setAnimation(STATE_COVER_VISIBLE, STATE_VIDEO_PLAY)
+		.setAction(STATE_COVER_VISIBLE, STATE_VIDEO_PLAY)
+		
+		.edit(STATE_VIDEO_PLAY, STATE_COVER_VISIBLE)
+		.setAnimation(AnimationBuilder.create()
+				.alpha(1, 0).animateFor(300)
+				.build())
+		.addAction(new AutomataAction() {
+			public void onStateChanged(int from, int to) {
+				releaseVideoPlay();
+			}
+			public void After(Animation animation) {
+				getAutomata().target().setVisibility(View.GONE);
+			}
+			public void releaseVideoPlay() {
+				// Clear Video Player
+				if(preview.isInPlaybackState()){
+					preview.stopPlayback();
+				}
+				preview.setVisibility(View.GONE);
+				Command.invoke(RELEASE_VIDEO_PREVIEW)
+				.args(preview).sendDelayed(2000);
+			}
+		})
+		
+		.edit(STATE_VIDEO_PLAY, STATE_COVER_HIDDEN)
+		.setAnimation(STATE_VIDEO_PLAY, STATE_COVER_VISIBLE)
+		.setAction(STATE_VIDEO_PLAY, STATE_COVER_VISIBLE)
+		;
+		
+	}
+	
+	public void tryDisplayCover() {
+		if(cover.getTag() instanceof Bitmap && !mStatePreview.isAnyAnimatingAutomata(cover)) {
+			cover.setImageBitmap((Bitmap) cover.getTag());
+			cover.setBackgroundDrawable(null);
+			cover.setTag(null);
+			mStatePreview.gotoState(STATE_COVER_HIDDEN, STATE_COVER_VISIBLE);
+		}
+		if(cover.getTag() instanceof Drawable) {
+			cover.setImageDrawable((Drawable) cover.getTag());
+			cover.setBackgroundDrawable(null);
+			cover.setTag(null);
+			mStatePreview.gotoState(STATE_COVER_HIDDEN, STATE_COVER_VISIBLE);
+		}
+	}
+	
+	public void checkActionAfterDisplayCover() {
+		if(items == null) return;
+		Game item = items.getSelectedItem();
+		if(item == null) return;
+		if(isVideoInitialized) {
+			if(item.video != null) {
+				mStatePreview.gotoState(STATE_VIDEO_PLAY);
+			}else if(item.audio != null) {
+				mStatePreview.gotoState(STATE_AUDIO_PLAY);
 			}
 		}
+	}
 
-	});
+	private void updateCover(final String url, final boolean coverToBkg) {
+		Object o = cover.getTag();
+		if(o instanceof ImageSetter) {
+			((ImageSetter) o).cancel();
+		}
+		
+		imgMgr.requestImageAsync(url,
+				new ImageSetter(cover) {
+
+			protected void act() {
+				cover.setTag(image().bmp());
+				Command.invoke(TRY_DISPLAY_COVER).args(ONScripter.this).only().send();
+				if(coverToBkg) {
+					String background = CoverDecoder.getThumbernailCache(url);
+					// Exception for Web Images
+					if(background == null)
+						background = CoverDecoder.getThumbernailCache(image().file().getAbsolutePath());
+					if(background != null) {
+						updateBackground(background);
+					}
+				}
+			}
+
+		}, new CoverDecoder(cover.getWidth(), cover.getHeight()));
+
+		mStatePreview.gotoState(STATE_COVER_HIDDEN);
+	}
+	
+	// }}}
+		
+		private void loadGameItem(Game item) {
+			
+			gametitle.setText(item.title);
+			myname = gametitle.getText().toString().trim();  
+
+			if(item.background != null) {
+				updateBackground(item.background);
+			}
+
+			if(item.cover != null) {
+				updateCover(item.cover, item.background == null);
+			}else{
+				cover.setTag(getResources().getDrawable(R.drawable.dbkg_und));
+				mStatePreview.gotoState(STATE_COVER_HIDDEN);
+				if(item.background == null) {
+					background.setTag(getResources().getDrawable(R.drawable.dbkg_und_blur));
+					mStateBackground.gotoState(STATE_BKG_HIDDEN);
+				}
+			}
+			
+			// Perform Action After Display Cover in a Time-out way
+			Command.invoke(ACTION_AFTER_DISPLAY_COVER).args(ONScripter.this).only().sendDelayed(4000);
+			
+		}
+		
+		private void setupUIAutomata() {
+			setupBackgroundAutomata();
+			setupCoverPreviewAutomata();
+		}
 	
 	
 
@@ -358,34 +651,7 @@ private boolean mIsLandscape = true;
 	/******************************************************************************************************************/
 
 
-	public void playVideo(char[] filename) {
-		if (Locals.gDisableVideo == false) {
-			try {
-				String filename2 = "file:/"+ "/"+Globals.CurrentDirectoryPath + "/"
-						+ new String(filename);
-				filename2 = filename2.replace('\\', '/');
-				Log.v("ONS", "playVideo: " + filename2);
-				if (Locals.gOtherPL) {
-					Uri uri = Uri.parse(filename2);
-					Intent i = new Intent(Intent.ACTION_VIEW);
-					i.setDataAndType(uri, "video/*");
-					startActivityForResult(i, -1);
-				} else {
-
-					
-					Intent in = new Intent();
-					in.putExtra("one", filename2);
-					in.setClass(ONScripter.this, PlayerActivity.class);
-					ONScripter.this.startActivity(in);
-					
-				}
-				overridePendingTransition(android.R.anim.fade_in,
-						android.R.anim.fade_out);
-			} catch (Exception e) {
-				Log.e("ONS", "playVideo error:  " + e.getClass().getName());
-			}
-		}
-	}
+	
 	
 	
 	
@@ -393,7 +659,11 @@ private boolean mIsLandscape = true;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		
 		UmengUpdateAgent.setUpdateOnlyWifi(false);
 		UmengUpdateAgent.update(this);
 		MobclickAgent.onError(this);
@@ -410,23 +680,16 @@ private boolean mIsLandscape = true;
 
 		Display disp = ((WindowManager) this
 				.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-		dw = disp.getWidth();
-		dh = disp.getHeight();
+		ONSVariable.dw = disp.getWidth();
+		ONSVariable.dh = disp.getHeight();
 
-
-		//Intent stop = new Intent(this, restartservice.class);
-		//this.stopService(stop);
+		checkCurrentDirectory(false);
 
 //
 
-		
-		this.registerReceiver(mBatteryInfoReceiver, new IntentFilter(
-				Intent.ACTION_BATTERY_CHANGED));
-		df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   
-        	oldtime = df.format(new Date());
 
 		SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
-		textsize = sp.getInt("textsize", 15);
+		ONSVariable.textsize = sp.getInt("textsize", 15);
 		
 		/*if(Globals.APP_LAUNCHER_USE){
 			final Intent intent = getIntent();
@@ -442,6 +705,18 @@ private boolean mIsLandscape = true;
 		} else {
 			runAppLaunchConfig();
 		}*/
+		
+			final Intent intent = getIntent();
+			extra = intent.getStringExtra("path");
+			mysetting = intent.getStringExtra("mysetting");
+			if (extra != null) {
+				FSetting(mysetting);
+				Globals.CurrentDirectoryPath = extra;
+				Intent onsRunner=new Intent();
+				onsRunner.setClass(ONScripter.this, ONSView.class);
+				ONScripter.this.startActivity(onsRunner);
+				this.finish();
+			}
 
 			SharedPreferences sp2 = getSharedPreferences("myver", MODE_PRIVATE);
 			int about = sp2.getInt("about", 5);
@@ -455,7 +730,12 @@ private boolean mIsLandscape = true;
 			if(Build.VERSION.SDK_INT < 9) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 			}
-			setContentView(R.layout.activity_main);
+			if(((float)(ONSVariable.dw)/(float)(ONSVariable.dh)) == 1.5 || (float)(ONSVariable.dw)/(float)(ONSVariable.dh) == 1.3)
+			{
+				setContentView(R.layout.activity_ft);
+			}else {
+				setContentView(R.layout.activity_main);
+			}
 			findViews();
 
 			// Pass parameters to CoverDecoder to get better performance
@@ -465,12 +745,14 @@ private boolean mIsLandscape = true;
 
 			configureVideoPlayer();
 			
+			setupUIAutomata();
+			
 			// Initializing data and binding to ListView
 			items = new GameAdapter(this, R.layout.gamelist_item, new ArrayList<Game>());
 			games.setAdapter(items);
 			games.setOnItemClickListener(this);
 			
-			Command.invoke(Command.RUN).of(
+			Command.invoke(
 					new Runnable() { public void run() {loadCurrentDirectory();}}
 			).sendDelayed(500);
 			
@@ -481,7 +763,6 @@ private boolean mIsLandscape = true;
 			items.setOnConfigClickListener(this);
 			items.setOnPlayClickListener(this);
 			
-			preview.setOnTouchListener(this);
 			
 	}
 
@@ -527,7 +808,7 @@ private boolean mIsLandscape = true;
 	//
 	
 	
-		private ONScripter mActivity;
+		
 		
 		
 		
@@ -537,7 +818,6 @@ private boolean mIsLandscape = true;
 
 
 		public void FreeMemory(){
-			bg = null;
 			bg2 = null;
 			if(games != null){
 			games.setBackgroundDrawable(null);
@@ -577,29 +857,6 @@ private boolean mIsLandscape = true;
 					});
 					
 					
-					
-					/*String[] dirPathArray = new String[mDirFileArray.length];
-					for(int i = 0; i < mDirFileArray.length; i ++){
-						dirPathArray[i] = mDirFileArray[i].getName();
-						Gamenames = mDirFileArray[i].getName();
-						iconPath = mDirFileArray[i].toString() + "/ICON.PNG";
-						File logo = new File(iconPath);
-						Videopath = mDirFileArray[i].toString() + "/PREVIEW.MP4";
-						File video = new File(Videopath);
-						
-
-						if(mDirFileArray[i].isDirectory() && video.exists()){
-							items.add(new Game() {{title=Gamenames; cover=iconPath; video=Videopath;}});
-							
-						}
-						else if(mDirFileArray[i].isDirectory() && logo.exists())
-							items.add(new Game() {{title=Gamenames; cover=iconPath;}});
-						else {
-							items.add(new Game() {{title=Gamenames; }});
-						}
-						
-					}*/
-					
 					new Thread() {
 						
 						public void run() {
@@ -609,9 +866,8 @@ private boolean mIsLandscape = true;
 									Game g = Game.scanGameDir(file);
 									if(g != null) {
 										// Add Game to Game List
-										
-										Command.invoke(Command.ADD_ITEM_TO_LISTADAPTER)
-										.of(items).args(g.toBundle()).send();
+										Command.invoke(ADD_ITEM_TO_LISTADAPTER)
+										.args(items, g).send();
 										
 									}
 								}
@@ -642,7 +898,8 @@ private boolean mIsLandscape = true;
 			}
 			items[items.length - 1] = getString(R.string.Other) + "...";
 			
-			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+			alertDialogBuilder.setInverseBackgroundForced(true);
 			alertDialogBuilder.setTitle(getString(R.string.Launch_ChooseDirectory));
 			alertDialogBuilder.setItems(items, this);
 			alertDialogBuilder.setNegativeButton(getString(R.string.Cancel), null);
@@ -669,7 +926,7 @@ private boolean mIsLandscape = true;
 			} else {
 				if(which < Globals.CurrentDirectoryValidPathArray.length){
 					Globals.CurrentDirectoryPathForLauncher = Globals.CurrentDirectoryValidPathArray[which];
-					Settings.SaveGlobals(mActivity);
+					Settings.SaveGlobals(this);
 					loadCurrentDirectory();
 					return;
 				} else {
@@ -717,13 +974,13 @@ private boolean mIsLandscape = true;
 					dirPathArray[0] = "..";
 				}
 				
-				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 				alertDialogBuilder.setTitle(mDirBrowserCurDirPath);
 				alertDialogBuilder.setItems(dirPathArray, this);
 				alertDialogBuilder.setPositiveButton(getString(R.string.Launch_SetDirectory), new DialogInterface.OnClickListener(){
 					public void onClick(DialogInterface dialog, int whichButton) {	
 						Globals.CurrentDirectoryPathForLauncher = mDirBrowserCurDirPath;
-						Settings.SaveGlobals(mActivity);
+						Settings.SaveGlobals(ONScripter.this);
 						loadCurrentDirectory();
 					}
 				});
@@ -732,7 +989,7 @@ private boolean mIsLandscape = true;
 				mDirBrowserDialog = alertDialogBuilder.create();
 				mDirBrowserDialog.show();
 			} catch(Exception e){
-				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 				alertDialogBuilder.setTitle(getString(R.string.Error));
 				alertDialogBuilder.setMessage(getString(R.string.Launch_CouldNotOpenDirectory) + "\n" + mDirBrowserCurDirPath);
 				alertDialogBuilder.setPositiveButton(getString(R.string.OK), null);
@@ -753,6 +1010,28 @@ private boolean mIsLandscape = true;
 			runAppLaunchConfig();
 		}*/
 	
+	public void runApp()
+	{
+		if(!checkCurrentDirectory(true)){
+			return;
+		}
+		
+		Settings.LoadLocals(ONScripter.this);
+		
+		if(!checkAppNeedFiles()){
+			return;
+		}
+		
+		if(mStatePreview.currentState() == STATE_VIDEO_PLAY || 
+    			mStatePreview.currentState() == STATE_AUDIO_PLAY) {
+    		mStatePreview.gotoState(STATE_COVER_VISIBLE);
+    	}
+		
+		Intent onsRunner=new Intent();
+		onsRunner.setClass(ONScripter.this, ONSView.class);
+		ONScripter.this.startActivity(onsRunner);
+		//overridePendingTransition(R.anim.gameconfig_enter, R.anim.gameconfig_exit);
+	}
 	
 	public void runAppLauncher()
 	{
@@ -778,7 +1057,9 @@ private boolean mIsLandscape = true;
 		TextView[] mEnvironmentTextArray;
 		Button[]   mEnvironmentButtonArray;
 		
-		Button mRunButton,mRunButton2,mRunButton3;
+		ShortcutButton mRunButton2;
+		RunButton mRunButton;
+		Button mRunButton3;
 
 		
 		public AppLaunchConfigView(ONScripter activity)
@@ -791,11 +1072,8 @@ private boolean mIsLandscape = true;
 				mConfView = new ScrollView(mActivity);
 				{
 					mConfLayout = new LinearLayout(mActivity);
-					mConfLayout.setBackgroundColor(0xf5f5f5f5);
-					bg2 = Drawable.createFromPath(Globals.CurrentDirectoryPathForLauncher+"/bg2.png");
-					if (bg2 != null) {
-						mConfLayout.setBackgroundDrawable(bg2);
-					}
+					//mConfLayout.setBackgroundColor(0xf5f5f5f5);
+					mConfLayout.setBackgroundResource(R.drawable.config_upper);
 					mConfLayout.setOrientation(LinearLayout.VERTICAL);
 					{
 						//Execute Module
@@ -819,8 +1097,8 @@ private boolean mIsLandscape = true;
 							moduleLayout.addView(txtLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 							
 							if(Globals.APP_MODULE_NAME_ARRAY.length >= 2){
-								Button btn = new Button(mActivity);
-								btn.setText(getString(R.string.Conf_Change));
+								SaoButton btn = new SaoButton(mActivity);
+								//btn.setText(getString(R.string.Conf_Change));
 								btn.setOnClickListener(new OnClickListener(){
 									public void onClick(View v){
 										AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
@@ -865,8 +1143,8 @@ private boolean mIsLandscape = true;
 							videoDepthLayout.addView(txtLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 							
 							if(Globals.VIDEO_DEPTH_BPP_ITEMS.length >= 2){
-								Button btn = new Button(mActivity);
-								btn.setText(getString(R.string.Conf_Change));
+								SaoButton btn = new SaoButton(mActivity);
+								//btn.setText(getString(R.string.Conf_Change));
 								btn.setOnClickListener(new OnClickListener(){
 									public void onClick(View v){
 										String[] bppItems = new String[Globals.VIDEO_DEPTH_BPP_ITEMS.length];
@@ -919,8 +1197,8 @@ private boolean mIsLandscape = true;
 							}
 							screenRatioLayout.addView(txtLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 							
-							Button btn1 = new Button(mActivity);
-							btn1.setText(getString(R.string.Conf_Swap));
+							SwapButton btn1 = new SwapButton(mActivity);
+							//btn1.setText(getString(R.string.Conf_Swap));
 							btn1.setOnClickListener(new OnClickListener(){
 								public void onClick(View v){
 									int tmp = Locals.VideoXRatio;
@@ -937,8 +1215,8 @@ private boolean mIsLandscape = true;
 							screenRatioLayout.addView(btn1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 							
 							if(Globals.VIDEO_RATIO_ITEMS.length >= 2){
-								Button btn = new Button(mActivity);
-								btn.setText(getString(R.string.Conf_Change));
+								SaoButton btn = new SaoButton(mActivity);
+								//btn.setText(getString(R.string.Conf_Change));
 								btn.setOnClickListener(new OnClickListener(){
 									public void onClick(View v){
 										String[] ratioItems = new String[Globals.VIDEO_RATIO_ITEMS.length];
@@ -1014,8 +1292,8 @@ private boolean mIsLandscape = true;
 							}
 							screenOrientationLayout.addView(txtLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 							
-							Button btn = new Button(mActivity);
-							btn.setText(getString(R.string.Conf_Change));
+							SaoButton btn = new SaoButton(mActivity);
+							//btn.setText(getString(R.string.Conf_Change));
 							btn.setOnClickListener(new OnClickListener(){
 								public void onClick(View v){
 									String[] screenOrientationItems;
@@ -1095,7 +1373,11 @@ private boolean mIsLandscape = true;
 						}
 						mConfLayout.addView(videoSmoothLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
-
+						checkHW = new CheckBox(mActivity);
+						checkHW.setText("硬件加速");
+						checkHW.setBackgroundColor(Color.argb(0, 0, 0, 0));
+						checkHW.setTextColor(Color.BLACK);
+						mConfLayout.addView(checkHW, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
 
 						//Full Video
@@ -1166,7 +1448,7 @@ private boolean mIsLandscape = true;
 							FontSize.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			
 								public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-									if(isChecked && DialogOpen)
+									if(isChecked && ONSVariable.DialogOpen)
 									FontDialog();
 				
 								}
@@ -1176,11 +1458,11 @@ private boolean mIsLandscape = true;
 							FontColor = new CheckBox(mActivity);
 							FontColor.setText("字体颜色");
 							FontColor.setBackgroundColor(Color.argb(0, 0, 0, 0));
-							FontColor.setTextColor(cbColor);
+							FontColor.setTextColor(ONSVariable.cbColor);
 							FontColor.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			
 								public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-									if(isChecked && DialogOpen)
+									if(isChecked && ONSVariable.DialogOpen)
 									ColorDialog();
 				
 								}
@@ -1188,7 +1470,7 @@ private boolean mIsLandscape = true;
 							OtherSettingLayout.addView(FontColor);
 
 							keepON = new CheckBox(mActivity);
-							keepON.setText("长亮 ");
+							keepON.setText("保持长亮 ");
 							keepON.setBackgroundColor(Color.argb(0, 0, 0, 0));
 							keepON.setTextColor(Color.BLACK);
 							OtherSettingLayout.addView(keepON);
@@ -1204,24 +1486,30 @@ private boolean mIsLandscape = true;
 							if (!ck) {
 								Editor e = getSharedPreferences(myname, MODE_PRIVATE).edit();
 
-								set_FullScreen = false;
-								e.putBoolean("FullScreen", set_FullScreen);
+								ONSVariable.set_FullScreen = false;
+								e.putBoolean("FullScreen", ONSVariable.set_FullScreen);
 
-								set_checkSP = false;
-								e.putBoolean("checkSP", set_checkSP);
+								ONSVariable.set_checkSP = false;
+								e.putBoolean("checkSP", ONSVariable.set_checkSP);
 
-								set_OtherPL = false;
-								e.putBoolean("OtherPL", set_OtherPL);
+								ONSVariable.set_OtherPL = false;
+								e.putBoolean("OtherPL", ONSVariable.set_OtherPL);
 
-								set_FontSize = false;
-								e.putBoolean("FontSize", set_FontSize);
+								ONSVariable.set_FontSize = false;
+								e.putBoolean("FontSize", ONSVariable.set_FontSize);
 
-								set_FontColor = false;
-								e.putBoolean("FontColor", set_FontColor);
+								ONSVariable.set_FontColor = false;
+								e.putBoolean("FontColor", ONSVariable.set_FontColor);
 
 
-								set_keepON = false;
-								e.putBoolean("keepON", set_keepON);
+								ONSVariable.set_keepON = false;
+								e.putBoolean("keepON", ONSVariable.set_keepON);
+								
+								ONSVariable.set_putLog = false;
+								e.putBoolean("checkLog", ONSVariable.set_putLog);
+								
+								ONSVariable.set_checkHW = true;
+								e.putBoolean("checkHW", ONSVariable.set_checkHW);
 
 								e.commit();
 							}
@@ -1283,172 +1571,57 @@ private boolean mIsLandscape = true;
 							mConfLayout.addView(cmdOptLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 						}
 						
-						//Environment
-						/*mEnvironmentTextArray = new TextView[Globals.ENVIRONMENT_ITEMS.length];
-						mEnvironmentButtonArray = new Button[Globals.ENVIRONMENT_ITEMS.length];
-						for(int i = 0; i < Globals.ENVIRONMENT_ITEMS.length; i ++){
-							LinearLayout envLayout = new LinearLayout(mActivity);
-							{
-								final int index = i;
-								String value = Locals.EnvironmentMap.get(Globals.ENVIRONMENT_ITEMS[index][1]);
-								
-								CheckBox chk = new CheckBox(mActivity);
-								chk.setChecked(value != null);
-								chk.setOnClickListener(new OnClickListener(){
-									public void onClick(View v){
-										CheckBox c = (CheckBox)v;
-										if(!c.isChecked()){
-											Locals.EnvironmentMap.remove(Globals.ENVIRONMENT_ITEMS[index][1]);
-											mEnvironmentTextArray[index].setText(Globals.ENVIRONMENT_ITEMS[index][1]);
-											mEnvironmentButtonArray[index].setVisibility(View.GONE);
-										} else {
-											Locals.EnvironmentMap.put(Globals.ENVIRONMENT_ITEMS[index][1], Globals.ENVIRONMENT_ITEMS[index][2]);
-											mEnvironmentTextArray[index].setText(Globals.ENVIRONMENT_ITEMS[index][1] + "=" + Globals.ENVIRONMENT_ITEMS[index][2]);
-											mEnvironmentButtonArray[index].setVisibility(View.VISIBLE);
-										}
-										Settings.SaveLocals(mActivity);
-									}
-								});
-								envLayout.addView(chk, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-								
-								LinearLayout txtLayout = new LinearLayout(mActivity);
-								txtLayout.setOrientation(LinearLayout.VERTICAL);
-								{
-									TextView txt1 = new TextView(mActivity);
-									txt1.setTextSize(18.0f);
-									txt1.setText(Globals.ENVIRONMENT_ITEMS[index][0]);
-									txt1.setTextColor(Color.BLACK);
-									txtLayout.addView(txt1, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-									
-									mEnvironmentTextArray[i] = new TextView(mActivity);
-									mEnvironmentTextArray[i].setPadding(5, 0, 0, 0);
-									mEnvironmentTextArray[i].setTextColor(Color.BLACK);
-									if(value == null){
-										mEnvironmentTextArray[i].setText(Globals.ENVIRONMENT_ITEMS[index][1]);
-									} else {
-										mEnvironmentTextArray[i].setText(Globals.ENVIRONMENT_ITEMS[index][1] + "=" + value);
-									}
-									txtLayout.addView(mEnvironmentTextArray[i], new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-								}
-								envLayout.addView(txtLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-								
-								mEnvironmentButtonArray[index] = new Button(mActivity);
-								mEnvironmentButtonArray[index].setText(getString(R.string.Conf_Change));
-								mEnvironmentButtonArray[index].setOnClickListener(new OnClickListener(){
-									public void onClick(View v){
-										final EditText ed = new EditText(mActivity);
-										ed.setInputType(InputType.TYPE_CLASS_TEXT);
-										ed.setText(Locals.EnvironmentMap.get(Globals.ENVIRONMENT_ITEMS[index][1]));
-										
-										AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
-										alertDialogBuilder.setTitle(Globals.ENVIRONMENT_ITEMS[index][1]);
-										alertDialogBuilder.setView(ed);
-										alertDialogBuilder.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener(){
-											public void onClick(DialogInterface dialog, int whichButton) {
-												String newval = ed.getText().toString();
-												Locals.EnvironmentMap.put(Globals.ENVIRONMENT_ITEMS[index][1], newval);
-												mEnvironmentTextArray[index].setText(Globals.ENVIRONMENT_ITEMS[index][1] + "=" + newval);
-												Settings.SaveLocals(mActivity);
-											}
-										});
-										alertDialogBuilder.setNegativeButton(getString(R.string.Cancel), null);
-										alertDialogBuilder.setCancelable(true);
-										AlertDialog alertDialog = alertDialogBuilder.create();
-										alertDialog.show();
-									}
-								});
-								mEnvironmentButtonArray[index].setVisibility(value != null ? View.VISIBLE : View.GONE);
-								envLayout.addView(mEnvironmentButtonArray[index], new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-							}
-							mConfLayout.addView(envLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-						}*/
+						
 					}
 					mConfView.addView(mConfLayout);
 				}
-				addView(mConfView, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, 0, 1) );
+				addView(mConfView, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, 0, 1) );
 				
-				View divider = new View(mActivity);
-				divider.setBackgroundColor(Color.GRAY);
-				addView(divider, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, 2) );
+				//View divider = new View(mActivity);
+				//divider.setBackgroundColor(Color.GRAY);
+				//addView(divider, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 2) );
 				
 				LinearLayout runLayout = new LinearLayout(mActivity);
 				runLayout.setOrientation(LinearLayout.HORIZONTAL);
-				runLayout.setBackgroundColor(0xf5f5f5f5);
+				runLayout.setBackgroundColor(getResources().getColor(R.color.sao_transparent_white));
+				runLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 				//runLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_light_nm));
 				
-				//don't ask me again
-				LinearLayout askLayout = new LinearLayout(mActivity);
-				{
-					CheckBox chk = new CheckBox(mActivity);
-					chk.setChecked(!Locals.AppLaunchConfigUse);
-					chk.setOnClickListener(new OnClickListener(){
-						public void onClick(View v){
-							CheckBox c = (CheckBox)v;
-							Locals.AppLaunchConfigUse = !c.isChecked();
-							Settings.SaveLocals(mActivity);
-						}
-					});
-					askLayout.addView(chk, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-					
-					LinearLayout txtLayout = new LinearLayout(mActivity);
-					txtLayout.setOrientation(LinearLayout.VERTICAL);
-					{
-						TextView txt1 = new TextView(mActivity);
-						txt1.setTextSize(16.0f);
-						txt1.setText(getString(R.string.Conf_DontAskMeAgain));
-						txt1.setTextColor(Color.BLACK);
-						txt1.setShadowLayer (5f, 2, 2f, 0x00000000);
-						txtLayout.addView(txt1, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-						
-						TextView txt2 = new TextView(mActivity);
-						txt2.setPadding(5, 0, 0, 0);
-						txt2.setText(getString(R.string.Conf_NotUseAppLaunchConfig));
-						txt2.setTextColor(Color.BLACK);
-						txt2.setShadowLayer (5f, 2, 2f, 0x00000000);
-						txtLayout.addView(txt2, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-					}
-					askLayout.addView(txtLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-				}
-				runLayout.addView(askLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-				
-				mRunButton = new Button(mActivity);
-				mRunButton.setText(getString(R.string.Conf_Run));
+				mRunButton = new RunButton(mActivity);
+				//mRunButton.setText(getString(R.string.Conf_Run));
 				mRunButton.setTextSize(24.0f);
+				mRunButton.setGravity(Gravity.CENTER_HORIZONTAL);
 				mRunButton.setOnClickListener(new OnClickListener(){
 					public void onClick(View v){
 						WriteSetting(myname);
 						ReadSetting(myname);
-						if(!Locals.gWindowScreen)
+						
 							runApp();
-						else{
-							runWD();
-						}
+
 						
 					}
 				});
 				runLayout.addView(mRunButton, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT) );
+				
+				mRunButton3 = new Button(mActivity);
+				mRunButton3.setText(" ");
+				mRunButton3.setTextSize(24.0f);
+				mRunButton3.setBackgroundColor(Color.argb(0, 0, 0, 0));
+				mRunButton3.setGravity(Gravity.CENTER_HORIZONTAL);
+				runLayout.addView(mRunButton3, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT) );
 
-				mRunButton2 = new Button(mActivity);
-				mRunButton2.setText("创建快捷方式");
+				mRunButton2 = new ShortcutButton(mActivity);
+				//mRunButton2.setText("创建快捷方式");
+				mRunButton2.setGravity(Gravity.CENTER_HORIZONTAL);
 				mRunButton2.setTextSize(24.0f);
 				mRunButton2.setOnClickListener(new OnClickListener(){
 					public void onClick(View v){
-						addShortcut(myname, Globals.CurrentDirectoryPath );
+						Shortcut.addShortcut(myname, Globals.CurrentDirectoryPath ,ONScripter.this);
 					}
 				});
 				runLayout.addView(mRunButton2, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT) );
 
-				mRunButton3 = new Button(mActivity);
-				mRunButton3.setText("取消");
-				mRunButton3.setTextSize(24.0f);
-				mRunButton3.setOnClickListener(new OnClickListener(){
-					public void onClick(View v){
-						setContentView(R.layout.activity_main);
-						
-						DialogOpen = false;
-					}
-				});
-				runLayout.addView(mRunButton3, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT) );
+				
 				
 				addView(runLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT) );
 			}
@@ -1459,49 +1632,65 @@ private boolean mIsLandscape = true;
 		Editor e = getSharedPreferences(Gamename, MODE_PRIVATE).edit();
 		
 		if (checkSP.isChecked()) {
-			set_checkSP = true;
-			e.putBoolean("checkSP", set_checkSP);
+			ONSVariable.set_checkSP = true;
+			e.putBoolean("checkSP", ONSVariable.set_checkSP);
 		} else {
-			set_checkSP = false;
-			e.putBoolean("checkSP", set_checkSP);
+			ONSVariable.set_checkSP = false;
+			e.putBoolean("checkSP", ONSVariable.set_checkSP);
 		}
 		if (FullScreen.isChecked()) {
-			set_FullScreen = true;
-			e.putBoolean("FullScreen", set_FullScreen);
+			ONSVariable.set_FullScreen = true;
+			e.putBoolean("FullScreen", ONSVariable.set_FullScreen);
 		} else {
-			set_FullScreen = false;
-			e.putBoolean("FullScreen", set_FullScreen);
+			ONSVariable.set_FullScreen = false;
+			e.putBoolean("FullScreen", ONSVariable.set_FullScreen);
 		}
 		if (OtherPL.isChecked()) {
-			set_OtherPL = true;
-			e.putBoolean("OtherPL", set_OtherPL);
+			ONSVariable.set_OtherPL = true;
+			e.putBoolean("OtherPL", ONSVariable.set_OtherPL);
 		} else {
-			set_OtherPL = false;
-			e.putBoolean("OtherPL", set_OtherPL);
+			ONSVariable.set_OtherPL = false;
+			e.putBoolean("OtherPL", ONSVariable.set_OtherPL);
 		}
 		
 		if (FontSize.isChecked()) {
-			set_FontSize = true;
-			e.putBoolean("FontSize", set_FontSize);
+			ONSVariable.set_FontSize = true;
+			e.putBoolean("FontSize", ONSVariable.set_FontSize);
 		} else {
-			set_FontSize = false;
-			e.putBoolean("FontSize", set_FontSize);
+			ONSVariable.set_FontSize = false;
+			e.putBoolean("FontSize", ONSVariable.set_FontSize);
 		}
 
 		if (FontColor.isChecked()) {
-			set_FontColor = true;
-			e.putBoolean("FontColor", set_FontColor);
+			ONSVariable.set_FontColor = true;
+			e.putBoolean("FontColor", ONSVariable.set_FontColor);
 		} else {
-			set_FontColor = false;
-			e.putBoolean("FontColor", set_FontColor);
+			ONSVariable.set_FontColor = false;
+			e.putBoolean("FontColor", ONSVariable.set_FontColor);
 		}
 		
 		if (keepON.isChecked()) {
-			set_keepON = true;
-			e.putBoolean("keepON", set_keepON);
+			ONSVariable.set_keepON = true;
+			e.putBoolean("keepON", ONSVariable.set_keepON);
 		} else {
-			set_keepON = false;
-			e.putBoolean("keepON", set_keepON);
+			ONSVariable.set_keepON = false;
+			e.putBoolean("keepON", ONSVariable.set_keepON);
+		}
+		
+		if (checkLog.isChecked()) {
+			ONSVariable.set_putLog = true;
+			e.putBoolean("checkLog", ONSVariable.set_putLog);
+		} else {
+			ONSVariable.set_putLog = false;
+			e.putBoolean("checkLog", ONSVariable.set_putLog);
+		}
+		
+		if (checkHW.isChecked()) {
+			ONSVariable.set_checkHW = true;
+			e.putBoolean("checkHW", ONSVariable.set_checkHW);
+		} else {
+			ONSVariable.set_checkHW = false;
+			e.putBoolean("checkHW", ONSVariable.set_checkHW);
 		}
 		e.commit();
 	}
@@ -1509,41 +1698,54 @@ private boolean mIsLandscape = true;
 	public void ReadSetting(String setting) {
 		SharedPreferences spset = getSharedPreferences(setting, MODE_PRIVATE);// 读取设置
 		
-		set_checkSP = spset.getBoolean("checkSP", set_checkSP);
-		if (set_checkSP) {
+		ONSVariable.set_checkSP = spset.getBoolean("checkSP", ONSVariable.set_checkSP);
+		if (ONSVariable.set_checkSP) {
 			checkSP.setChecked(true);
 		}
-		set_FullScreen = spset.getBoolean("FullScreen", set_FullScreen);
-		if (set_FullScreen)
+		ONSVariable.set_FullScreen = spset.getBoolean("FullScreen", ONSVariable.set_FullScreen);
+		if (ONSVariable.set_FullScreen)
 			FullScreen.setChecked(true);
-		set_OtherPL = spset.getBoolean("OtherPL", set_OtherPL);
-		if (set_OtherPL) {
+		ONSVariable.set_OtherPL = spset.getBoolean("OtherPL", ONSVariable.set_OtherPL);
+		if (ONSVariable.set_OtherPL) {
 			OtherPL.setChecked(true);
 		}
-		set_FullScreen = spset.getBoolean("FullScreen", set_FullScreen);
-		if (set_FullScreen) {
+		ONSVariable.set_FullScreen = spset.getBoolean("FullScreen", ONSVariable.set_FullScreen);
+		if (ONSVariable.set_FullScreen) {
 			FullScreen.setChecked(true);
 		}
-		set_FontSize = spset.getBoolean("FontSize", set_FontSize);
-		if (set_FontSize) {
+		ONSVariable.set_FontSize = spset.getBoolean("FontSize", ONSVariable.set_FontSize);
+		if (ONSVariable.set_FontSize) {
 			FontSize.setChecked(true);
-			myfontsize = spset.getInt("getfontsize", 0);
+			ONSVariable.myfontsize = spset.getInt("getfontsize", 0);
+			ONSVariable.myfontpx = spset.getInt("getfontpx", 0);
 		}
-		set_FontColor = spset.getBoolean("FontColor", set_FontColor);
-		if (set_FontColor) {
+		ONSVariable.set_FontColor = spset.getBoolean("FontColor", ONSVariable.set_FontColor);
+		if (ONSVariable.set_FontColor) {
 			FontColor.setChecked(true);
-			myfont_color1 = spset.getInt("fontr", 255);
-			myfont_color2 = spset.getInt("fontg", 255);
-			myfont_color3 = spset.getInt("fontb", 255);
+			ONSVariable.myfont_color1 = spset.getInt("fontr", 255);
+			ONSVariable.myfont_color2 = spset.getInt("fontg", 255);
+			ONSVariable.myfont_color3 = spset.getInt("fontb", 255);
 			
 		}
-		set_keepON = spset.getBoolean("keepON", set_keepON);
-		if (set_keepON) {
+		ONSVariable.set_keepON = spset.getBoolean("keepON", ONSVariable.set_keepON);
+		if (ONSVariable.set_keepON) {
 			keepON.setChecked(true);
 		}
+		
+		ONSVariable.set_putLog = spset.getBoolean("checkLog", ONSVariable.set_putLog);
+		if (ONSVariable.set_putLog) {
+			checkLog.setChecked(true);
+		}
+		
+		ONSVariable.set_checkHW = spset.getBoolean("checkHW", ONSVariable.set_checkHW);
+		if (ONSVariable.set_checkHW) {
+			checkHW.setChecked(true);
+		}
 
-		cbColor = spset.getInt("cbcolor", Color.BLACK);
-		FontColor.setTextColor(cbColor);
+		ONSVariable.cbColor = spset.getInt("cbcolor", Color.BLACK);
+		FontColor.setTextColor(ONSVariable.cbColor);
+		
+		//ONSVariable.mPlayer = spset.getBoolean("playerchoose", true);
 
 		Locals.gDisableVideo = checkSP.isChecked();
 		Locals.gOtherPL = OtherPL.isChecked();
@@ -1560,36 +1762,42 @@ private boolean mIsLandscape = true;
 	public void FSetting(String setting) {
 		SharedPreferences spset = getSharedPreferences(setting, MODE_PRIVATE);// 读取设置
 	
-		set_FullScreen = spset.getBoolean("FullScreen", set_FullScreen);
-		if (set_FullScreen)
+		ONSVariable.set_FullScreen = spset.getBoolean("FullScreen", ONSVariable.set_FullScreen);
+		if (ONSVariable.set_FullScreen)
 			Locals.gFullScreen = true;
-		set_ScaleFullScreen = spset.getBoolean("ScaleFullScreen", set_ScaleFullScreen);
+		ONSVariable.set_ScaleFullScreen = spset.getBoolean("ScaleFullScreen", ONSVariable.set_ScaleFullScreen);
 
-		set_checkSP = spset.getBoolean("checkSP", set_checkSP);
-		if (set_checkSP)
+		ONSVariable.set_checkSP = spset.getBoolean("checkSP", ONSVariable.set_checkSP);
+		if (ONSVariable.set_checkSP)
 			Locals.gDisableVideo = true;
-		set_OtherPL = spset.getBoolean("OtherPL", set_OtherPL);
-		if (set_OtherPL)
+		ONSVariable.set_OtherPL = spset.getBoolean("OtherPL", ONSVariable.set_OtherPL);
+		if (ONSVariable.set_OtherPL)
 			Locals.gOtherPL = true;
-		set_FontSize = spset.getBoolean("FontSize", set_FontSize);
-		if (set_FontSize){
+		ONSVariable.set_FontSize = spset.getBoolean("FontSize", ONSVariable.set_FontSize);
+		if (ONSVariable.set_FontSize){
 			Locals.gFontSize = true;
-		myfontsize = spset.getInt("getfontsize", 0);
+			ONSVariable.myfontsize = spset.getInt("getfontsize", 0);
+			ONSVariable.myfontpx = spset.getInt("getfontpx", 0);
 		}
-		set_FontColor= spset.getBoolean("FontColor", set_FontColor);
-		if (set_FontColor){
+		ONSVariable.set_FontColor= spset.getBoolean("FontColor", ONSVariable.set_FontColor);
+		if (ONSVariable.set_FontColor){
 			Locals.gFontColor = true;
-		myfont_color1 = spset.getInt("fontr", 255);
-		myfont_color2 = spset.getInt("fontg", 255);
-		myfont_color3 = spset.getInt("fontb", 255);
+			ONSVariable.myfont_color1 = spset.getInt("fontr", 255);
+			ONSVariable.myfont_color2 = spset.getInt("fontg", 255);
+			ONSVariable.myfont_color3 = spset.getInt("fontb", 255);
 		}
-		set_keepON = spset.getBoolean("keepON", set_keepON);
-		if (set_keepON) {
+		
+		ONSVariable.mPlayer = spset.getBoolean("playerchoose", true);
+		
+		ONSVariable.set_keepON = spset.getBoolean("keepON", ONSVariable.set_keepON);
+		if (ONSVariable.set_keepON) {
 			Locals.gKeepON = true;
-			if (Locals.gKeepON)
-				getWindow().addFlags(
-						WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
+		ONSVariable.set_putLog = spset.getBoolean("checkLog", ONSVariable.set_putLog);
+		if (ONSVariable.set_putLog)
+			Locals.Logout = true;
+		
+		ONSVariable.set_checkHW = spset.getBoolean("checkHW", ONSVariable.set_checkHW);
 	}
 	
 	public void runAppLaunchConfig()
@@ -1601,13 +1809,14 @@ private boolean mIsLandscape = true;
 		Settings.LoadLocals(this);
 		
 		if(!Locals.AppLaunchConfigUse){
-			runApp();
+			//runApp();
 			return;
 		}
 		
 		AppLaunchConfigView view = new AppLaunchConfigView(this);
-		setContentView(view);
-		DialogOpen = true;
+		//setContentView(view);
+		gameConfig(view);
+		ONSVariable.DialogOpen = true;
 	}
 
 	
@@ -1631,6 +1840,14 @@ private boolean mIsLandscape = true;
 			if(!flag){
 				missingCount ++;
 				missingFileNames += "[" + missingCount + "]" + fileName.replace("|"," or ") + "\n";
+				File ttfFile = new File(Globals.CurrentDirectoryPath + "/" + "default.ttf");
+				if(!ttfFile.exists() && !ttfFile.canRead())
+				{
+					missingFileNames = "";
+					Locals.AppCommandOptions += " " + "--font /system/fonts/DroidSansFallback.ttf";
+					flag = true;
+					break;
+				}
 			}
 		}
 		
@@ -1653,254 +1870,7 @@ private boolean mIsLandscape = true;
 		return true;
 	}
 	
-	public void runApp()
-	{
-		nativeInitJavaCallbacks();
-		
-		if(Locals.gFontSize)
-		nativeFontSize(myfontsize,myfontsize,myfontpx,myfontpx);
-		if(Locals.gFontColor)
-		nativeFontColor(Locals.gFontColor,myfont_color1,myfont_color2,myfont_color3);
-
-		if(Locals.Logout)
-		debug.Logcat_out(Globals.CurrentDirectoryPath);
-		
-		isRunning = true;
-
-		if(!checkCurrentDirectory(true)){
-			return;
-		}
-		
-		Settings.LoadLocals(this);
-		
-		if(!checkAppNeedFiles()){
-			return;
-		}
-		
-		if(mView == null){
-			mView = new MainView(this);
-			if(Locals.gFullScreen){
-			Fulllayout =new LinearLayout(this);
-			FullSV = new ScrollView(this);
-			Fulllayout.addView(mView);
-			FullSV.addView(Fulllayout);
-			setContentView(FullSV);
-			}
-			
-			else
-			setContentView(mView);
-		}
-		mView.setFocusableInTouchMode(true);
-		mView.setFocusable(true);
-		mView.requestFocus();
-
-		lp  = getWindow().getAttributes();
-		
-		if(extra == null)
-		FreeMemory();
-		System.gc();
-	}
-
-
-	private void runWD() {
-		Rect frame2 = new Rect();
-		getWindow().getDecorView().getWindowVisibleDisplayFrame(frame2);
-		nativeInitJavaCallbacks();
-
-		if(Locals.gFontSize)
-		nativeFontSize(myfontsize,myfontsize,myfontpx,myfontpx);
-		if(Locals.gFontColor)
-		nativeFontColor(Locals.gFontColor,myfont_color1,myfont_color2,myfont_color3);
-
-		if(Locals.Logout)
-		debug.Logcat_out(Globals.CurrentDirectoryPath);
-
-		isRunning = true;
-		lp  = getWindow().getAttributes();  
-
-		if(!checkCurrentDirectory(true)){
-			return;
-		}
-		
-		Settings.LoadLocals(this);
-		
-		if(!checkAppNeedFiles()){
-			return;
-		}
-		
-		if(mView == null){
-			mView = new MainView(this);
-			//setContentView(mView);
-		}
-		mView.setFocusableInTouchMode(true);
-		mView.setFocusable(true);
-		mView.requestFocus();
-
-		lp  = getWindow().getAttributes();
-		
-		FreeMemory();
-		System.gc();
-
-		Intent i = new Intent(Intent.ACTION_MAIN);
-		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		i.addCategory(Intent.CATEGORY_HOME);
-		startActivity(i);
-
-		wdlayout = new LinearLayout(this);
-		wdlayout.setOrientation(LinearLayout.VERTICAL);
-		layout1 = new LinearLayout(this);
-		layout1.setOrientation(LinearLayout.HORIZONTAL);
-		HSV = new HorizontalScrollView(this);
-
-	  final Button Movebtn = new Button(this);
-		Movebtn.setBackgroundColor(Color.argb(100, 10, 10, 10));
-		Movebtn.setTextColor(Color.WHITE);
-		Movebtn.setText("移动");
-		Movebtn.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				if(Locals.ScreenMove){
-					mView.ShowToast("位置已锁定");
-					Locals.ScreenMove = false;
-				}
-				else{
-					Locals.ScreenMove = true;
-					mView.ShowToast("现在可移动画面，再次点击锁定位置");
-				}
-			}
-		}); 
-		layout1.addView(Movebtn);
-
-	  final Button Movebtn2 = new Button(this);
-		Movebtn2.setBackgroundColor(Color.argb(100, 10, 10, 10));
-		Movebtn2.setTextColor(Color.WHITE);
-		Movebtn2.setText("按键");
-		Movebtn2.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				BtnCancel();
-			}
-		}); 
-		layout1.addView(Movebtn2);
-
-	  	Button Movebtn3 = new Button(this);
-		Movebtn3.setBackgroundColor(Color.argb(100, 10, 10, 10));
-		Movebtn3.setTextColor(Color.WHITE);
-		Movebtn3.setText("隐藏");
-		Movebtn3.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-			  
-						if(Locals.ScreenHide){
-							Locals.ScreenMove = false;
-							Locals.ScreenHide = false;
-							mView.ScreenHide();
-							mView.setVisibility(View.VISIBLE);
-							Movebtn.setVisibility(View.VISIBLE);
-							Movebtn2.setVisibility(View.VISIBLE);
-							//if(isRunning )
-							//CurCancel();
-							if (mView != null){
-							mView.onResume();
-			
-							}
-						}
-						else{
-							Locals.ScreenMove = true;
-							Locals.ScreenHide = true;
-							mView.ScreenHide();
-							mView.setVisibility(View.GONE);
-							Movebtn.setVisibility(View.GONE);
-							Movebtn2.setVisibility(View.GONE);
-							//if( isRunning )
-							//CurCancel();
-							if (mView != null)
-							mView.onPause();
-						
-						}
-					
-		    }
-		}); 
-
-		Movebtn3.setOnLongClickListener(new OnLongClickListener() {
-			public boolean onLongClick(View v) {
-				if(!Locals.HideClick){
-				Locals.HideClick = true;
-				}
-				return true;
-			}
-		});
-		
-		Movebtn3.setOnTouchListener(new OnTouchListener() {
-
-			public boolean onTouch(View v, MotionEvent event) {
-				// TODO Auto-generated method stub
-				x = event.getRawX();
-				y = event.getRawY();
-				switch (event.getAction()) {
-
-				case MotionEvent.ACTION_DOWN:
-					startX = event.getX();  
-			 		startY = event.getY(); 
-					break;
-				case MotionEvent.ACTION_MOVE:
-					if (Math.abs(startX - x) > TOUCH_SLOP
-							|| Math.abs(startY - y) > TOUCH_SLOP) {
-						// 移动超过阈值，则表示移动了
-						isMoved = true;
-						
-					}
-					if (isMoved == true) {
-						if(Locals.HideClick){
-						 ONScripter.wdupdatePosition(x,y,startX,startY);
-						
-						isMoved = false;
-						}
-					}
-					break;
-				case MotionEvent.ACTION_UP:
-					if(Locals.HideClick){
-					ONScripter.wdupdatePosition(x,y,startX,startY);
-			 		startX = startY = 0; 
-					
-					Locals.HideClick = false;
-					}
-					break;
-				}
-				return false;
-			}
-		});		
-
-		layout1.addView(Movebtn3);
-		HSV.addView(layout1);
-		
-
-		wdlayout.addView(mView, new LinearLayout.LayoutParams(wdw,
-				wdh));
-		wdlayout.addView(HSV);
-
-		wdwm = (WindowManager)getApplicationContext().getSystemService("window");
-
-		wdparams.type = 2002;
-		wdparams.flags =WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-		|296;
-
-		wdparams.width = WindowManager.LayoutParams.WRAP_CONTENT;
-		wdparams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-		wdparams.alpha =1;
-		wdparams.format=1;
-		
-		wdparams.gravity = Gravity.LEFT | Gravity.TOP;
-		
-		wdparams.x = 0;
-		wdparams.y = 50;
-		wdwm.addView(wdlayout, wdparams);
-
-	}
-
-	public static void wdupdatePosition(float a,float b,float c,float d) {
-		// View current position		
-		wdparams.x = (int)( a - c);  
-     	wdparams.y = (int) (b - d);  
-		wdwm.updateViewLayout(wdlayout, wdparams);
-	}
+	
 
 
 	public void WDDialog() {
@@ -1913,16 +1883,17 @@ private boolean mIsLandscape = true;
 				} else {
 					
 					wd_popupWindow = new PopupWindow(wd_layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,true);
+					wd_popupWindow.setAnimationStyle(R.style.Animation_ConfigPanelAnimation);
 					wd_popupWindow.setTouchable(true);
 					wd_popupWindow.setOutsideTouchable(true);
-					wd_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.pub_pop_bg2));
-					wd_popupWindow.showAtLocation(checkWD, Gravity.CENTER, 0, 0); 
+					wd_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.config_upper));
+					wd_popupWindow.showAtLocation(cover, Gravity.CENTER, 0, 0); 
 					
 				}
 
 		SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
-		wdw = sp.getInt("wdw", 640);
-		wdh = sp.getInt("wdh", 480);
+		ONSVariable.wdw = sp.getInt("wdw", 640);
+		ONSVariable.wdh = sp.getInt("wdh", 480);
 		
 		final TextView wdText=new TextView(this);
 		wdText.setTextSize(21);
@@ -1933,7 +1904,7 @@ private boolean mIsLandscape = true;
 		wd_layout.addView(wdText);
 
 		final EditText Width =new EditText(this);
-		Width.setText(String.valueOf(wdw));
+		Width.setText(String.valueOf(ONSVariable.wdw));
 		Width.setHint("只能输入数字");
 		Width.setInputType(InputType.TYPE_CLASS_NUMBER);
 		Width.setSelection(Width.length());
@@ -1943,7 +1914,7 @@ private boolean mIsLandscape = true;
 		wd_layout.addView(Width);
 
 		final EditText Height =new EditText(this);
-		Height.setText(String.valueOf(wdh));
+		Height.setText(String.valueOf(ONSVariable.wdh));
 		Height.setHint("只能输入数字");
 		Height.setInputType(InputType.TYPE_CLASS_NUMBER);
 		Height.setSelection(Height.length());
@@ -1952,7 +1923,7 @@ private boolean mIsLandscape = true;
 		Height.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		wd_layout.addView(Height);
 		
-		final Button wh=new Button(this);
+		final OkCancelButton wh=new OkCancelButton(this);
 		wh.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		wh.setTextSize(21);
 		wh.setText("确定");
@@ -1960,13 +1931,13 @@ private boolean mIsLandscape = true;
 		wh.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				
-				wdw=Integer.parseInt(Width.getText().toString());
-				wdh=Integer.parseInt(Height.getText().toString());
+				ONSVariable.wdw=Integer.parseInt(Width.getText().toString());
+				ONSVariable.wdh=Integer.parseInt(Height.getText().toString());
 				
 				Editor e = getSharedPreferences("pref", MODE_PRIVATE).edit();
 		
-				e.putInt("wdw", wdw);
-				e.putInt("wdh", wdh);
+				e.putInt("wdw", ONSVariable.wdw);
+				e.putInt("wdh", ONSVariable.wdh);
 				e.commit();
 				wd_popupWindow.dismiss();
 			}
@@ -1989,32 +1960,33 @@ private boolean mIsLandscape = true;
 				} else {
 					
 					font_popupWindow = new PopupWindow(font_layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,true);
+					font_popupWindow.setAnimationStyle(R.style.Animation_ConfigPanelAnimation);
 					font_popupWindow.setTouchable(true);
 					font_popupWindow.setOutsideTouchable(true);
-					font_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.pub_pop_bg2));
-					font_popupWindow.showAtLocation(FontSize, Gravity.CENTER, 0, 0); 
+					font_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.config_upper));
+					font_popupWindow.showAtLocation(cover, Gravity.CENTER, 0, 0); 
 					
 				}
 
 		final TextView Text_font=new TextView(this);
 		Text_font.setTextSize(21);
-		Text_font.setText("           选择字体大小");
-		Text_font.setGravity(Gravity.CENTER_VERTICAL);
+		Text_font.setText("选择字体大小");
+		Text_font.setGravity(Gravity.CENTER_HORIZONTAL);
 		Text_font.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		Text_font.setTextColor(Color.BLACK);
 		font_layout.addView(Text_font);
 
 		final TextView Text_font2=new TextView(this);
-		Text_font2.setTextSize(myfontsize);
-		Text_font2.setText(" 测试文字 ");
-		Text_font2.setGravity(Gravity.CENTER_VERTICAL);
+		Text_font2.setTextSize(ONSVariable.myfontsize);
+		Text_font2.setText("测试文字");
+		Text_font2.setGravity(Gravity.CENTER_HORIZONTAL);
 		Text_font2.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		Text_font2.setTextColor(Color.BLACK);
 		font_layout.addView(Text_font2);
 
 		final SeekBar TextSeekBar=new SeekBar(this);
 		TextSeekBar.setMax(100);
-		TextSeekBar.setProgress(myfontsize);
+		TextSeekBar.setProgress(ONSVariable.myfontsize);
 		TextSeekBar.setSecondaryProgress(0);
 		TextSeekBar.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		TextSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -2036,43 +2008,44 @@ private boolean mIsLandscape = true;
 		}); 
 		font_layout.addView(TextSeekBar);
 		
-		final Button font_btn=new Button(this);
+		final OkCancelButton font_btn=new OkCancelButton(this);
 		font_btn.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		font_btn.setTextSize(21);
-		font_btn.setGravity(Gravity.CENTER_HORIZONTAL);
 		font_btn.setText("     确定      ");
+		font_btn.setGravity(Gravity.CENTER_VERTICAL);
 		font_btn.setTextColor(Color.BLACK);
 		font_btn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 
-				myfontsize=TextSeekBar.getProgress()+15;
-				myfontpx = myfontsize+2;
+				ONSVariable.myfontsize=TextSeekBar.getProgress()+15;
+				ONSVariable.myfontpx = ONSVariable.myfontsize+2;
 
 				Editor e = getSharedPreferences(myname, MODE_PRIVATE).edit();
 		
-				e.putInt("getfontsize", myfontsize);
-				e.putInt("getfontsize", myfontpx);
+				e.putInt("getfontsize", ONSVariable.myfontsize);
+				e.putInt("getfontpx", ONSVariable.myfontpx);
 				e.commit();
 				font_popupWindow.dismiss();
 			}
 		});
 		font_layout2.addView(font_btn);
 
-		final Button font_btn2=new Button(this);
+		final OkCancelButton font_btn2=new OkCancelButton(this);
 		font_btn2.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		font_btn2.setTextSize(21);
-		font_btn2.setGravity(Gravity.CENTER_HORIZONTAL);
 		font_btn2.setText("      默认    ");
+		font_btn2.setGravity(Gravity.CENTER_VERTICAL);
 		font_btn2.setTextColor(Color.BLACK);
 		font_btn2.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 
-				myfontsize=0;
-				myfontpx=0;
+				ONSVariable.myfontsize=0;
+				ONSVariable.myfontpx=0;
 
 				Editor e = getSharedPreferences(myname, MODE_PRIVATE).edit();
 		
-				e.putInt("getfontsize", myfontsize);
+				e.putInt("getfontsize", ONSVariable.myfontsize);
+				e.putInt("getfontpx", ONSVariable.myfontpx);
 
 				e.commit();
 				font_popupWindow.dismiss();
@@ -2085,332 +2058,7 @@ private boolean mIsLandscape = true;
 	}
 
 
-	public void LightDialog() {
-
-		final LinearLayout light_layout = new LinearLayout(this);
-		light_layout.setOrientation(LinearLayout.VERTICAL);	
-
-		Display disp = ((WindowManager) this
-				.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-		int dw = disp.getWidth();	
-		
-		if (light_popupWindow != null && light_popupWindow.isShowing()) {
-					light_popupWindow.dismiss();
-				} else {
-					
-					light_popupWindow = new PopupWindow(light_layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,true);
-					light_popupWindow.setTouchable(true);
-					light_popupWindow.setOutsideTouchable(true);
-					light_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.pub_pop_bg2));
-					light_popupWindow.showAtLocation(mView, Gravity.CENTER, 0, 0); 
-					
-				}
-
-		
-		
-		final TextView lightText=new TextView(this);
-		lightText.setTextSize(21);
-		lightText.setGravity(Gravity.CENTER_VERTICAL);
-		lightText.setBackgroundColor(Color.argb(0, 0, 0, 0));
-		lightText.setTextColor(Color.BLACK);
-		light_layout.addView(lightText);
-		
-		final SeekBar lightBar=new SeekBar(this);
-		lightBar.setMax(100);
-		lightBar.setProgress(1);
-		lightBar.setSecondaryProgress(0);
-		lightBar.setProgress((int)light);
-		lightBar.setBackgroundColor(0x0099ff00);
-		lightBar.setLayoutParams(new LinearLayout.LayoutParams(dw/3, LinearLayout.LayoutParams.WRAP_CONTENT));
-		lightBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				// TODO Auto-generated method stub
-				light=lightBar.getProgress();
-				if(light>1)
-				{
-				float a1=light/100;
-				if(a1>0.05){
-				lp.screenBrightness = a1;   
-		        	getWindow().setAttributes(lp);
-				}
-				}
-				
-				lightText.setText(String.valueOf(light));
-			}
-		});
-		light_layout.addView(lightBar);
-
-	}
-
-	public void VirtualButton() {
-		Rect frame = new Rect();
-		getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
-		Btnlayout = new LinearLayout(this);
-		Btnlayout.setOrientation(LinearLayout.VERTICAL);
-		Btnlayout.setBackgroundResource(R.drawable.popupwindow);
-		LinearLayout SVlayout = new LinearLayout(this);
-		LinearLayout SVlayout2 = new LinearLayout(this);
-		SVlayout.setBackgroundResource(R.drawable.popupwindow);
-		SVlayout2.setBackgroundResource(R.drawable.popupwindow);
-		HorizontalScrollView BtnHSV = new HorizontalScrollView(this);
-		HorizontalScrollView BtnHSV2 = new HorizontalScrollView(this);
-		BtnHSV.setBackgroundResource(R.drawable.popupwindow);
-		BtnHSV2.setBackgroundResource(R.drawable.popupwindow);
-		wm = (WindowManager) getApplicationContext().getSystemService("window");
-
-	  	popbtn = new ImageButton(this);
-		popbtn.setImageResource(R.drawable.icon_pop);
-		popbtn.setBackgroundColor(Color.argb(0, 0, 0, 0));
-		popbtn.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				if (button_popupWindow != null && button_popupWindow.isShowing()) {
-					button_popupWindow.dismiss();
-				} else {
-					
-					button_popupWindow = new PopupWindow(Btnlayout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,true);
-					button_popupWindow.setTouchable(true);
-					button_popupWindow.setOutsideTouchable(true);
-					button_popupWindow.setBackgroundDrawable(new BitmapDrawable());
-					button_popupWindow.showAsDropDown(popbtn,5,5);
-					
-				}
-
-			}
-		});
-
-		popbtn.setOnTouchListener(new OnTouchListener() {
-
-			public boolean onTouch(View v, MotionEvent event) {
-				// TODO Auto-generated method stub
-				x = event.getRawX();
-				y = event.getRawY();
-				switch (event.getAction()) {
-
-				case MotionEvent.ACTION_DOWN:
-					startX = x;
-					startY = y;
-					break;
-				case MotionEvent.ACTION_MOVE:
-					if (Math.abs(startX - x) > TOUCH_SLOP
-							|| Math.abs(startY - y) > TOUCH_SLOP) {
-						// 移动超过阈值，则表示移动了
-						isMoved = true;
-					}
-					if (isMoved == true) {
-						updatePosition();
-						
-						isMoved = false;
-					}
-					break;
-				case MotionEvent.ACTION_UP:
-					 startX = event.getX();
-					 startY = event.getY();
-					break;
-				}
-				return false;
-			}
-		});
-
-		
-
-		Button btnup = new Button(this);
-		btnup.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btnup.setTextSize(textsize);
-		btnup.setTextColor(Color.WHITE);
-		btnup.setText(getResources().getString(R.string.Key_PrevChoice));
-		btnup.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_DPAD_UP, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_DPAD_UP, 0);
-			}
-		});
-
-		Button btndown = new Button(this);
-		btndown.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btndown.setTextSize(textsize);
-		btndown.setTextColor(Color.WHITE);
-		btndown.setText(getResources().getString(R.string.Key_NextChoice));
-		btndown.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_DPAD_DOWN, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_DPAD_DOWN, 0);
-			}
-		});
-
-		Button btnleft = new Button(this);//左键
-		btnleft.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btnleft.setTextSize(textsize);
-		btnleft.setTextColor(Color.WHITE);
-		btnleft.setText(getResources().getString(R.string.Key_LeftClick));
-		btnleft.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_ENTER, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_ENTER, 0);
-			}
-		});
-
-		Button btnright = new Button(this);
-		btnright.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btnright.setTextSize(textsize);
-		btnright.setTextColor(Color.WHITE);
-		btnright.setText(getResources().getString(R.string.Key_RightClick));
-		btnright.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_BACK, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_BACK, 0);
-			}
-		});
-
-		Button btnleft2 = new Button(this); //left
-		btnleft2.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btnleft2.setTextSize(textsize);
-		btnleft2.setTextColor(Color.WHITE);
-		btnleft2.setText(getResources().getString(R.string.Key_WheelUp));
-		btnleft2.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_DPAD_LEFT, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_DPAD_LEFT, 0);
-			}
-		});
-
-		Button btnright2 = new Button(this);
-		btnright2.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btnright2.setTextSize(textsize);
-		btnright2.setTextColor(Color.WHITE);
-		btnright2.setText(getResources().getString(R.string.Key_WheelDown));
-		btnright2.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_DPAD_RIGHT, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_DPAD_RIGHT, 0);
-			}
-		});
-		
-		Button btnvolup = new Button(this);
-		btnvolup.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btnvolup.setTextSize(textsize);
-		btnvolup.setTextColor(Color.WHITE);
-		btnvolup.setText(getResources().getString(R.string.button_vol_up));
-		btnvolup.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_M, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_M, 0);
-			}
-		});
-		btnvolup.setOnLongClickListener(new OnLongClickListener() {
-			public boolean onLongClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_D, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_D, 0);
-				return true;
-			}
-		});
-
-
-		Button btnvoldown = new Button(this);
-		btnvoldown.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btnvoldown.setTextSize(textsize);
-		btnvoldown.setTextColor(Color.WHITE);
-		btnvoldown.setText(getResources().getString(R.string.button_vol_down));
-		btnvoldown.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_I, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_I, 0);
-			}
-		});
-		btnvoldown.setOnLongClickListener(new OnLongClickListener() {
-			public boolean onLongClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_W, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_W, 0);
-				return true;
-			}
-		});
-
-		Button btngetfshot = new Button(this);
-		btngetfshot.setText(getResources().getString(R.string.button_Menu));
-		btngetfshot.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btngetfshot.setTextSize(textsize);
-		btngetfshot.setTextColor(Color.WHITE);
-		btngetfshot.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				openOptionsMenu();
-			}
-		});
-
-		Button btngetshot = new Button(this);
-		btngetshot.setText(getResources().getString(R.string.button_get_default_screenshot));
-		btngetshot.setBackgroundColor(Color.argb(10, 10, 10, 10));
-		btngetshot.setTextSize(textsize);
-		btngetshot.setTextColor(Color.WHITE);
-		btngetshot.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mView.nativeKey(KeyEvent.KEYCODE_U, 1);
-				mView.nativeKey(KeyEvent.KEYCODE_U, 0);
-				mView.ShowToast("截图成功，保存在"+Globals.CurrentDirectoryPath);
-				
-			}
-		});
-
-
-		params.type = 2003;
-		params.flags = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
-
-		params.width = WindowManager.LayoutParams.WRAP_CONTENT;
-		params.height = WindowManager.LayoutParams.WRAP_CONTENT;
-		params.alpha = 80;
-		params.format=1;
-
-		params.gravity = Gravity.LEFT | Gravity.TOP;
-
-		params.x = 0;
-		params.y = 0;
-
-		SVlayout.addView(btnup);
-		SVlayout.addView(btndown);
-		SVlayout.addView(btnleft);
-		SVlayout.addView(btnright);
-		SVlayout.addView(btngetfshot);
-
-		SVlayout2.addView(btnleft2);
-		SVlayout2.addView(btnright2);
-		SVlayout2.addView(btnvolup);
-		SVlayout2.addView(btnvoldown);
-		SVlayout2.addView(btngetshot);
-
-		BtnHSV.addView(SVlayout);
-		BtnHSV2.addView(SVlayout2);
-		Btnlayout.addView(BtnHSV);
-		Btnlayout.addView(BtnHSV2);
-		wm.addView(popbtn, params);
-	}
-
-	public void BtnCancel() {
-		if (popbtn != null && popbtn.isShown()) {
-			wm = (WindowManager) getApplicationContext().getSystemService(
-					"window");
-			params = new WindowManager.LayoutParams();
-			wm.removeView(popbtn);
-		} else{
-			VirtualButton();
-			mView.ShowToast("虚拟按键可任意拖动");
-		}
-	}
-
-	private void updatePosition() {		
-		params.x = (int) (x - 30);
-		params.y = (int) (y - 60);
-		wm.updateViewLayout(popbtn, params);
-	}
+	
 
 	public void TextDialog() {
 
@@ -2422,10 +2070,11 @@ private boolean mIsLandscape = true;
 				} else {
 					
 					size_popupWindow = new PopupWindow(size_layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,true);
+					size_popupWindow.setAnimationStyle(R.style.Animation_ConfigPanelAnimation);
 					size_popupWindow.setTouchable(true);
 					size_popupWindow.setOutsideTouchable(true);
-					size_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.pub_pop_bg2));
-					size_popupWindow.showAtLocation(ONSSetting, Gravity.CENTER, 0, 0); 
+					size_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.config_upper));
+					size_popupWindow.showAtLocation(cover, Gravity.CENTER, 0, 0); 
 					
 				}
 
@@ -2439,7 +2088,7 @@ private boolean mIsLandscape = true;
 		size_layout.addView(Text_size);
 
 		final EditText editSize =new EditText(this);
-		editSize.setText(String.valueOf(textsize));
+		editSize.setText(String.valueOf(ONSVariable.textsize));
 		editSize.setHint("只能输入数字");
 		editSize.setInputType(InputType.TYPE_CLASS_NUMBER);
 		editSize.setSelection(editSize.length());
@@ -2448,7 +2097,7 @@ private boolean mIsLandscape = true;
 		editSize.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		size_layout.addView(editSize);
 		
-		final Button size_btn=new Button(this);
+		final OkCancelButton size_btn=new OkCancelButton(this);
 		size_btn.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		size_btn.setTextSize(21);
 		size_btn.setText("确定");
@@ -2456,16 +2105,230 @@ private boolean mIsLandscape = true;
 		size_btn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				
-				textsize=Integer.parseInt(editSize.getText().toString());
+				ONSVariable.textsize=Integer.parseInt(editSize.getText().toString());
 				
 				Editor e = getSharedPreferences("pref", MODE_PRIVATE).edit();
 		
-				e.putInt("textsize", textsize);
+				e.putInt("textsize", ONSVariable.textsize);
 				e.commit();
 				size_popupWindow.dismiss();
 			}
 		});
 		size_layout.addView(size_btn);
+
+	}
+	
+	public void VideoDialog() {
+
+		final LinearLayout video_layout = new LinearLayout(this);
+		video_layout.setOrientation(LinearLayout.VERTICAL);	
+		
+		SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
+		ONSVariable.mPlayer = sp.getBoolean("playerchoose", true);
+		
+		if (video_popupWindow != null && video_popupWindow.isShowing()) {
+			video_popupWindow.dismiss();
+				} else {
+					
+					video_popupWindow = new PopupWindow(video_layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,true);
+					video_popupWindow.setAnimationStyle(R.style.Animation_ConfigPanelAnimation);
+					video_popupWindow.setTouchable(true);
+					video_popupWindow.setOutsideTouchable(true);
+					video_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.config_upper));
+					video_popupWindow.showAtLocation(cover, Gravity.CENTER, 0, 0); 
+					
+				}
+		
+		final TextView Text_size=new TextView(this);
+		Text_size.setTextSize(21);
+		Text_size.setText("        选择视频解码器      ");
+		Text_size.setGravity(Gravity.CENTER_VERTICAL);
+		Text_size.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		Text_size.setTextColor(Color.BLACK);
+		video_layout.addView(Text_size);
+
+
+		SFDecode = new CheckBox(this);
+		SFDecode.setText(" 软解");
+		SFDecode.setTextSize(21);
+		SFDecode.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		SFDecode.setTextColor(Color.BLACK);
+		SFDecode.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked)
+				{
+					ONSVariable.mPlayer = true;
+					HWDecode.setChecked(false);
+				}
+				else {
+					ONSVariable.mPlayer = false;
+					HWDecode.setChecked(true);
+				}
+				Log.d("ss", String.valueOf(ONSVariable.mPlayer));
+			}
+		});
+		video_layout.addView(SFDecode);
+
+		HWDecode = new CheckBox(this);
+		HWDecode.setText(" 硬解");
+		HWDecode.setTextSize(21);
+		//HWDecode.setGravity(Gravity.CENTER_VERTICAL);
+		HWDecode.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		HWDecode.setTextColor(Color.BLACK);
+		HWDecode.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked)
+				{
+					ONSVariable.mPlayer = false;
+					SFDecode.setChecked(false);
+				}
+				else {
+					ONSVariable.mPlayer = true;
+					SFDecode.setChecked(true);
+				}
+
+			}
+		});
+		video_layout.addView(HWDecode);
+		
+		if(ONSVariable.mPlayer)
+			SFDecode.setChecked(true);
+		else {
+			HWDecode.setChecked(true);
+		}
+		
+		final OkCancelButton ok_btn=new OkCancelButton(this);
+		ok_btn.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		ok_btn.setTextSize(21);
+		ok_btn.setText("确定");
+		ok_btn.setTextColor(Color.BLACK);
+		ok_btn.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				
+				Editor e = getSharedPreferences("pref", MODE_PRIVATE).edit();
+		
+				e.putBoolean("playerchoose", ONSVariable.mPlayer);
+				e.commit();
+				video_popupWindow.dismiss();
+			}
+		});
+		video_layout.addView(ok_btn);
+
+	}
+	
+	
+	public void gameConfig(View v) {	
+		
+		if (config_popupWindow != null && config_popupWindow.isShowing()) {
+			config_popupWindow.dismiss();
+				} else {
+					
+					config_popupWindow = new PopupWindow(v, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,true);
+					config_popupWindow.setAnimationStyle(R.style.Animation_ConfigPanelAnimation);
+					config_popupWindow.setTouchable(true);
+					config_popupWindow.setOutsideTouchable(true);
+					config_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.transparent));
+					config_popupWindow.showAtLocation(cover, Gravity.RIGHT, 0, 0); 
+					//config_popupWindow.update();
+					
+				}
+
+
+
+
+	}
+	
+public void cursetting() {
+		
+
+
+		final LinearLayout setting_layout = new LinearLayout(this);
+		setting_layout.setOrientation(LinearLayout.VERTICAL);	
+		setting_layout.setGravity(Gravity.CENTER);
+		
+		if (setting_popupWindow != null && setting_popupWindow.isShowing()) {
+			setting_popupWindow.dismiss();
+				} else {
+					
+					setting_popupWindow = new PopupWindow(setting_layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,true);
+					setting_popupWindow.setAnimationStyle(R.style.Animation_ConfigPanelAnimation);
+					setting_popupWindow.setTouchable(true);
+					setting_popupWindow.setOutsideTouchable(true);
+					setting_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.config_upper));
+					setting_popupWindow.showAtLocation(cover, Gravity.RIGHT, 0, 0); 
+					
+				}
+
+		final OkCancelButton text_btn=new OkCancelButton(this);
+		text_btn.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		text_btn.setTextSize(21);
+		text_btn.setText("虚拟按键大小");
+		text_btn.setTextColor(Color.BLACK);
+		text_btn.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				TextDialog();
+				
+			}
+		});
+		setting_layout.addView(text_btn);
+		
+		final OkCancelButton video_btn=new OkCancelButton(this);
+		video_btn.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		video_btn.setTextSize(21);
+		video_btn.setText("视频解码器");
+		video_btn.setTextColor(Color.BLACK);
+		video_btn.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				VideoDialog();
+				
+			}
+		});
+		setting_layout.addView(video_btn);
+		
+		final OkCancelButton dir_btn=new OkCancelButton(this);
+		dir_btn.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		dir_btn.setTextSize(21);
+		dir_btn.setText("游戏路径设置");
+		dir_btn.setTextColor(Color.BLACK);
+		dir_btn.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				chooseDir();	
+			}
+		});
+		setting_layout.addView(dir_btn);
+		
+		final OkCancelButton unzip_btn=new OkCancelButton(this);
+		unzip_btn.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		unzip_btn.setTextSize(21);
+		unzip_btn.setText("跑分测试");
+		unzip_btn.setTextColor(Color.BLACK);
+		unzip_btn.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				Toast.makeText(ONScripter.this, "正在后台解压,完成后将刷新列表.",Toast.LENGTH_LONG).show();
+				UnZip.StartUnZip(ONScripter.this);	
+			}
+		});
+		setting_layout.addView(unzip_btn);
+		
+		final OkCancelButton down_btn=new OkCancelButton(this);
+		down_btn.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		down_btn.setTextSize(21);
+		down_btn.setText("下载示例");
+		down_btn.setTextColor(Color.BLACK);
+		down_btn.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				runDownloader("22");
+			}
+		});
+		setting_layout.addView(down_btn);
+
 
 	}
 
@@ -2477,15 +2340,15 @@ private boolean mIsLandscape = true;
 					
 					public void colorChanged(int color) {
 						FontColor.setTextColor(color);
-						myfont_color1 = Colordialog.getR();
-						myfont_color2 = Colordialog.getG();
-						myfont_color3 = Colordialog.getB();
+						ONSVariable.myfont_color1 = Colordialog.getR();
+						ONSVariable.myfont_color2 = Colordialog.getG();
+						ONSVariable.myfont_color3 = Colordialog.getB();
 
 						Editor e = getSharedPreferences(myname, MODE_PRIVATE).edit();
 		
-						e.putInt("fontr", myfont_color1);
-						e.putInt("fontg", myfont_color2);
-						e.putInt("fontb", myfont_color3);
+						e.putInt("fontr", ONSVariable.myfont_color1);
+						e.putInt("fontg", ONSVariable.myfont_color2);
+						e.putInt("fontb", ONSVariable.myfont_color3);
 						e.putInt("cbcolor", color);
 						e.commit();
 					}
@@ -2494,364 +2357,164 @@ private boolean mIsLandscape = true;
 	}
 
 
-	public void addShortcut(String name, String path) {
-		Intent shortcut = new Intent(
-				"com.android.launcher.action.INSTALL_SHORTCUT");
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
-		shortcut.putExtra("duplicate", false);
-		ComponentName comp = new ComponentName(this.getPackageName(), "."
-				+ this.getLocalClassName());
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(
-				Intent.ACTION_MAIN).setComponent(comp));
-		Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
-		shortcutIntent.setClass(this, start.class);
-		shortcutIntent.putExtra(SHORT_CUT_EXTRAS, path);
-		shortcutIntent.putExtra("setting", name);
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-
-		String iconPath = path + "/ICON.PNG";
-		Drawable d = Drawable.createFromPath(iconPath);
-		if (d != null) {
-			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON,
-					generatorContactCountIcon(((BitmapDrawable) (getResources()
-							.getDrawable(R.drawable.icon))).getBitmap(), d));
-		} else {
-			ShortcutIconResource iconRes = Intent.ShortcutIconResource
-					.fromContext(this, R.drawable.icon);
-			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconRes);
-		}
-		sendBroadcast(shortcut);
-	}
-
-	public Bitmap generatorContactCountIcon(Bitmap icon, Drawable d) {
-
-		Display disp = ((WindowManager) this
-				.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-		int dh = disp.getHeight();
-		int iconSize=32;
-
-		// 初始化画�?		
-		if (dh <= 240)
-			iconSize = 48;
-		else if (dh < 500 || dh >500){
-			if(dh == 640)
-			iconSize = 96;
-			else
-			iconSize = 72;
-
-		}
-		
-		Bitmap contactIcon = Bitmap.createBitmap(iconSize, iconSize,
-				Config.ARGB_8888);
-		Canvas canvas = new Canvas(contactIcon);
-		BitmapDrawable bd = (BitmapDrawable) d;
-		Bitmap bm = bd.getBitmap();
-
-		// 拷贝图片
-		Paint iconPaint = new Paint();
-		iconPaint.setDither(true);
-		iconPaint.setFilterBitmap(true);
-		Rect src = new Rect(0, 0, iconSize, iconSize);
-		Rect dst = new Rect(0, 0, iconSize, iconSize);
-		canvas.drawBitmap(contactIcon, src, dst, iconPaint);
-
-		Paint countPaint = new Paint(Paint.ANTI_ALIAS_FLAG
-				| Paint.FILTER_BITMAP_FLAG);
-
-
-			canvas.drawBitmap(CreatMatrixBitmap(bm, iconSize, iconSize), src, dst,
-					countPaint);
-		
-		return contactIcon;
-	}
-
-	private Bitmap CreatMatrixBitmap(Bitmap bitMap, float scr_width,
-			float res_height) {
-
-		int bitWidth = bitMap.getWidth();
-		int bitHeight = bitMap.getHeight();
-		float scaleWidth = scr_width / (float) bitWidth;
-		float scaleHeight = res_height / (float) bitHeight;
-		Matrix matrix = new Matrix();
-		matrix.postScale(scaleWidth, scaleHeight);
-		bitMap = Bitmap.createBitmap(bitMap, 0, 0, bitWidth, bitHeight, matrix,
-				true);
-		return bitMap;
-	}
-
-	public void GetTime()
-	{
-		try  
-		   {   
-		Date   curDate   =   new   Date(System.currentTimeMillis());//获取当前时间     
-			    String   ctime   =   df.format(curDate);     
-					
-			    nowtime = df.format(new Date());
-		            Date d1 = df.parse(nowtime);   
-		            Date d2 = df.parse(oldtime);   
-		            long diff = d1.getTime() - d2.getTime();   
-		            long min = diff / (1000 * 60);   
-		            long hour = 0;
-		            if( min >=60 )
-		            {
-		            	hour = min/60;
-		            	min = min - hour*60;
-		            }
-		            String.valueOf(min);
-		            String.valueOf(hour);
-		            //Toast.makeText(this, "游戏已进行+hour+"小时"+min+"分钟"+" 当前时间"+ctime+" 剩余内存"+getAvailMemory()+battery, Toast.LENGTH_LONG).show();
-			   myTime=" 游戏已进行"+hour+"小时"+min+"分钟"+"\n"+" 当前时间"+ctime+"\n"+" 剩余内存"+getAvailMemory()+"\n"+battery;
-		}   
-		        catch (Exception e)   
-		        {   
-		        } 
-
-		final LinearLayout time_layout = new LinearLayout(this);
-		time_layout.setOrientation(LinearLayout.VERTICAL);	
 	
-		
-		if (time_popupWindow != null && time_popupWindow.isShowing()) {
-					time_popupWindow.dismiss();
-				} else {
-					
-					time_popupWindow = new PopupWindow(time_layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,true);
-					time_popupWindow.setTouchable(true);
-					time_popupWindow.setOutsideTouchable(true);
-					time_popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.pub_pop_bg2));
-					time_popupWindow.showAtLocation(mView, Gravity.CENTER, 0, 0); 
-					
-				}
 
-		
-		
-		final TextView timeText=new TextView(this);
-		timeText.setTextSize(21);
-		timeText.setText(myTime);
-		timeText.setGravity(Gravity.CENTER_VERTICAL);
-		timeText.setBackgroundColor(Color.argb(0, 0, 0, 0));
-		timeText.setTextColor(Color.BLACK);
-		time_layout.addView(timeText);
+	
+	public void About() {
 
-		final Button timeBtn=new Button(this);
-		timeBtn.setTextSize(21);
-		timeBtn.setText(getResources().getString(R.string.button_Menu));
-		timeBtn.setOnClickListener(new OnClickListener() {
+		AlertDialog.Builder builder;
+		try {
+			builder = new AlertDialog.Builder(this,R.style.AliDialog);
+		} catch (NoSuchMethodError e) {
+		    builder = new AlertDialog.Builder(this);
+		}
+		builder.setCancelable(false);
+		final AlertDialog alert = builder.create(); 
+		
+		LayoutInflater factory = LayoutInflater.from(this);
+        View view = factory.inflate(R.layout.sao_dialog, null);
+        
+        if(Build.VERSION.SDK_INT < 9) {
+        	view.setBackgroundDrawable(getResources().getDrawable(R.drawable.config_upper));
+		}
+        alert.show();
+		alert.setContentView(view);
+        
+        TextView title=(TextView)view.findViewById(R.id.titleView2);
+        TextView info=(TextView)view.findViewById(R.id.infoView1);
+        OkCancelButton okButton=(OkCancelButton)view.findViewById(R.id.okbutton2);
+        OkCancelButton urlButton=(OkCancelButton)view.findViewById(R.id.urlbutton1);
+        title.setText("  关于");
+        info.setText(getResources().getString(R.string.info));
+        okButton.setOnClickListener(new OnClickListener() {
+			
 			public void onClick(View v) {
-				openOptionsMenu();
+				alert.dismiss();
+				
+			}
+		});
+        urlButton.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				Uri uri = Uri.parse("http://portal.bakerist.info/node/68");
+				Intent web = new Intent(Intent.ACTION_VIEW, uri);
+				startActivity(web);
+				
 			}
 		});
 		
+	}
+	
+	private void runDownloader(String version) {
+		String version_filename = version;
+		File file = new File(Globals.CurrentDirectoryPath + "/" + version_filename);
+		if (file.exists() == false){
+			progDialog = new ProgressDialog(this);
+			progDialog.setCanceledOnTouchOutside(false);
+			progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			progDialog.setMessage("Downloading archives from Internet:");
+			progDialog.setOnKeyListener(new OnKeyListener(){
+				public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event){
+						if (KeyEvent.KEYCODE_SEARCH == keyCode || KeyEvent.KEYCODE_BACK == keyCode)
+								return true;
+						return false;
+				}
+			});
+			progDialog.show();
+
+			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+			wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "ONScripter");
+			wakeLock.acquire();
+			alertDialogBuilder = new AlertDialog.Builder(this);
+
+			runDownloaderSub(version,"http://portal.bakerist.info/wp-content/uploads/2013/02/Luatest.zip");
+		}
+	
+	}
+	
+	private void runDownloaderSub(String version,String download_url)
+	{
+		final String version_filename = version;
+		String url = download_url;
+
+		if (url.length() != 0){
+			//String deviceId = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID);
+
+			
+			String zip_dir = Globals.CurrentDirectoryPath;
+			String zip_filename = url.substring(url.lastIndexOf("/")+1);
+
+			downloader = new DataDownloader(zip_dir, zip_filename, Globals.CurrentDirectoryPath, version_filename, url, -1, handler);
+		}
 		
-		time_layout.addView(timeBtn);
-
-
-
-
 	}
 
-	public String getAvailMemory()
-	{
-		ActivityManager activitymanager = (ActivityManager)this.getSystemService("activity");
-		android.app.ActivityManager.MemoryInfo memoryinfo = new android.app.ActivityManager.MemoryInfo();
-		activitymanager.getMemoryInfo(memoryinfo);
-		Context context = this;
-		long l = memoryinfo.availMem;
-		return Formatter.formatFileSize(context, l);
-	};
-
-	public BroadcastReceiver mBatteryInfoReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-			if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
-
-				int level = intent.getIntExtra("level", 0);
-				int scale = intent.getIntExtra("scale", 100);
-
-				battery = " 剩余电量 "+String.valueOf(level * 100 / scale) + "%";
+	
+	final Handler handler = new Handler(){
+		public void handleMessage(Message msg){
+			int current = msg.getData().getInt("current");
+			if (current == -1){
+				progDialog.dismiss();
+				loadCurrentDirectory();
+			}
+			else if (current == -2){
+				progDialog.dismiss();
+				showErrorDialog(msg.getData().getString("message"));
+			}
+			else{
+				progDialog.setMessage(msg.getData().getString("message"));
+				int total = msg.getData().getInt("total");
+				if (total != progDialog.getMax())
+					progDialog.setMax(total);
+				progDialog.setProgress(current);
 			}
 		}
 	};
 
-	public void About() {
+	private void showErrorDialog(String mes)
+	{
+		
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("关于 updates by natdon");
-		builder.setMessage(getResources().getString(R.string.info));
-		builder.setPositiveButton("确定", null);
-		builder.setNegativeButton("访问论坛",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						Uri uri = Uri.parse("http://mobi.acgfuture.com");
-						Intent web = new Intent(Intent.ACTION_VIEW, uri);
-						startActivity(web);
-					}
-				});
+		alertDialogBuilder.setTitle("Error");
+		alertDialogBuilder.setMessage(mes);
+		alertDialogBuilder.setPositiveButton("Quit", new DialogInterface.OnClickListener(){
+			public void onClick(DialogInterface dialog, int whichButton) {
+				//finish();
+				ErroralertDialog.dismiss();
+			}
+		});
+		ErroralertDialog = alertDialogBuilder.create();
+		ErroralertDialog.show();
+	}
 
-
-		builder.create().show();
+	public void sendMessage(int current, int total, String str)
+	{
+		Message msg = handler.obtainMessage();
+		Bundle b = new Bundle();
+		b.putInt("total", total);
+		b.putInt("current", current);
+		b.putString("message", str);
+		msg.setData(b);
+		handler.sendMessage(msg);
 	}
 
 	/**********************************************************************************************************/
-	
-	@SuppressWarnings("deprecation")
-	private void displayCover() {
-		final Object o = cover.getTag();
-		if(o instanceof Bitmap) {
-			cover.setTag(null);
-			cover.startAnimation(GetAnimation.For.MainInterface.ToShowCover(new AnimationListener (){
-
-				public void onAnimationStart(Animation animation) {
-					cover.setImageBitmap((Bitmap) o);
-					cover.setBackgroundDrawable(null);
-				}
-				
-			}));
-		}
-	}
-
-	public void playVideo() {
-		Game item = items.getItem(items.getSelectedPosition());
-		if(item.video != null && isVideoInitialized) {
-			videoframe.clearAnimation();
-			animPlayVideo.reset();
-			videoframe.startAnimation(animPlayVideo);
-		}
-	}
-
-
-	public void releaseVideoPlay() {
-		videoframe.clearAnimation();
-
-		// Clear Video Player
-		if(preview.isPlaying()){
-			preview.stopPlayback();
-		}
-		preview.setVisibility(View.GONE);
-
-		if(videoframe.getVisibility() == View.VISIBLE) {
-			animHideVideo.reset();
-			videoframe.startAnimation(animHideVideo);
-		}
-		
-		Command.invoke(Command.RELEASE_VIDEO_PREVIEW).exclude(Command.MAINACTIVITY_PLAY_VIDEO)
-		.of(preview).sendDelayed(2000);
-	}
-
-	private void updateCover(final String url, final boolean coverToBkg) {
-		cover.setVisibility(View.INVISIBLE);
-		Object o = cover.getTag();
-		if(o instanceof ImageSetter) {
-			((ImageSetter) o).cancel();
-		}
-
-		if(!animCoverOut.hasStarted()) {
-			cover.startAnimation(animCoverOut);
-		}
-
-		imgMgr.requestImageAsync(url,
-				new ImageSetter(cover) {
-
-			protected void act() {
-				cover.setTag(image().bmp());
-				if(!animCoverOut.hasStarted())
-					displayCover();
-				String background = CoverDecoder.getThumbernailCache(url);
-				// Exception for Web Images
-				if(background == null)
-					background = CoverDecoder.getThumbernailCache(image().file().getAbsolutePath());
-				if(coverToBkg && background != null) {
-					updateBackground(background);
-				}
-			}
-
-		},
-		new CoverDecoder(cover.getWidth(), cover.getHeight()));
-	}
-
-	private void updateBackground(String url) {
-		background.setVisibility(View.INVISIBLE);
-		Object o = background.getTag();
-		if(o instanceof ImageSetter) {
-			((ImageSetter) o).cancel();
-		}
-
-		if(!animBackgroundOut.hasStarted())
-			background.startAnimation(animBackgroundOut);
-
-		imgMgr.requestImageAsync(url, new ImageSetter(background) {
-
-			protected void act() {
-				if(animBackgroundOut.hasEnded()||!animBackgroundOut.hasStarted()) {
-					super.act();
-					background.startAnimation(GetAnimation.For.MainInterface.ToShowBackground(null));
-				}else{
-					background.setTag(image().bmp());
-				}
-			}
-
-		},
-		new BackgroundDecoder());
-
-	}
-
-	/**
-	 * Scroll view to the center of the game list
-	 * @param view
-	 * child view of game list
-	 */
-	private void scrollViewToCenter(View view) {
-		int viewY = view.getTop() + view.getHeight() / 2 - games.getHeight() / 2;
-		if(viewY < 0 && games.getFirstVisiblePosition() == 0){
-			games.smoothScrollToPosition(0);
-		}else if(viewY > 0 && games.getLastVisiblePosition() == items.getCount() - 1){
-			games.smoothScrollToPosition(items.getCount() - 1);
-		}else{
-			Command.invoke(Command.SCROLL_LIST_FOR_DISTANCE_IN_ANY_MILLIS)
-			.of(games).only().args(viewY, 300).sendDelayed(100);
-		}
-	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-		scrollViewToCenter(view);
+		U.scrollViewToCenter(view, games);
 
 		if(items.getSelectedPosition() != position) {
-
-			releaseVideoPlay();
 
 			// Set Selection
 			items.setSelectedPosition(position);
 
-			final Game item = items.getItem(position);
-
-			if(item.background != null) {
-				updateBackground(item.background);
-			}
-			if(item.cover != null) {
-				updateCover(item.cover, item.background == null);
-				Command.invoke(Command.MAINACTIVITY_PLAY_VIDEO).of(this).only().sendDelayed(3000);
-			}else{
-				// If no cover but video, play video directly
-				if(item.video != null) {
-					playVideo();
-				}else{
-					// With no multimedia information
-					cover.setImageResource(R.drawable.dbkg_und);
-				}
-				if(item.background == null) {
-					background.setImageResource(R.drawable.dbkg_und_blur);
-				}
-			}
-
-			gametitle.setText(item.title);
+			loadGameItem(items.getSelectedItem());
 			
 			Globals.CurrentDirectoryPath = mDirFileArray[position].getAbsolutePath();
-
-			myname = gametitle.getText().toString().trim();  
+			
 		}
 		
-		items.showPanel(view);
+		Command.invoke(GameAdapter.SHOW_PANEL).args(items).sendDelayed(100);
 	}
 	
 	public void onClick(View v) {
@@ -2859,188 +2522,71 @@ private boolean mIsLandscape = true;
 		//Game item = items.getItem(items.getSelectedPosition());
 		switch(v.getId()) {
 		case R.id.btn_settings:
-			
+			cursetting();
 			break;
 		case R.id.btn_about:
 			About();
 			break;
 		case R.id.btn_config:
-			releaseVideoPlay();
 			runAppLaunchConfig();
 			break;
 		case R.id.btn_play:
-			WriteSetting(myname);
-			ReadSetting(myname);
-			if(!Locals.gWindowScreen)
-				runApp();
-			else{
-				runWD();
-			}
+			FSetting(myname);
+			runApp();
 			break;
 		}
 	}
 	
-	private RelativeLayout.LayoutParams videoframelayout = null;
-	private RelativeLayout.LayoutParams fullscreenlayout = 
-			new RelativeLayout.LayoutParams(
-					LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-	
-	private void toggleFullscreen() {
-		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) videoframe.getLayoutParams();
-		if(videoframelayout == null) {
-			videoframelayout = params;
-		}
-		if(!isVideoFullscreen()) {
-			videoframe.setLayoutParams(fullscreenlayout);
-		}else{
-			videoframe.setLayoutParams(videoframelayout);
-		}
-		Command.invoke(Command.UPDATE_VIDEO_SIZE).of(preview).send();
-	}
-	
-	private boolean isVideoFullscreen() {
-		return videoframelayout != null && videoframe.getLayoutParams() != videoframelayout;
+	private boolean onBackKeyPressed() {
+    	if(videoframe.isVideoFullscreen()) {
+    		videoframe.toggleFullscreen();
+    		return true;
+    	}
+    	if(mStatePreview.currentState() == STATE_VIDEO_PLAY || 
+    			mStatePreview.currentState() == STATE_AUDIO_PLAY) {
+    		mStatePreview.gotoState(STATE_COVER_VISIBLE);
+    		return true;
+    	}
+    	return false;
 	}
 
-	private long last_videotouch = 0;
-	
-	public boolean onTouch(View v, MotionEvent event) {
-		switch(v.getId()) {
-		case R.id.surface_view:
-			int action = event.getAction() & MotionEvent.ACTION_MASK;
-			if(action == MotionEvent.ACTION_UP) {
-				if(System.currentTimeMillis() - last_videotouch < 200) {
-					toggleFullscreen();
-				}else{
-					if (preview.isPlaying())
-						preview.toggleMediaControlsVisiblity();
-				}
-				last_videotouch = System.currentTimeMillis();
-			}
-			break;
-		}
-		return true;
-	}
-	
 	private long last_backkey_pressed = 0;
 	
-	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent msg) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-        	if(isVideoFullscreen()) {
-        		toggleFullscreen();
-        		return true;
-        	}
-        	if(preview.isInPlaybackState()) {
-        		releaseVideoPlay();
+        	if(onBackKeyPressed()) {
         		return true;
         	}
             if (msg.getEventTime()-last_backkey_pressed<2000) {
                 finish();
+                System.exit(0);
             } else {
                 Toast.makeText(
-                		getApplicationContext(), 
+                		this, 
                 		R.string.notify_exit, Toast.LENGTH_SHORT
                 		).show();
                 last_backkey_pressed=msg.getEventTime();
             }
             return true;
         }
-		return super.onKeyDown(keyCode, msg);
+		return super.onKeyUp(keyCode, msg);
 	}
 	
 	/**********************************************************************************************************/
 	
 
-    @Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		return true;
-	}
+    
+
 	
-    @Override
-	public boolean onPrepareOptionsMenu( Menu menu )
-	{
-		if(mView != null){
-			return mView.onPrepareOptionsMenu(menu);
-		}
-		return true;
-	}
-	
-    @Override
-	public boolean onOptionsItemSelected( MenuItem item )
-	{
-		if(mView != null){
-			return mView.onOptionsItemSelected(item);
-		}
-		return true;
-	}
-
-	@Override
-	protected void onPause() {
-		if( !Globals.APP_CAN_RESUME && mView != null ){
-			mView.exitApp();
-			try {
-				wait(3000);
-			} catch(InterruptedException e){}
-		}
-		
-		_isPaused = true;
-		if( mView != null && !Locals.gWindowScreen)
-			mView.onPause();
-
-		if (popbtn != null && popbtn.isShown()) {
-			wm = (WindowManager) getApplicationContext().getSystemService(
-					"window");
-			params = new WindowManager.LayoutParams();
-			wm.removeView(popbtn);
-		}
-		MobclickAgent.onPause(this);
-		
-		if(!Locals.gWindowScreen && isRunning)
-			showTaskbarNotification();
-		super.onPause();
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		MobclickAgent.onResume(this);
-
-		if( mView != null )
-		{
-			mView.onResume();
-		}
-		_isPaused = false;
-		
-		hideTaskbarNotification();
-	}
 
 	@Override
 	protected void onDestroy() 
 	{
-		if( mView != null ){
-			mView.exitApp();
-			try {
-				wait(3000);
-			} catch(InterruptedException e){}
-		}
-		extra = null;
-		mysetting = null;
 		super.onDestroy();
+		
 		destroyImageManager();
-		hideTaskbarNotification();
-		System.exit(0);
+		
 	}
-
-	/*@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// TODO Auto-generated method stub
-		if(keyCode == KeyEvent.KEYCODE_BACK) {
-			runAppLauncher();
-		  }
-		return true;
-	}*/
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
@@ -3048,45 +2594,78 @@ private boolean mIsLandscape = true;
 		super.onConfigurationChanged(newConfig);
 		// Do nothing here
 	}
-
-	public void showTaskbarNotification()
-	{
-		showTaskbarNotification("ONScripter正在后台运行", "ONScripter "+getApplicationVersion(), "ONScripter正在后台运行, 点击恢复。");
+	
+// Async Operation Block {{{
+	
+	static {
+		// Register Async Operation
+		cn.natdon.onscripterv2.command.Command.register(ONScripter.class);
 	}
 
-	// Stolen from SDL port by Mamaich
-	public void showTaskbarNotification(String text0, String text1, String text2)
-	{
-		NotificationManager NotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		Intent intent = new Intent(this, ONScripter.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
-		Notification n = new Notification(R.drawable.icon, text0, System.currentTimeMillis());
-		n.flags |=Notification.FLAG_ONGOING_EVENT|Notification.FLAG_NO_CLEAR;
-		n.setLatestEventInfo(this, text1, text2, pendingIntent);
-		NotificationManager.notify(NOTIFY_ID, n);
+	public static final int LOOP_VIDEO_PREVIEW = 13;
+	
+	public static final int RELEASE_VIDEO_PREVIEW = 14;
+
+	public static final int LOOP_AUDIO_PLAY = 21;
+
+	public static final int TRY_DISPLAY_COVER = 35;
+	
+	public static final int TRY_DISPLAY_BKG = 36;
+	
+	public static final int ACTION_AFTER_DISPLAY_COVER = 38;
+	
+	public static final int ADD_ITEM_TO_LISTADAPTER = 102;
+
+	public static final int DATASET_CHANGED_LISTADAPTER = 103;
+	
+	@CommandHandler(id = LOOP_VIDEO_PREVIEW)
+	public static void LOOP_VIDEO_PREVIEW(VideoView player) {
+		player.seekTo(0);
+		player.start();
+	}
+	
+	@CommandHandler(id = RELEASE_VIDEO_PREVIEW)
+	public static void RELEASE_VIDEO_PREVIEW(VideoView player) {
+		player.setVideoURI(null);
+	}
+	
+	@CommandHandler(id = LOOP_AUDIO_PLAY)
+	public static void LOOP_AUDIO_PLAY(AudioPlayer player) {
+		player.seekTo(0);
+		player.start();
+	}
+	
+	@CommandHandler(id = TRY_DISPLAY_COVER)
+	public static void TRY_DISPLAY_COVER(ONScripter activity) {
+		activity.tryDisplayCover();
 	}
 
-	public void hideTaskbarNotification()
-	{
-		NotificationManager NotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		NotificationManager.cancel(NOTIFY_ID);
+	@CommandHandler(id = TRY_DISPLAY_BKG)
+	public static void TRY_DISPLAY_BKG(ONScripter activity) {
+		activity.tryDisplayBackground();
 	}
 
-	public String getApplicationVersion()
-	{
-		try {
-			PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-			return packageInfo.versionName;
-		} catch (PackageManager.NameNotFoundException e) {
-			System.out.println("libSDL: Cannot get the version of our own package: " + e);
-		}
-		return null;
+	@CommandHandler(id = ACTION_AFTER_DISPLAY_COVER)
+	public static void ACTION_AFTER_DISPLAY_COVER(ONScripter activity) {
+		activity.checkActionAfterDisplayCover();
+	}
+	
+	@CommandHandler(id = ADD_ITEM_TO_LISTADAPTER)
+	public static void ADD_ITEM_TO_LISTADAPTER(GameAdapter adapter, Game item) {
+		adapter.add(item);
+		Command.invoke(DATASET_CHANGED_LISTADAPTER).args(adapter).only().sendDelayed(200);
 	}
 
-	static int NOTIFY_ID = 12367098; // Random ID
+	@CommandHandler(id = DATASET_CHANGED_LISTADAPTER)
+	public static void DATASET_CHANGED_LISTADAPTER(GameAdapter adapter) {
+		adapter.notifyDataSetChanged();
+	}
+	// }}}
+
+	
 
 	public static ONScripter instance = null;
-	public static MainView mView = null;
+	
 
 
 	public static CheckBox checkWS = null;
@@ -3101,8 +2680,22 @@ private boolean mIsLandscape = true;
 		public static CheckBox Cursor = null;
 		public static CheckBox FontSize = null;
 		public static CheckBox FontColor = null;
+		public static CheckBox SFDecode = null;
+		public static CheckBox HWDecode = null;
+		public static CheckBox checkHW = null;
 
-	boolean _isPaused = false;
+		public void run() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public boolean onTouch(View v, MotionEvent event) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+
+	
 
 
 

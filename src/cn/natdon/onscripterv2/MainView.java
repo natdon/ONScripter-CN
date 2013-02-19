@@ -51,22 +51,23 @@ import android.content.Intent;
 @SuppressLint("NewApi")
 public class MainView extends AbsoluteLayout
 {
-	public MainView(ONScripter context)
+	public MainView(ONSView onsView)
 	{
-		super(context);
+		super(onsView);
 		
-		mActivity = context;
+		mActivity = onsView;
 		setBackgroundColor(Color.BLACK);
 		setScreenOrientation(Locals.ScreenOrientation);
+		
 
 		//
 
 		mAudioThread = new AudioThread(this);
 		
-		mGLView = new DemoGLSurfaceView(context);
+		mGLView = new DemoGLSurfaceView(onsView);
 		this.addView(mGLView);
 
-		mMouseCursor = new MouseCursor(context);
+		mMouseCursor = new MouseCursor(onsView);
 		this.addView(mMouseCursor);
 		showMouseCursor(Globals.MouseCursorShowed);
 		
@@ -81,11 +82,11 @@ public class MainView extends AbsoluteLayout
 		}
 		
 		if(Locals.gWindowScreen){
-		vw=ONScripter.wdw;
-		vh=ONScripter.wdh;
+		vw=ONSVariable.wdw;
+		vh=ONSVariable.wdh;
 		}
 		if(Locals.gFullScreen){
-		vw=ONScripter.dw;
+		vw=ONSVariable.dw;
 		vh=vw/4*3;
 		}
 		setGLViewRect(0, 0, vw, vh);
@@ -152,50 +153,45 @@ public class MainView extends AbsoluteLayout
 		}
 		if( event.getAction() == MotionEvent.ACTION_UP ){
 			if(Locals.gWindowScreen && Locals.ScreenMove){
-			 ONScripter.wdupdatePosition(x,y,startX,startY);
+				ONSView.wdupdatePosition(x,y,startX,startY);
 			 startX = startY = 0; 
 			}
 			
 		}
 		if( event.getAction() == MotionEvent.ACTION_MOVE ){
 			if(Locals.gWindowScreen && Locals.ScreenMove){
-			  ONScripter.wdupdatePosition(x,y,startX,startY);
+				ONSView.wdupdatePosition(x,y,startX,startY);
 			}
 			
 		}
 
-		if( pointerCount == 2 )
-    	        {
-				
-				switch (event.getAction()) {
+		//if (pointerCount == 2) {
 
-				case MotionEvent.ACTION_DOWN:
-					
-					break;
+			switch (event.getAction()) {
+
+			case MotionEvent.ACTION_DOWN:
+
+				break;
 			case MotionEvent.ACTION_MOVE:
-			
-			
-			break;
-			case MotionEvent.ACTION_POINTER_2_UP:
-			mActivity.GetTime();
-			  
-			break;
-			
-			
-		    }
-			
-    	        }
-                if(pointerCount==3)
-    	        {
-			if( event.getAction() == MotionEvent.ACTION_POINTER_3_DOWN ){
-			  if((System.currentTimeMillis()-exitTime) > 2000){  
-				Toast.makeText(mActivity, "再按一次退出程序", Toast.LENGTH_SHORT).show();
-	                         exitTime = System.currentTimeMillis();  
-				    }  
-				    else{  
-				    	
-				    		System.exit(0);
-				        }  
+
+				break;
+			case MotionEvent.ACTION_POINTER_1_UP:
+				mActivity.GetTime();
+				break;
+
+			}
+
+		//}
+		if (pointerCount == 3) {
+			if (event.getAction() == MotionEvent.ACTION_POINTER_3_DOWN) {
+				if ((System.currentTimeMillis() - exitTime) > 2000) {
+					Toast.makeText(mActivity, "再按一次退出程序", Toast.LENGTH_SHORT)
+							.show();
+					exitTime = System.currentTimeMillis();
+				} else {
+
+					System.exit(0);
+				}
 			}
 			
     	        }
@@ -644,16 +640,16 @@ public class MainView extends AbsoluteLayout
 			menu_gamepad_action_button.findItem(MENU_ITEM_ID_SETTING_GAMEPAD_ACTION_BUTTON_AS_BUTTON).setChecked(true);
 		}
 
-		SubMenu menu_appconfig = menu.addSubMenu(mActivity.getString(R.string.Menu_AppLaunchConfig) + "...");
-		menu_appconfig.add(MENU_ITEM_ID_SETTING_APPCONFIG_FIRST, MENU_ITEM_ID_SETTING_APPCONFIG_USE, Menu.NONE, mActivity.getString(R.string.Use));
-		menu_appconfig.add(MENU_ITEM_ID_SETTING_APPCONFIG_FIRST, MENU_ITEM_ID_SETTING_APPCONFIG_NOTUSE, Menu.NONE, mActivity.getString(R.string.NotUse));
+		//SubMenu menu_appconfig = menu.addSubMenu(mActivity.getString(R.string.Menu_AppLaunchConfig) + "...");
+		//menu_appconfig.add(MENU_ITEM_ID_SETTING_APPCONFIG_FIRST, MENU_ITEM_ID_SETTING_APPCONFIG_USE, Menu.NONE, mActivity.getString(R.string.Use));
+		//menu_appconfig.add(MENU_ITEM_ID_SETTING_APPCONFIG_FIRST, MENU_ITEM_ID_SETTING_APPCONFIG_NOTUSE, Menu.NONE, mActivity.getString(R.string.NotUse));
 		
-		menu_appconfig.setGroupCheckable(MENU_ITEM_ID_SETTING_APPCONFIG_FIRST, true, true);
+		/*menu_appconfig.setGroupCheckable(MENU_ITEM_ID_SETTING_APPCONFIG_FIRST, true, true);
 		if(Locals.AppLaunchConfigUse){
 			menu_appconfig.findItem(MENU_ITEM_ID_SETTING_APPCONFIG_USE).setChecked(true);
 		} else {
 			menu_appconfig.findItem(MENU_ITEM_ID_SETTING_APPCONFIG_NOTUSE).setChecked(true);
-		}
+		}*/
 
 		return true;
 	}
@@ -1110,7 +1106,7 @@ public class MainView extends AbsoluteLayout
 		}
 	}
 	
-	public ONScripter getActivity()
+	public ONSView getActivity()
 	{
 		return mActivity;
 	}
@@ -1167,7 +1163,7 @@ public class MainView extends AbsoluteLayout
 	private int mGLViewWidth  = 0;
 	private int mGLViewHeight = 0;
 	
-	private ONScripter mActivity = null;
+	private ONSView mActivity = null;
 	private DifferentTouchInput mTouchInput = null;
 	private TouchMode mTouchMode = null;
 	

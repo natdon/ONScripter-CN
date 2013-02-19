@@ -1,17 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
-	 <style name="TextAppearanceDialogWindowTitle">
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="AppTheme" parent="android:Theme.Holo.Light.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    
+    <style name="ActivityTheme" parent="android:Theme.Holo">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="TextAppearanceDialogWindowTitle">
         <item name="android:textSize">18.0sp</item>
+        <item name="android:textColor">#757575</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:windowAnimationStyle">@style/Animation.ConfigPanelAnimation
+</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFrame">@null</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:background">@color/sao_transparent_white</item>
-         <item name="android:windowBackground">@null</item>
+        <item name="android:windowBackground">@color/sao_transparent_white</item>
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
-	<style name="MediaController_SeekBar">
+    <style name="DialogWindowTitle">
+        <item name="android:textAppearance">@style/TextAppearanceDialogWindowTitle</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:scrollHorizontally">true</item>
+    </style>
+
+    <style name="AliDialog" >
+        <item name="android:windowBackground">@drawable/config_upper</item>
+        <item name="android:background">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTitleStyle">@style/DialogWindowTitle</item>
+        <item name="android:windowAnimationStyle">@style/Animation.ConfigPanelAnimation</item>
+       
+    </style>
+
+    <style name="Animation" />
+
+    <style name="Animation.ConfigPanelAnimation">
+        <item name="android:windowEnterAnimation">@anim/gameconfig_enter</item>
+        <item name="android:windowExitAnimation">@anim/gameconfig_exit</item>
+    </style>
+
+    <style name="ConfigActivity">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowAnimationStyle">@style/Animation.ConfigPanelAnimation</item>
+    </style>
+
+    <style name="MediaController_SeekBar">
         <item name="android:minHeight">16dip</item>
         <item name="android:maxHeight">16dip</item>
         <item name="android:progressDrawable">@drawable/mediacontroller_seekbar</item>

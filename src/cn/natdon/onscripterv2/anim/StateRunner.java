@@ -80,5 +80,26 @@ public class StateRunner implements StateIO {
 	public int currentState() {
 		return state;
 	}
+	
+	public boolean isAnyAnimatingAutomata() {
+		for(StateIO io : listener) {
+			if(io instanceof AnimationAutomata) {
+				if(((AnimationAutomata) io).isAnimating())
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isAnyAnimatingAutomata(Object target) {
+		for(StateIO io : listener) {
+			if(io instanceof AnimationAutomata) {
+				if(((AnimationAutomata) io).isAnimating() 
+						&& ((AnimationAutomata) io).target() == target)
+					return true;
+			}
+		}
+		return false;
+	}
 
 }

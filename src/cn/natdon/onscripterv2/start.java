@@ -56,7 +56,7 @@ public class start extends Activity {
 					timer = new Timer();
 					timer.schedule(task, 1250, 1250);
 				} else {
-					img = findViewById(R.id.ImageView01);
+					img = findViewById(R.id.ImageView);
 					img.startAnimation(new TVOffAnimation());
 					timer = new Timer();
 					timer.schedule(task, 300, 300);
@@ -67,9 +67,13 @@ public class start extends Activity {
 		task = new TimerTask() {
 			public void run() {
 				// execute the task
-
-				// img.setBackgroundColor(color.background_dark);
-				Intent mainIntent = new Intent(start.this, ONScripter.class);
+				
+				Intent mainIntent;
+				
+				if(ONSVariable.isRunning)
+					mainIntent = new Intent(start.this, ONSView.class);
+				else
+					mainIntent = new Intent(start.this, ONScripter.class);
 				if (extra != null) {
 					mainIntent.putExtra("path", extra);
 					mainIntent.putExtra("mysetting", setting);
@@ -90,7 +94,7 @@ public class start extends Activity {
 		AlphaAnimation me = new AlphaAnimation(1, 0);
 		me.setDuration(1300);// 设置动画执行的时间（单位：毫秒）
 		as.addAnimation(me);// 将AlphaAnimation对象添加到AnimationSet当中
-		View img2 = findViewById(R.id.ImageView01);
+		View img2 = findViewById(R.id.ImageView);
 		img2.startAnimation(as);
 	}
 
@@ -99,7 +103,7 @@ public class start extends Activity {
 		AlphaAnimation me = new AlphaAnimation(0, 1);
 		me.setDuration(2000);// 设置动画执行的时间（单位：毫秒）
 		as.addAnimation(me);// 将AlphaAnimation对象添加到AnimationSet当中
-		View img2 = findViewById(R.id.ImageView01);
+		View img2 = findViewById(R.id.ImageView);
 		img2.startAnimation(as);
 	}
 
