@@ -119,6 +119,16 @@ int SDL_ANDROID_CallJavaSwapBuffers()
 	return 1;
 }
 
+int getPhysicalscreenW()
+{
+	return SDL_ANDROID_sWindowWidth;
+}
+
+int getPhysicalscreenH()
+{
+	return SDL_ANDROID_sWindowHeight;
+}
+
 
 JNIEXPORT void JNICALL 
 JAVA_EXPORT_NAME(DemoRenderer_nativeResize) ( JNIEnv*  env, jobject  thiz, jint w, jint h, jint keepRatio )
@@ -162,6 +172,7 @@ JAVA_EXPORT_NAME(DemoRenderer_nativeResize) ( JNIEnv*  env, jobject  thiz, jint 
 			SDL_ANDROID_sWindowWidth = w;
 			SDL_ANDROID_sWindowHeight = h;
 		}
+
 		
 		__android_log_print(ANDROID_LOG_INFO, "libSDL", "Physical screen resolution is %dx%d, virtual screen %dx%d", w, h, SDL_ANDROID_sWindowWidth, SDL_ANDROID_sWindowHeight );
 	}

@@ -822,6 +822,9 @@ extern DECLSPEC int SDLCALL SDL_DisplayYUVOverlay(SDL_Overlay *overlay, SDL_Rect
 /** Free a video overlay */
 extern DECLSPEC void SDLCALL SDL_FreeYUVOverlay(SDL_Overlay *overlay);
 
+int getPhysicalscreenW();
+int getPhysicalscreenH();
+
 /*@}*/
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

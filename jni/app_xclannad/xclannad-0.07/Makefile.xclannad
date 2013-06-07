@@ -1,0 +1,38 @@
+
+
+XCLANNAD_SRCS = \
+xlovesys.cc \
+font/codeconv.cc \
+font/cp936.cc \
+font/font_face.cc \
+font/font_layout.cc \
+font/font_peer_fn.cc \
+font/font_peer_ft2.cc \
+font/font_peer_x11.cc \
+font/text_stream.cc \
+music2/koedec_ogg.cc \
+music2/koedec.cc \
+music2/movie.cc \
+music2/music.cc \
+music2/nwatowav.cc \
+music2/wavfile.cc \
+scn2k/scn2k_cmd.cc \
+scn2k/scn2k_grp.cc \
+scn2k/scn2k_impl.cc \
+scn2k/scn2k_text.cc \
+system/file.cc \
+system/system_config.cc \
+window/button.cc \
+window/event.cc \
+window/menuitem.cc \
+window/picture.cc \
+window/rect.cc \
+window/render.cc \
+window/runlengh.cc \
+window/SDL_rotozoom.cc \
+window/system.cc \
+window/widget.cc \
+
+XCLANNAD_CFLAGS = -I. -Ifont -Imusic2 -Iscn2k -Isystem -Iwindow
+XCLANNAD_OBJS   = ${XCLANNAD_SRCS:.cc=.o}
+

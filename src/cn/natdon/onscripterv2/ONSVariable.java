@@ -2,26 +2,26 @@ package cn.natdon.onscripterv2;
 
 public class ONSVariable {
 	
-	public static boolean mButtonVisible = true;
-	public static boolean mScreenCentered = false;
-	public static boolean mButtonAtLeft = false;
-	public static boolean set_checkWS = false;
-	public static boolean set_checkSP = false;
-	public static boolean set_OtherPL = false;
-	public static boolean set_checkDR = false;
-	public static boolean set_keepON = false;
-	public static boolean set_FullScreen = false;
-	public static boolean set_ScaleFullScreen = false;
-	public static boolean set_Cursor = false;
-	public static boolean set_FontSize = false;
-	public static boolean set_FontColor = false;
-	public static boolean set_putLog = false;
-	public static boolean set_checkHW = true;
-	public static boolean isMoved = false;
-	public static boolean isRunning = false;
-	public static boolean DialogOpen =false;
-	public static boolean mInLauncher = true;
-	public static boolean mPlayer = true;
+	public static Boolean mButtonVisible = true;
+	public static Boolean mScreenCentered = false;
+	public static Boolean mButtonAtLeft = false;
+	public static Boolean set_checkWS = false;
+	public static Boolean set_checkSP = false;
+	public static Boolean set_OtherPL = false;
+	public static Boolean set_checkDR = false;
+	public static Boolean set_keepON = false;
+	public static Boolean set_FullScreen = false;
+	public static Boolean set_ScaleFullScreen = false;
+	public static Boolean set_Cursor = false;
+	public static Boolean set_FontSize = false;
+	public static Boolean set_FontColor = false;
+	public static Boolean set_putLog = false;
+	public static Boolean set_checkHW = true;
+	public static Boolean isMoved = false;
+	public static Boolean isRunning = false;
+	public static Boolean DialogOpen =false;
+	public static Boolean mInLauncher = true;
+	public static Boolean mPlayer = true;
 
 	public static int myfontsize = 0;
 	public static int myfontpx = 0;

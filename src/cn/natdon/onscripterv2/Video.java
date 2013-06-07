@@ -125,8 +125,9 @@ class DemoRenderer extends GLSurfaceView_SDL.Renderer
 		if(Locals.AppCommandOptions != null && !Locals.AppCommandOptions.equals("")){
 			commandLine += " " + Locals.AppCommandOptions;
 		}
-		
+		Log.d("sssss", commandLine);
 		nativeInit( Globals.CurrentDirectoryPath, commandLine );
+		
 		
 		System.exit(0); // The main() returns here - I don't bother with deinit stuff, just terminate process
 	}

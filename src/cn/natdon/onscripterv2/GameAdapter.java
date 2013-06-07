@@ -264,17 +264,20 @@ public class GameAdapter extends ArrayAdapter<Game> implements ListAdapter {
 
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		View v = convertView;
+		Payload pl;
 		if (v == null) {
 			LayoutInflater vi = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			v = vi.inflate(textViewResourceId, null);
-			v.setTag(new Payload(v));
+			pl = new Payload(v);
+			v.setTag(pl);
 			getLoad(v).StateHolder.gotoState(STATE_NORMAL);
+		}
+		else {
+			pl=(Payload) convertView.getTag();
 		}
 		Payload load = getLoad(v);
 		Game o = getItem(position);
 		if (o != null) {
-			@SuppressWarnings("unused")
-			ImageView icon = $(v, R.id.icon);
 			TextView caption = $(v, R.id.caption);
 			caption.setText(o.title);
 			if(selectedPos != position) {
@@ -295,6 +298,7 @@ public class GameAdapter extends ArrayAdapter<Game> implements ListAdapter {
 			}
 			load.Item = o;
 		}
+
 		return v;
 	}
 

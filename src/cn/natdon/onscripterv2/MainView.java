@@ -300,6 +300,8 @@ public class MainView extends AbsoluteLayout
 			default:
 				if(mTouchMode != null){
 					mTouchMode.onKeyEvent(keyCode, 1);
+					if(Locals.TouchMode.equals("Touch") )
+						ShowToast("再次点击屏幕呼出菜单");
 				}
 				break;
 		}

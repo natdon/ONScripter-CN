@@ -1,0 +1,154 @@
+dnl >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+dnl
+dnl First definition
+AC_INIT(scn2k)
+
+dnl Software version
+PACKAGE=xclannad
+VERSION=scn2k
+
+dnl I do not use automake ; It is too difficult for me ...
+dnl AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+
+dnl Specify a configuretion file
+AM_CONFIG_HEADER(config.h)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_LN_S
+AC_PROG_RANLIB
+dnl AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+dnl dnl On FreeBSD 3.0 (and perhaps some other systems) GNU m4 is
+dnl dnl called `gm4' where `m4' is the system's own m4.
+dnl AC_CHECK_PROGS(M4, gm4 m4, m4)
+dnl 
+dnl if test "$M4" = "m4"; then
+dnl   AC_MSG_CHECKING(whether m4 is GNU m4)
+dnl   if $M4 --version < /dev/null 2>/dev/null | grep '^GNU m4 ' >/dev/null ; then
+dnl 	  AC_MSG_RESULT(yes)
+dnl   else
+dnl 	  AC_MSG_RESULT(no)
+dnl 	  if test "$host_vendor" = "sun"; then
+dnl 		  AC_MSG_ERROR("SUN m4 does not work for building Gtk--. Please install GNU m4")
+dnl 	  fi
+dnl   fi
+dnl fi
+dnl 
+dnl dnl Check that this is GNU m4 - if not, exit with error if this is a SUN
+dnl dnl
+
+dnl Checks for header files.
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_STRUCT_TM
+#X_LIBS="$X_LIBS -lX11 -lXext -L/usr/X11R6/lib"
+
+
+
+dnl Checks for library functions.
+AC_PROG_GCC_TRADITIONAL
+AC_FUNC_MEMCMP
+AC_FUNC_MMAP
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(gettimeofday mkdir snprintf)
+#ac_save_LIBS="$LIBS"
+#LIBS="$LIBS -pthread"
+#AC_CHECK_FUNCS(_thread_sys_sigaltstack)
+#LIBS="$ac_save_LIBS"
+AC_C_BIGENDIAN
+
+dnl for gettext
+dnl ALL_LINGUAS="ja"
+dnl AM_GNU_GETTEXT
+AC_CHECK_FUNC(gettext,,AC_CHECK_LIB(intl, gettext))
+
+dnl >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+dnl
+dnl Check libraries
+
+AC_CHECK_LIB(z, zlibVersion)
+AC_CHECK_LIB(png, png_write_end)
+AC_CHECK_LIB(jpeg, jpeg_start_decompress)
+dnl ogg vobis
+AC_ARG_ENABLE(tremor,
+	[ --enable-tremor	enable tremor (integer-only implementation for vorbisfile) [ default no]])
+AC_CHECK_LIB(ogg, ogg_stream_init)
+AC_CHECK_LIB(vorbis,  vorbis_book_decode,,,-logg)
+if test X$enable_tremor = X"yes"; then
+	AC_CHECK_LIB(vorbisidec,  ov_read,,,-logg -lvorbis)
+else
+	AC_CHECK_LIB(vorbisfile,  ov_read,,,-logg -lvorbis)
+fi
+
+dnl SDL config
+AM_PATH_SDL()
+AC_SUBST(SDL_CFLAGS)
+AC_SUBST(SDL_LIBS)
+
+dnl SMPEG & MAD config
+AM_PATH_SMPEG()
+AC_SUBST(SMPEG_CFLAGS)
+AC_SUBST(SMPEG_LIBS)
+if test X"$SMPEG_LIBS" = X ; then
+	USE_SMPEG=0
+else
+	USE_SMPEG=1
+fi
+AC_ARG_ENABLE(mad,
+	[ --disable-mad		disable mad (integer-only implementation for mpeg decoding) [ default yes]])
+if test X$enable_mad != X"no"; then
+	AC_CHECK_LIB(mad, mad_decoder_run)
+fi
+
+AC_DEFINE_UNQUOTED(USE_SMPEG,$USE_SMPEG, [smpeg library is used])
+
+dnl FreeType2
+AC_CHECK_FT2()
+AC_SUBST(FT2_CFLAGS)
+AC_SUBST(FT2_LIBS)
+
+
+dnl >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+dnl
+dnl Check option ... Zaurus or embed machines
+USE_X11=1
+DISPSIZE="no"
+
+AC_ARG_ENABLE(zaurus,
+	[ --enable-zaurus	compile for zaurus environment [ default no]])
+if test X$enable_zaurus = X"yes"; then
+	USE_X11=0
+	DISPSIZE="320x240"
+fi
+
+AC_ARG_ENABLE(x11,
+	[ --disable-x11		turn off using X11 library [default enable]])
+if test X$x11 = X"no"; then
+	USE_X11=0
+else
+	AC_PATH_X
+	AC_PATH_XTRA
+	X_LIBS="$X_LIBS -lX11 -lXext -L/usr/X11R6/lib"
+	LIBS="$LIBS $X_LIBS"
+fi
+
+AC_ARG_ENABLE(displaysize,
+	[ --enable-displaysize=SIZE  change default display size, for example --enable-displaysize=320x240],
+	displaysize=$enableval)
+if test X$displaysize != X; then
+	DISPSIZE=$displaysize
+fi
+
+AC_DEFINE_UNQUOTED(USE_X11,$USE_X11, [X11 library is used])
+AC_DEFINE_UNQUOTED(DISPSIZE, "$DISPSIZE", [default display size])
+
+AC_OUTPUT(Makefile system/Makefile font/Makefile window/Makefile music2/Makefile scn2k/Makefile)

@@ -1,0 +1,108 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black" >
+
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:contentDescription="@string/alt_background"
+        android:scaleType="centerCrop"
+        android:src="@drawable/dbkg_und_blur" />
+
+    <RelativeLayout 
+        android:id="@+id/panel_container"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        
+    <TextView
+        android:id="@+id/gametitle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="345dip"
+        android:layout_marginRight="10dip"
+        android:layout_marginTop="10dip"
+        android:gravity="center"
+        android:shadowColor="@color/sao_grey"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
+        android:textColor="@color/sao_white"
+        android:textSize="18dip" />
+
+    <ImageView
+        android:id="@+id/cover"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="100dip"
+        android:layout_marginLeft="355dip"
+        android:layout_marginRight="20dip"
+        android:layout_marginTop="40dip"
+        android:contentDescription="@string/alt_cover"
+        android:scaleType="fitCenter"
+        android:src="@drawable/dbkg_und" />
+
+    <ListView
+        android:id="@+id/games"
+        android:layout_width="311dip"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="8dip"
+        android:layout_marginLeft="24dip"
+        android:layout_marginTop="8dip"
+        android:cacheColorHint="#00000000"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="3dip"
+        android:fadingEdgeLength="48dip"
+        android:requiresFadingEdge="vertical"
+        android:scrollbars="none" />
+    
+    <RelativeLayout
+        android:layout_width="170dip"
+        android:layout_height="80dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dip"
+        android:layout_marginRight="20dip" >
+
+        <ImageView
+            android:id="@+id/btn_about"
+            android:layout_width="80dip"
+            android:layout_height="80dip"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/about_button"
+            android:clickable="true"
+            android:contentDescription="@string/alt_about" />
+
+        <ImageView
+            android:id="@+id/btn_settings"
+            android:layout_width="80dip"
+            android:layout_height="80dip"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/settings_button"
+            android:clickable="true"
+            android:contentDescription="@string/alt_settings" />
+    </RelativeLayout>
+    
+    <cn.natdon.onscripterv2.widget.VideoViewContainer
+        android:id="@+id/videoframe"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="100dip"
+        android:layout_marginLeft="355dip"
+        android:layout_marginRight="20dip"
+        android:layout_marginTop="80dip"
+        android:background="#000000"
+        android:visibility="gone" >
+        
+    </cn.natdon.onscripterv2.widget.VideoViewContainer>
+    
+    </RelativeLayout>
+</RelativeLayout>

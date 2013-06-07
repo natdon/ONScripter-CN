@@ -6,7 +6,7 @@
 
 	<ImageView android:id="@+id/ImageView" 
 	    android:contentDescription="@string/app_name"
-	    android:src="@drawable/bg_1"
+	    android:src="@drawable/dbkg_und"
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
 		android:scaleType="fitXY">
 		

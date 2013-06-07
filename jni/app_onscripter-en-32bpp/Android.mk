@@ -28,7 +28,7 @@ EXT_OBJS =
 include $(LOCAL_PATH)/$(APP_SUBDIR)/Makefile.onscripter
 LOCAL_SRC_FILES := $(addprefix $(APP_SUBDIR)/,$(patsubst %.o, %.cpp, $(ONSCRIPTER_OBJS)))
 
-LOCAL_SHARED_LIBRARIES := sdl-1.2_jni sdl_mixer sdl_image sdl_ttf mad bz2 lua video_jni 
+LOCAL_SHARED_LIBRARIES := sdl-1.2_jni sdl_mixer sdl_imagen sdl_ttfn mad bz2 lua video_jni 
 
 LOCAL_LDLIBS := -lGLESv1_CM -ldl -llog -lz -lGLESv1_CM
 

@@ -495,6 +495,18 @@ void ONScripterLabel::initSDL()
 	screen_width  = script_h.screen_width;
     screen_height = script_h.screen_height;
 
+	FILE *widefp;   
+    char wide[50];
+
+	sprintf(wide,"%s%s",".//","ons.wide");
+    
+    widefp = fopen (wide,"r+");
+    if(widefp != NULL)
+    {
+		fclose(widefp);
+		screen_height = screen_width*9/16;
+    }
+
 
 #ifdef RCA_SCALE
     scr_stretch_x = 1.0;
@@ -1151,7 +1163,7 @@ int ONScripterLabel::init()
 
     initSDL();
 
-    image_surface = SDL_CreateRGBSurface( SDL_SWSURFACE, 1, 1, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000 );
+    image_surface = SDL_CreateRGBSurface( SDL_SWSURFACE, 1, 1, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000 );
 
     accumulation_surface = AnimationInfo::allocSurface( screen_width, screen_height );
     backup_surface       = AnimationInfo::allocSurface( screen_width, screen_height );

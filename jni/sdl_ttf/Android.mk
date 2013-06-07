@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := sdl_ttf
+LOCAL_MODULE := sdl_ttfn
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) $(LOCAL_PATH)/../sdl-1.2_jni/include $(LOCAL_PATH)/../freetype/include
 

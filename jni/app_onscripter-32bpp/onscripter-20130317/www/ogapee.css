@@ -1,0 +1,308 @@
+/* 
+ * CSS resource file for ONScripter web page
+ *  Copyright (c) 2001-2010 Ogapee. All rights reserved.
+ *  ogapee@aqua.dti2.ne.jp
+ */
+
+a { text-decoration: none; }
+a:link { color: #000080; }
+a:visited { color: #800000; }
+a:active{ color: #FF0000; text-decoration: underline; }
+a:hover{ background-color: #ccffcc; }
+
+body{
+text-align: left;
+font-size: 100%;
+line-height: 1.4;
+color: black;
+background-color: gray;
+}
+
+p{
+margin: 10px;
+text-indent: 1em;
+}
+
+p.noindent{
+margin: 10px;
+text-indent: 0em;
+}
+
+/* -------------------- */
+/* general page */
+
+#body{
+position: absolute;
+left: 50%;
+width: 800px;
+margin-left: -400px; 
+background-color: white;
+}
+
+#header{
+text-align: left;
+margin: 5px;
+padding: 5px;
+border-bottom: solid 1px #888;
+background-image: url(ons.png);
+background-repeat: no-repeat;
+color: #112244;
+/*background-color: #cc4400;*/
+/*background-color: #cc0044;*/
+/*background-color: #44cc00;*/
+/*background-color: #448800;*/
+background-color: white;
+}
+
+#header h1{
+font-size: 167%;
+text-align: center;
+}
+
+/*#header a {background-color: #ddffdd; }*/
+#header a:link{ color: #4444ff; }
+#header a:visited{ color: #ff4444; }
+#header a:active{ color: #cc8888; text-decoration: underline; }
+#header a:hover{ background-color: #ff8844; }
+
+/* -------------------- */
+/* toc */
+#toc-container{
+float: left;
+width: 180px;
+font-size: 90%;
+}
+
+#toc{
+padding: 5px;
+text-align: left;
+}
+
+#toc h3{
+margin: 0px;
+padding: 5px;
+font-size: 100%;
+text-align: center;
+border-top: solid 1px #eef;
+border-bottom: solid 1px #eef;
+background-color: #f5f5ff;
+}
+
+#toc ul{
+margin: 0px;
+margin-bottom: 15px;
+padding: 5px;
+text-align: left;
+list-style: none;
+}
+
+#toc ul li{ 
+margin: 0px;
+padding-bottom:15px;
+}
+
+#toc ul li a{
+display: block;
+border-bottom: dotted 1px #888;
+padding: 0px;
+}
+
+#toc ul li ul{
+margin: 0px;
+margin-left: 1em;
+margin-bottom: 1em;
+padding: 0px;
+}
+
+#toc ul li ul li{
+display: list-item;
+margin: 0px;
+padding: 0px;
+padding-bottom: 5px;
+border-bottom: solid 1px #ffffff;
+}
+
+#toc ul li ul li a{
+border: none;
+}
+
+/* -------------------- */
+/* main page */
+#main-container{
+margin-left: 180px;
+}
+
+#main{
+text-align: left;
+font-size: 100%;
+}
+
+#main h2{
+margin: 0px;
+padding: 5px;
+/*border: solid 1px #0000ff;*/
+font-family: sans-selif;
+}
+
+#main .content{
+margin: 0px 0px 20px;
+padding: 0px;
+/*border-bottom: solid 1px black;*/
+}
+
+#main .content h2{
+margin: 0px;
+margin-bottom: 5px;
+padding: 15px 30px;
+font-size: 110%;
+font-weight: bold;
+color: black;
+border-top: solid 1px #eef;
+border-bottom: solid 1px #eef;
+background-color: #f5f5ff;
+}
+
+#main .content h3{
+margin: 5px;
+margin-top: 15px;
+padding: 0px;
+padding-left: 10px;
+font-size: 100%;
+border-left: solid 5px #0000aa;
+border-bottom: dotted 1px gray;
+}
+
+#main .content h4{
+margin: 5px;
+text-decoration: underline;
+}
+
+.content dl{ 
+margin: 0px;
+padding: 0px 5px 0px 10px;
+}
+
+.sub-content{
+margin: 5pt;
+padding: 0px;
+/*border-top: dashed 1px gray;*/
+}
+
+/* -------------------- */
+/* diary page */
+#diary-container{
+margin-left: 180px;
+}
+
+#diary{
+text-align: left;
+font-size: 100%;
+}
+
+#diary h2{
+margin: 0px;
+padding: 5px;
+text-align: center;
+/*border: solid 1px #0000ff;*/
+}
+
+#diary .diary-day{
+margin: 5px;
+margin-bottom: 25px;
+padding: 0px;
+font-size: 100%;
+/*border-top: dashed 1px gray;*/
+}
+
+#diary .diary-day h3{
+display: block;
+margin: 5px;
+padding: 0px;
+padding-left: 5px;
+/*border-left: solid 5px #0000aa;*/
+border-bottom: dashed 1px gray;
+}
+
+#diary .diary-day h4{
+margin: 5px;
+text-decoration: underline;
+}
+
+/* -------------------- */
+/* misc */
+table {
+text-align: left;
+color: black;
+background-color: #fcfcff;
+margin: 5px;
+margin-bottom: 10pt;
+padding: 2pt;
+}
+
+th {
+padding: 2pt;
+border: solid 1px #888;
+font-weight: bold;
+color: black;
+background: white;
+text-align: center;
+}
+
+td {
+padding: 2pt;
+font-weight: normal;
+color: black;
+border: 0pt;
+border-bottom: 1px solid #888;
+text-indent: 1em;
+}
+
+td.span {
+border-bottom: 1pt dotted;
+}
+
+hr {
+width: 80%;
+text-align: center;
+}
+
+pre {
+white-space: -moz-pre-wrap; /* Mozilla */
+white-space: -pre-wrap;     /* Opera 4-6 */
+white-space: -o-pre-wrap;   /* Opera 7 */
+white-space: pre-wrap;      /* CSS3 */
+word-wrap: break-word;      /* IE 5.5+ */
+margin: 0.5em;
+padding: 0.5em;
+color: black;
+background: #f5f5f5;
+text-indent: 0; 
+border-width: 1pt 1pt 1pt 1pt;
+border-color: #888888;
+border-style: solid;
+font-family: monospace;
+}
+
+/* -------------------- */
+/* footer */
+
+#footer{
+clear: both;
+text-align: center;
+margin: 5px;
+padding: 5px;
+border-top: solid 1px #888;
+}
+
+div.figure{ 
+/*float: right;*/
+width: 80%;
+border: thin silver solid;
+margin: 0.2em;
+padding: 0.2em;
+}
+
+div.figure p{ 
+text-align: center;
+text-indent: 0;
+}

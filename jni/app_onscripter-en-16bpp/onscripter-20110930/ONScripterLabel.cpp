@@ -495,6 +495,18 @@ void ONScripterLabel::initSDL()
 	screen_width  = script_h.screen_width;
     screen_height = script_h.screen_height;
 
+	FILE *widefp;   
+    char wide[50];
+
+	sprintf(wide,"%s%s",".//","ons.wide");
+    
+    widefp = fopen (wide,"r+");
+    if(widefp != NULL)
+    {
+		fclose(widefp);
+		screen_height = screen_width*9/16;
+    }
+
 
 #ifdef RCA_SCALE
     scr_stretch_x = 1.0;

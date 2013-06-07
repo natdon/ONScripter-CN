@@ -1,0 +1,216 @@
+/*
+* Copyright (c) 2008-2011, Helios (helios.vmg@gmail.com)
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright notice, 
+*       this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * The name of the author may not be used to endorse or promote products
+*       derived from this software without specific prior written permission. 
+*     * Products derived from this software may not be called "ONSlaught" nor
+*       may "ONSlaught" appear in their names without specific prior written
+*       permission from the author. 
+*
+* THIS SOFTWARE IS PROVIDED BY HELIOS "AS IS" AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+* EVENT SHALL HELIOS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+* WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+* OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+* OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+%{
+#include "Functions.h"
+%}
+%code requires {
+	#include <sstream>
+	#include <string>
+	#include <map>
+}
+
+%code provides {
+	int INIParser_yyparse(
+		std::wstringstream &stream,
+		std::map<std::wstring,std::map<std::wstring,std::wstring> > *&result
+	);
+	int INIParser_yylex(
+		YYSTYPE *yylval,
+		std::wstringstream &stream
+	);
+	void INIParser_yyerror(
+		std::wstringstream &,
+		std::map<std::wstring,std::map<std::wstring,std::wstring> > *&result,
+		char const *
+	);
+	extern int INIParser_yydebug;
+}
+
+%pure-parser
+%defines
+%file-prefix="INIParser"
+%name-prefix="INIParser_yy"
+%debug
+
+%parse-param {std::wstringstream &stream}
+%parse-param {std::map<std::wstring,std::map<std::wstring,std::wstring> > *&result}
+%lex-param {std::wstringstream &stream}
+
+%union{
+	std::map<std::wstring,std::map<std::wstring,std::wstring> > *ini_file;
+	std::pair<std::wstring,std::map<std::wstring,std::wstring> > *ini_section;
+	std::map<std::wstring,std::wstring> *section_body;
+	std::pair<std::wstring,std::wstring> *line;
+	std::wstring *string;
+}
+%type <ini_file> ini_file
+%type <ini_section> section
+%type <section_body> section_body
+%type <line> line
+%type <string> section_header
+%token INI_BOF INI_EOF NEWLINE
+%token <string> STRING
+%destructor {
+	if (!!$$)
+		delete $$;
+} STRING section_header line section_body section ini_file
+%start ini_file
+%%
+
+ini_file:
+	{
+		$$=0;
+	}|
+	ini_file section {
+		if (!$1)
+			$$=new std::map<std::wstring,std::map<std::wstring,std::wstring> >;
+		else
+			$$=$1;
+		(*$$)[$2->first]=$2->second;
+		delete $2;
+	}|
+	ini_file INI_EOF {
+		$$=0;
+		result=$1;
+		YYACCEPT;
+	};
+
+section:
+	INI_BOF section_body {
+		if (!$2)
+			$$=new std::pair <std::wstring,std::map<std::wstring,std::wstring> >;
+		else{
+			$$=new std::pair <std::wstring,std::map<std::wstring,std::wstring> >(L"",*$2);
+			delete $2;
+		}
+	}|
+	section_header section_body {
+		if (!$2){
+			$$=new std::pair <std::wstring,std::map<std::wstring,std::wstring> >;
+			$$->first=*$1;
+		}else{
+			$$=new std::pair <std::wstring,std::map<std::wstring,std::wstring> >(*$1,*$2);
+			delete $2;
+		}
+		delete $1;
+	};
+
+section_header:
+	'[' STRING ']' NEWLINE {
+		if (!$2->size()){
+			delete $2;
+			YYABORT;
+		}
+		$$=$2;
+	};
+
+section_body:
+	{
+		$$=0;
+	}|
+	section_body NEWLINE {
+		$$=$1;
+	}|
+	section_body STRING NEWLINE {
+		delete $2;
+		$$=$1;
+	}|
+	section_body line {
+		if (!$1)
+			$$=new std::map<std::wstring,std::wstring>;
+		else
+			$$=$1;
+		(*$$)[$2->first]=$2->second;
+		delete $2;
+	};
+
+line:
+	STRING '=' NEWLINE {
+		if (!$1->size()){
+			delete $1;
+			YYABORT;
+		}
+		$$=new std::pair<std::wstring,std::wstring>(*$1,L"");
+		delete $1;		
+	}|
+	STRING '=' STRING NEWLINE {
+		if (!$1->size()){
+			delete $1;
+			delete $3;
+			YYABORT;
+		}
+		$$=new std::pair<std::wstring,std::wstring>(*$1,*$3);
+		delete $1;
+		delete $3;
+	};
+
+%%
+
+int INIParser_yylex(YYSTYPE *yylval,std::wstringstream &stream){
+	if (!stream.peek()){
+		stream.get();
+		return INI_BOF;
+	}
+	wchar_t c;
+	while (!stream.eof() && multicomparison((wchar_t)stream.peek(),WCS_NON_NEWLINE_WHITESPACE))
+		stream.get();
+	if (stream.eof())
+		return INI_EOF;
+	c=(wchar_t)stream.peek();
+	if (c==';'){
+		std::wstring *temp=new std::wstring;
+		temp->push_back((wchar_t)stream.get());
+		while ((wchar_t)stream.peek()!=10 && (wchar_t)stream.peek()!=13)
+			temp->push_back((wchar_t)stream.get());
+		yylval->string=temp;
+		return STRING;
+	}
+	if (multicomparison(c,L"=[]"))
+		return (wchar_t)stream.get();
+	if (c==10){
+		stream.get();
+		return NEWLINE;
+	}
+	if (c==13){
+		stream.get();
+		if ((wchar_t)stream.peek()==10)
+			stream.get();
+		return NEWLINE;
+	}
+	std::wstring *temp=new std::wstring;
+	while (!multicomparison((wchar_t)stream.peek(),L"\x0A\x0D=]"))
+		temp->push_back((wchar_t)stream.get());
+	trim_string(*temp);
+	yylval->string=temp;
+	return STRING;
+}
+
+void INIParser_yyerror(std::wstringstream &,
+	std::map<std::wstring,std::map<std::wstring,std::wstring> > *&result,
+	char const *){}

@@ -31,9 +31,12 @@ import io.vov.vitamio.Vitamio;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+
+import org.renpy.android.PythonActivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -46,6 +49,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -60,6 +64,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.telephony.TelephonyManager;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Display;
@@ -140,7 +145,13 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 	private int num_file = 0;
 	private byte[] buf = null;
 	
+	private float x;
+	private float y;
+	private float startX;
+	
 
+	private boolean isMoved = false;
+	private boolean isSelect = false;
 
 
 	private ColorPickerDialog Colordialog;
@@ -168,6 +179,8 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 	private int mPlaybackErrCounter = 0;
 	private static final int PLAYBACK_ERR_TOLERANCE = 3;
 	private static final int PLAYBACK_ERR_IGNORED_TOLERANCE = 5;
+	
+	private static final int TOUCH_SLOP = 100;
 
 	private <T> T $(int id) {
 		return U.$(findViewById(id));
@@ -666,8 +679,8 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 		
 		UmengUpdateAgent.setUpdateOnlyWifi(false);
 		UmengUpdateAgent.update(this);
-		MobclickAgent.onError(this);
 		
+				
 		//setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ); //for Test
 
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -676,7 +689,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 		
 		instance = this;
 		
-		Settings.LoadGlobals(this);
+		cn.natdon.onscripterv2.Settings.LoadGlobals(this);
 
 		Display disp = ((WindowManager) this
 				.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
@@ -712,28 +725,35 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 			if (extra != null) {
 				FSetting(mysetting);
 				Globals.CurrentDirectoryPath = extra;
-				Intent onsRunner=new Intent();
-				onsRunner.setClass(ONScripter.this, ONSView.class);
-				ONScripter.this.startActivity(onsRunner);
+				runApp();
 				this.finish();
 			}
 
 			SharedPreferences sp2 = getSharedPreferences("myver", MODE_PRIVATE);
-			int about = sp2.getInt("about", 5);
-			if (about == 5) {
+			int about = sp2.getInt("about", 13);
+			if (about == 13) {
 				About();
 				Editor e = getSharedPreferences("myver", MODE_PRIVATE).edit();
-				e.putInt("about", 6);
+				e.putInt("about", 14);
 				e.commit();
 			}
 			
 			if(Build.VERSION.SDK_INT < 9) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 			}
-			if(((float)(ONSVariable.dw)/(float)(ONSVariable.dh)) == 1.5 || (float)(ONSVariable.dw)/(float)(ONSVariable.dh) == 1.3)
+			
+			TelephonyManager telephony = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+	        int type = telephony.getPhoneType();
+			
+			BigDecimal b = new BigDecimal((float)(ONSVariable.dw)/(float)(ONSVariable.dh));  
+			double size = b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue();  
+			if(((float)(ONSVariable.dw)/(float)(ONSVariable.dh)) == 1.5 ||  size == 1.33)
 			{
 				setContentView(R.layout.activity_ft);
-			}else {
+			}else if(type == TelephonyManager.PHONE_TYPE_NONE){
+				setContentView(R.layout.activity_pad);
+			}
+			else{
 				setContentView(R.layout.activity_main);
 			}
 			findViews();
@@ -751,6 +771,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 			items = new GameAdapter(this, R.layout.gamelist_item, new ArrayList<Game>());
 			games.setAdapter(items);
 			games.setOnItemClickListener(this);
+			games.setOnTouchListener(this);
 			
 			Command.invoke(
 					new Runnable() { public void run() {loadCurrentDirectory();}}
@@ -926,7 +947,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 			} else {
 				if(which < Globals.CurrentDirectoryValidPathArray.length){
 					Globals.CurrentDirectoryPathForLauncher = Globals.CurrentDirectoryValidPathArray[which];
-					Settings.SaveGlobals(this);
+					cn.natdon.onscripterv2.Settings.SaveGlobals(this);
 					loadCurrentDirectory();
 					return;
 				} else {
@@ -980,7 +1001,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 				alertDialogBuilder.setPositiveButton(getString(R.string.Launch_SetDirectory), new DialogInterface.OnClickListener(){
 					public void onClick(DialogInterface dialog, int whichButton) {	
 						Globals.CurrentDirectoryPathForLauncher = mDirBrowserCurDirPath;
-						Settings.SaveGlobals(ONScripter.this);
+						cn.natdon.onscripterv2.Settings.SaveGlobals(ONScripter.this);
 						loadCurrentDirectory();
 					}
 				});
@@ -1012,25 +1033,61 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 	
 	public void runApp()
 	{
-		if(!checkCurrentDirectory(true)){
-			return;
-		}
-		
-		Settings.LoadLocals(ONScripter.this);
-		
-		if(!checkAppNeedFiles()){
-			return;
-		}
-		
 		if(mStatePreview.currentState() == STATE_VIDEO_PLAY || 
     			mStatePreview.currentState() == STATE_AUDIO_PLAY) {
     		mStatePreview.gotoState(STATE_COVER_VISIBLE);
     	}
 		
+		if (extra == null) {
+			Game item = items.getSelectedItem();
+		
+			if(item.gameapk != null )
+			{
+				Intent onsRunner=new Intent();
+				onsRunner.setClass(ONScripter.this, PythonActivity.class);
+				onsRunner.putExtra("renpypath", item.gameapk);
+				onsRunner.putExtra("renpysave", Globals.CurrentDirectoryPath);
+				ONScripter.this.startActivity(onsRunner);
+			}
+			else {
+				Runner();
+			}
+		}
+		else {
+			Runner();
+		}
+		
+		
+		//overridePendingTransition(R.anim.gameconfig_enter, R.anim.gameconfig_exit);
+	}
+	
+	public void Runner()
+	{
+		if(!checkCurrentDirectory(true)){
+			return;
+		}
+		
+		cn.natdon.onscripterv2.Settings.LoadLocals(ONScripter.this);
+		
+		if (extra == null)
+		{
+			Game item = items.getSelectedItem();
+			if(item.seentxt ==null && item.xsystemgr ==null)
+			{
+				if(!checkAppNeedFiles()){
+					return;
+				}
+			}
+			else {
+				Locals.AppCommandOptions ="";
+				Globals.ButtonLeftNum = 6;
+				Globals.ButtonRightNum = 6;
+			}
+		}
+
 		Intent onsRunner=new Intent();
 		onsRunner.setClass(ONScripter.this, ONSView.class);
 		ONScripter.this.startActivity(onsRunner);
-		//overridePendingTransition(R.anim.gameconfig_enter, R.anim.gameconfig_exit);
 	}
 	
 	public void runAppLauncher()
@@ -1108,7 +1165,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 											{
 												Locals.AppModuleName = Globals.APP_MODULE_NAME_ARRAY[which];
 												mExecuteModuleText.setText(Locals.AppModuleName);
-												Settings.SaveLocals(mActivity);
+												cn.natdon.onscripterv2.Settings.SaveLocals(mActivity);
 											}
 										});
 										alertDialogBuilder.setNegativeButton(getString(R.string.Cancel), null);
@@ -1159,7 +1216,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 											{
 												Locals.VideoDepthBpp = Globals.VIDEO_DEPTH_BPP_ITEMS[which];
 												mVideoDepthText.setText("" + Locals.VideoDepthBpp + "bpp");
-												Settings.SaveLocals(mActivity);
+												cn.natdon.onscripterv2.Settings.SaveLocals(mActivity);
 											}
 										});
 										alertDialogBuilder.setNegativeButton(getString(R.string.Cancel), null);
@@ -1209,7 +1266,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 									} else {
 										mScreenRatioText.setText(getString(R.string.Full));
 									}
-									Settings.SaveLocals(mActivity);
+									cn.natdon.onscripterv2.Settings.SaveLocals(mActivity);
 								}
 							});
 							screenRatioLayout.addView(btn1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -1242,7 +1299,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 												} else {
 													mScreenRatioText.setText(getString(R.string.Full));
 												}
-												Settings.SaveLocals(mActivity);
+												cn.natdon.onscripterv2.Settings.SaveLocals(mActivity);
 											}
 										});
 										alertDialogBuilder.setNegativeButton(getString(R.string.Cancel), null);
@@ -1326,7 +1383,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 													mScreenOrientationText.setText(getString(R.string.ReverseLandscape));
 													break;
 											}
-											Settings.SaveLocals(mActivity);
+											cn.natdon.onscripterv2.Settings.SaveLocals(mActivity);
 										}
 									});
 									alertDialogBuilder.setNegativeButton(getString(R.string.Cancel), null);
@@ -1349,7 +1406,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 								public void onClick(View v){
 									CheckBox c = (CheckBox)v;
 									Locals.VideoSmooth = c.isChecked();
-									Settings.SaveLocals(mActivity);
+									cn.natdon.onscripterv2.Settings.SaveLocals(mActivity);
 								}
 							});
 							videoSmoothLayout.addView(chk, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -1374,7 +1431,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 						mConfLayout.addView(videoSmoothLayout, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
 						checkHW = new CheckBox(mActivity);
-						checkHW.setText("硬件加速");
+						checkHW.setText("硬件加�?);
 						checkHW.setBackgroundColor(Color.argb(0, 0, 0, 0));
 						checkHW.setTextColor(Color.BLACK);
 						mConfLayout.addView(checkHW, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -1399,7 +1456,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 								
 								TextView txt2 = new TextView(mActivity);
 								txt2.setPadding(5, 0, 0, 0);
-								txt2.setText("原比例全屏,需拖动,非拉伸");
+								txt2.setText("原比例全�?需拖动,非拉�?);
 								txt2.setTextColor(Color.BLACK);
 								txtLayout.addView(txt2, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 							}
@@ -1416,7 +1473,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 							
 			
 							checkWD = new CheckBox(mActivity);
-							checkWD.setText("窗口化");
+							checkWD.setText("窗口�?);
 							checkWD.setBackgroundColor(Color.argb(0, 0, 0, 0));
 							checkWD.setTextColor(Color.BLACK);
 							checkWD.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -1436,7 +1493,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 							OtherSettingLayout.addView(checkSP);
 
 							OtherPL = new CheckBox(mActivity);
-							OtherPL.setText("外部播放器");
+							OtherPL.setText("外部播放�?);
 							OtherPL.setBackgroundColor(Color.argb(0, 0, 0, 0));
 							OtherPL.setTextColor(Color.BLACK);
 							OtherSettingLayout.addView(OtherPL);
@@ -1546,7 +1603,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 												Locals.AppCommandOptions += " " + Globals.APP_COMMAND_OPTIONS_ITEMS[index][1];
 											}
 										}
-										Settings.SaveLocals(mActivity);
+										cn.natdon.onscripterv2.Settings.SaveLocals(mActivity);
 									}
 								});
 								cmdOptLayout.addView(chk, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -1806,7 +1863,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 			return;
 		}
 		
-		Settings.LoadLocals(this);
+		cn.natdon.onscripterv2.Settings.LoadLocals(this);
 		
 		if(!Locals.AppLaunchConfigUse){
 			//runApp();
@@ -2141,7 +2198,7 @@ public static PopupWindow m_popupWindow,wd_popupWindow,ver_popupWindow,size_popu
 		
 		final TextView Text_size=new TextView(this);
 		Text_size.setTextSize(21);
-		Text_size.setText("        选择视频解码器      ");
+		Text_size.setText("        选择视频解码�?     ");
 		Text_size.setGravity(Gravity.CENTER_VERTICAL);
 		Text_size.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		Text_size.setTextColor(Color.BLACK);
@@ -2278,7 +2335,7 @@ public void cursetting() {
 		final OkCancelButton video_btn=new OkCancelButton(this);
 		video_btn.setBackgroundColor(Color.argb(0, 0, 0, 0));
 		video_btn.setTextSize(21);
-		video_btn.setText("视频解码器");
+		video_btn.setText("视频解码�?);
 		video_btn.setTextColor(Color.BLACK);
 		video_btn.setOnClickListener(new OnClickListener() {
 			
@@ -2361,12 +2418,15 @@ public void cursetting() {
 
 	
 	public void About() {
+		
+		boolean sdkv = false;
 
 		AlertDialog.Builder builder;
 		try {
 			builder = new AlertDialog.Builder(this,R.style.AliDialog);
 		} catch (NoSuchMethodError e) {
 		    builder = new AlertDialog.Builder(this);
+		    sdkv = true;
 		}
 		builder.setCancelable(false);
 		final AlertDialog alert = builder.create(); 
@@ -2374,7 +2434,7 @@ public void cursetting() {
 		LayoutInflater factory = LayoutInflater.from(this);
         View view = factory.inflate(R.layout.sao_dialog, null);
         
-        if(Build.VERSION.SDK_INT < 9) {
+        if(sdkv) {
         	view.setBackgroundDrawable(getResources().getDrawable(R.drawable.config_upper));
 		}
         alert.show();
@@ -2440,7 +2500,6 @@ public void cursetting() {
 		if (url.length() != 0){
 			//String deviceId = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID);
 
-			
 			String zip_dir = Globals.CurrentDirectoryPath;
 			String zip_filename = url.substring(url.lastIndexOf("/")+1);
 
@@ -2512,9 +2571,37 @@ public void cursetting() {
 			
 			Globals.CurrentDirectoryPath = mDirFileArray[position].getAbsolutePath();
 			
+			isSelect = true;
+			
 		}
 		
 		Command.invoke(GameAdapter.SHOW_PANEL).args(items).sendDelayed(100);
+	}
+	
+	
+	public boolean onTouch(View v, MotionEvent event) {
+		// TODO Auto-generated method stub
+		x = event.getRawX();
+		
+		switch (event.getAction()) {
+
+		case MotionEvent.ACTION_DOWN:
+			startX = x;
+			break;
+		case MotionEvent.ACTION_MOVE:
+			if (Math.abs(startX - x) > TOUCH_SLOP) {
+				isMoved = true;
+			}
+			break;
+		case MotionEvent.ACTION_UP:
+			if (isMoved == true && isSelect) {
+				runAppLaunchConfig();
+				isMoved = isSelect = false;
+			//return true;
+			}
+			break;
+		}
+		return false;
 	}
 	
 	public void onClick(View v) {
@@ -2528,7 +2615,18 @@ public void cursetting() {
 			About();
 			break;
 		case R.id.btn_config:
-			runAppLaunchConfig();
+			Game item = items.getSelectedItem();
+			if(item.gameapk != null )
+			{
+				Toast.makeText(ONScripter.this, "ren'py游戏暂未提供设置�?..",Toast.LENGTH_LONG).show();
+			}
+			else {
+				if(item.xsystemgr != null )
+					Toast.makeText(ONScripter.this, "这是xsystem游戏，需将版本设置为xsystem35...",Toast.LENGTH_LONG).show();
+				if(item.seentxt != null )
+					Toast.makeText(ONScripter.this, "这是xclannad游戏，需将版本设置为xclannad...",Toast.LENGTH_LONG).show();
+				runAppLaunchConfig();
+			}
 			break;
 		case R.id.btn_play:
 			FSetting(myname);
@@ -2558,6 +2656,7 @@ public void cursetting() {
         		return true;
         	}
             if (msg.getEventTime()-last_backkey_pressed<2000) {
+            	MobclickAgent.onKillProcess(this);
                 finish();
                 System.exit(0);
             } else {
@@ -2687,11 +2786,6 @@ public void cursetting() {
 		public void run() {
 			// TODO Auto-generated method stub
 			
-		}
-
-		public boolean onTouch(View v, MotionEvent event) {
-			// TODO Auto-generated method stub
-			return false;
 		}
 
 

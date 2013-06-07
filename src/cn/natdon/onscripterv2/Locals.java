@@ -40,6 +40,7 @@ class Locals {
 	public static Boolean gFontSize = false;
 	public static Boolean gFontColor = false;
 	public static Boolean VideoMode = false;
+	public static Boolean isxsystem = false;
 	
 	//Environment
 

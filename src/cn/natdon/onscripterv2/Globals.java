@@ -34,7 +34,7 @@ import android.view.KeyEvent;
 
 import android.os.Environment;
 
-class Globals {
+public class Globals {
 	
 	//Library Setting
 	
@@ -49,8 +49,8 @@ class Globals {
 		System.loadLibrary("mad");
 		System.loadLibrary("tremor");
 		System.loadLibrary("sdl_mixer");
-		System.loadLibrary("sdl_image");
-		System.loadLibrary("sdl_ttf");
+		System.loadLibrary("sdl_imagen");
+		System.loadLibrary("sdl_ttfn");
 		System.loadLibrary("video_jni");
 
 	}
@@ -70,6 +70,8 @@ class Globals {
 		"onscripter-16bpp",
 		"onscripter-en-32bpp",
 		"onscripter-en-16bpp",
+		"xclannad",
+		"xsystem35",
 		//"onscripter-16bpp-pda",
 	}; //libapp_$(APP_MODULE).so
 	
@@ -83,7 +85,7 @@ class Globals {
 	};
 	
 	public static final String[] APP_NEED_FILENAME_ARRAY = {
-		"0.txt|0.TXT|00.txt|00.TXT|nscript.dat|onscript.nt|ONSCRIPT.NT|onscript.nt2|ONSCRIPT.NT2|onscript.nt3|NSCRIPT.DAT|nscript.___|NSCRIPT.___",
+		"mine|0.txt|0.TXT|00.txt|00.TXT|seen.txt|SEEN.TXT|nscript.dat|onscript.nt|ONSCRIPT.NT|onscript.nt2|ONSCRIPT.NT2|onscript.nt3|NSCRIPT.DAT|nscript.___|NSCRIPT.___",
 		"default.ttf|default.TTF|DEFAULT.TTF|DEFAULT.ttf"
 	
 		//"example.dat",
@@ -103,6 +105,7 @@ class Globals {
 
 	public static final boolean CURRENT_DIRECTORY_NEED_WRITABLE = true;
 	public static final String[] CURRENT_DIRECTORY_PATH_TEMPLATE_ARRAY = {
+		"${SDCARD}/mine",
 		"${SDCARD}/ons"
 	
 		//"${SDCARD}/example",

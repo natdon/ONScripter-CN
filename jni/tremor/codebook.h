@@ -18,7 +18,7 @@
 #ifndef _V_CODEBOOK_H_
 #define _V_CODEBOOK_H_
 
-#include <ogg/ogg.h>
+#include "ogg.h"
 
 /* This structure encapsulates huffman and VQ style encoding books; it
    doesn't do anything specific to either.
@@ -76,13 +76,14 @@ typedef struct codebook{
 
 } codebook;
 
+extern void vorbis_staticbook_clear(static_codebook *b);
 extern void vorbis_staticbook_destroy(static_codebook *b);
 extern int vorbis_book_init_decode(codebook *dest,const static_codebook *source);
 
 extern void vorbis_book_clear(codebook *b);
 extern long _book_maptype1_quantvals(const static_codebook *b);
 
-extern static_codebook *vorbis_staticbook_unpack(oggpack_buffer *b);
+extern int vorbis_staticbook_unpack(oggpack_buffer *b,static_codebook *c);
 
 extern long vorbis_book_decode(codebook *book, oggpack_buffer *b);
 extern long vorbis_book_decodevs_add(codebook *book, ogg_int32_t *a, 

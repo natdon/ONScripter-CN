@@ -30,6 +30,15 @@ public class Game {
 	// Optional Path/To/Audio/File
 	public String audio;
 	
+	// Optional Path/To/ren'py/File
+	public String gameapk;
+	
+	// Optional Path/To/xclannad/File
+	public String seentxt;
+	
+	// Optional Path/To/xsystem35/File
+	public String xsystemgr;
+	
 	public void readJSON(JSONObject json) throws JSONException {
 		readJSON(json, false);
 	}
@@ -97,6 +106,18 @@ public class Game {
 		String[] files = gamedir.list();
 		for(String file: files) {
 			String name = file.toLowerCase();
+			if(name.equals("game.apk") || name.equals("renpy.apk")) {
+				if(g.gameapk == null) 
+					g.gameapk = new File(gamedir, file).getAbsolutePath();
+			}
+			if(name.equals("seen.txt") ) {
+				if(g.seentxt == null) 
+					g.seentxt = new File(gamedir, file).getAbsolutePath();
+			}
+			if(name.equals("xsystem35.gr") ) {
+				if(g.xsystemgr == null) 
+					g.xsystemgr = new File(gamedir, file).getAbsolutePath();
+			}
 			if(name.equals("cover.jpg") || name.equals("cover.png")) {
 				if(g.cover == null) 
 					g.cover = new File(gamedir, file).getAbsolutePath();
@@ -138,6 +159,10 @@ public class Game {
 			if(name.startsWith("preview.") && U.supportVideoMedia(name)) {
 				if(g.video == null) 
 					g.video = new File(gamedir, file).getAbsolutePath();
+			}
+			if(name.endsWith(".apk")) {
+				if(g.gameapk == null) 
+					g.gameapk = new File(gamedir, file).getAbsolutePath();
 			}
 		}
 		if(g.video != null) return g;

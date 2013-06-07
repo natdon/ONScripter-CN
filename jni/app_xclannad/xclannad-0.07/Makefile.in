@@ -1,0 +1,57 @@
+@SET_MAKE@
+CC		= @CC@
+CXX		= @CXX@
+LD		= @CXX@
+RANLIB		= @RANLIB@
+
+CFLAGS= -I. $(LOCAL_DEF) @CFLAGS@ @DEFS@ @SDL_CFLAGS@ @SMPEG_CFLAGS@ @FT2_CFLAGS@ @X_CFLAGS@ -pthread -O2
+CXXFLAGS	= $(CFLAGS)
+LDFLAGS = @LDFLAGS@ @FT2_LIBS@ @SDL_LIBS@ -lSDL_mixer @SMPEG_LIBS@ @X_LIBS@ @LIBS@ -pthread
+
+SRCS	= xlovesys.cc
+
+OBJS	 = ${SRCS:.cc=.o}
+
+all: xclannad
+
+xclannad: xlovesys.o system/libsystem.a scn2k/libscn2k.a window/libwindow.a font/libfont.a music2/libmusic.a
+	$(LD) -o xclannad xlovesys.o system/libsystem.a scn2k/libscn2k.a window/libwindow.a font/libfont.a music2/libmusic.a $(LDFLAGS)
+
+install: xclannad music2/nwatowav
+	mkdir -p /usr/local/bin
+	cp xclannad music2/nwatowav /usr/local/bin
+
+clean:
+	rm -f xclannad xlovesys ${OBJS} *.bak
+	(cd font && $(MAKE) clean);
+	(cd system && $(MAKE) clean);
+	(cd window && $(MAKE) clean);
+	(cd music2 && $(MAKE) clean);
+	(cd scn2k && $(MAKE) clean);
+
+music2/nwatowav:
+	(cd music2 && $(MAKE) nwatowav);
+
+.c.o:
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+.cc.o:
+	$(CXX) -c $(CFLAGS) -o $@ $<
+
+font/libfont.a: FORCE
+	cd font && $(MAKE) libfont.a
+
+system/libsystem.a: FORCE
+	cd system && $(MAKE) libsystem.a
+
+scn2k/libscn2k.a: FORCE
+	cd scn2k && $(MAKE) libscn2k.a
+
+window/libwindow.a: FORCE
+	cd window && $(MAKE) libwindow.a
+
+music2/libmusic.a: FORCE
+	cd music2 && $(MAKE) libmusic.a
+
+FORCE:
+

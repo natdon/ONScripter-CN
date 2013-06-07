@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -29,6 +30,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.Vibrator;
+import android.text.InputType;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.Display;
@@ -44,6 +46,7 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -51,6 +54,7 @@ import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class ONSView extends Activity{
@@ -62,6 +66,7 @@ public class ONSView extends Activity{
 	private native int nativeInitJavaCallbacks();
 	private native int nativeVibrator();
 	private native int nativeHW(boolean useHW);
+	private native int nativeInputBox();
 	
 	public static WindowManager wdwm;
 	public static WindowManager wm;
@@ -90,6 +95,7 @@ public class ONSView extends Activity{
 	private HorizontalScrollView HSV = null;
 	private ScrollView FullSV = null;
 	private ImageButton popbtn;
+	
 	
 	private SimpleDateFormat df;
 	private String oldtime, nowtime, battery,myTime;
@@ -171,12 +177,23 @@ public class ONSView extends Activity{
 		vt.vibrate(milliseconds);
 	}
 	
+	public void InputBox(char[] title,final char[] text) {
+
+		Intent in = new Intent();
+		in.putExtra("title", new String(title));
+		in.putExtra("text", new String(text));
+		in.setClass(ONSView.this, InputBox.class);
+		ONSView.this.startActivity(in);
+
+	}
+	
 	
 	public void runApp()
 	{
 		nativeHW(ONSVariable.set_checkHW);
 		nativeInitJavaCallbacks();
 		nativeVibrator();
+		nativeInputBox();
 		
 		if(Locals.gFontSize)
 		nativeFontSize(ONSVariable.myfontsize,ONSVariable.myfontsize,ONSVariable.myfontpx,ONSVariable.myfontpx);
@@ -848,7 +865,7 @@ public class ONSView extends Activity{
 	//
 	public void showTaskbarNotification()
 	{
-		showTaskbarNotification("ONScripter正在后台运行", "ONScripter "+getApplicationVersion(), "ONScripter正在后台运行, 点击恢复。");
+		showTaskbarNotification("MiNE正在后台运行", "MiNE "+getApplicationVersion(), "MiNE正在后台运行, 点击恢复。");
 	}
 
 	// Stolen from SDL port by Mamaich

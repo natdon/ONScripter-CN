@@ -4,20 +4,16 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.R.color;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
-import android.util.Log;
 
 public class start extends Activity {
 	private TimerTask task;
@@ -39,7 +35,8 @@ public class start extends Activity {
 		setContentView(R.layout.start);
 		coin = new Random();
 		x = coin.nextBoolean();
-
+		
+		
 		final Intent intent = getIntent();
 		extra = intent.getStringExtra(SHORT_CUT_EXTRAS);
 		setting = intent.getStringExtra("setting");

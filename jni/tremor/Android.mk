@@ -4,15 +4,12 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := tremor
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH) $(LOCAL_PATH)/../ogg/include/ogg $(LOCAL_PATH)/../ogg/include $(LOCAL_PATH)/include/tremor
-LOCAL_CFLAGS := -O3 -DHAVE_ALLOCA_H
+LOCAL_CFLAGS := -DHAVE_ALLOCA_H
 
 LOCAL_CPP_EXTENSION := .cpp
 
+# Note this simple makefile var substitution, you can find even simpler examples in different Android projects
 LOCAL_SRC_FILES := $(notdir $(wildcard $(LOCAL_PATH)/*.c))
 
-LOCAL_STATIC_LIBRARIES := ogg
+include $(BUILD_SHARED_LIBRARY)
 
-ifeq "$(TARGET_ARCH_ABI)" "armeabi"
-include $(BUILD_STATIC_LIBRARY)
-endif

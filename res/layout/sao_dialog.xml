@@ -45,7 +45,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="\n本版本包含大量兯操功能,渣机渣rom渣rp者谨慎使用\n\n使用教程:拖动到底部点击查看使用教程"
+                    android:text="\n本版本包含大量兯操功能,渣机渣rom渣rp者谨慎使用\n\n使用教程:拖动到底部点击查看使用教程\n\n更多精彩尽在www.bakerist.info "
                     android:textColor="@color/red" />
                 
                  <TextView
@@ -53,7 +53,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="\nONScripter Ver2.0\n本体:natdon\nUI\\UE:羽の篠"
+                    android:text="@string/version"
                     android:textColor="@color/blue"  />
 
                 <TextView

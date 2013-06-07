@@ -4,6 +4,7 @@ include $(CLEAR_VARS)
  
 LOCAL_ARM_MODE  := arm
 LOCAL_MODULE    := lua
+LOCAL_LDLIBS := -llog 
 LOCAL_SRC_FILES := lapi.c \
     lauxlib.c \
     lbaselib.c \
@@ -33,6 +34,7 @@ LOCAL_SRC_FILES := lapi.c \
     lundump.c \
     lvm.c \
     lzio.c \
-    print.c 
+    print.c \
+    lbit.c
  
 include $(BUILD_SHARED_LIBRARY)

@@ -12,6 +12,10 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+#ifdef ANDROID
+#include "Debugout.h"
+#endif
+
 
 #include "luaconf.h"
 

@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := sdl_image
+LOCAL_MODULE := sdl_imagen
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) $(LOCAL_PATH)/../jpeg/include $(LOCAL_PATH)/../png/include $(LOCAL_PATH)/../sdl-1.2_jni/include $(LOCAL_PATH)/include
 LOCAL_CFLAGS := -O3 \

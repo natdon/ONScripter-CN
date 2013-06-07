@@ -177,6 +177,6 @@ lvm.o: lvm.c lua.h luaconf.h ldebug.h lstate.h lobject.h llimits.h ltm.h \
 lzio.o: lzio.c lua.h luaconf.h llimits.h lmem.h lstate.h lobject.h ltm.h \
   lzio.h
 print.o: print.c ldebug.h lstate.h lua.h luaconf.h lobject.h llimits.h \
-  ltm.h lzio.h lmem.h lopcodes.h lundump.h
+  ltm.h lzio.h lmem.h lopcodes.h lundump.hz
 
 # (end of Makefile)

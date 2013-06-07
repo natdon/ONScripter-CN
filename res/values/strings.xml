@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ONScripter-GBK</string>
+    <string name="app_name">MiNE</string>
+    
+    <string name="private_version">1361373546.19</string>
 
 	<!-- Option -->
 	
@@ -163,9 +165,34 @@
     <string name="error_repeated_playfail">如果您一直出现播放问题，我们建议您使用菜单中的\'退出\'彻底退出程序并重新启动</string>
     
     <string name="mediacontroller_play_pause">Play/Pause</string>
+    
+    <string name="version">\nMixed Novel Engine  Ver3.0\n本体:natdon\nUI\\UE:羽の篠</string>
 
 	<string name="info">\n
+	    
+3.0.3更新\n
+1.BUG修复版 \n\n
 
+3.0.2更新\n
+1.修复快捷方式启动崩溃\n
+2.other bug fix，详情见博客 \n\n
+
+3.0.1更新\n
+1.bug fix\n
+2.新功能全部开启，详情见博客 \n\n
+
+3.0.0更新\n
+1.增加xsystem35支持,详细使用方法查看BLOG\n
+2.增加xclannad支持,详细使用方法查看BLOG\n
+3.更改Ren\'\Py存档目录至游戏目录下\n
+4.其它细节调整\n
+5.bug fix\n\n
+
+
+2.1.0更新\n
+1.调整UI布局\n
+2.增加对Ren\'\Py的支持,详细使用方法查看BLOG\n
+3.修复由快捷方式启动的部分BUG\n\n
 2.0.9更新\n
 1.全新UI,详细使用方法查看使用教程\n
 2.增加EN版,修复触摸错位\n

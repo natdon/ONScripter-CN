@@ -4,25 +4,27 @@
 
 package cn.natdon.onscripterv2;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.AbsoluteLayout;
 import android.widget.AbsoluteLayout.LayoutParams;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import cn.natdon.onscripterv2.Button.OkCancelButton;
 
 
-class TouchMode implements DifferentTouchInput.OnInputEventListener
+class TouchMode implements DifferentTouchInput.OnInputEventListener, OnTouchListener
 {
 	public static TouchMode getTouchMode(String name, MainView mainView)
 	{
@@ -113,13 +115,14 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 		Button button = new Button(mMainView.getActivity());
 		if(d != null)
 		button.setBackgroundDrawable(d);
-		button.setHeight(onsVariable.dh/4);
-		button.setWidth(onsVariable.dw/4);
+		button.setHeight(onsVariable.dh/6);
+		button.setWidth(onsVariable.dw/6);
 		button.setOnTouchListener(new OnButtonTouchListener(mMainView, key));
 		layout.addView(button, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
 		return button;
 	}
 	
+	@SuppressLint("NewApi")
 	public TouchMode(MainView mainView)
 	{
 		mMainView = mainView;
@@ -412,6 +415,11 @@ class TouchMode implements DifferentTouchInput.OnInputEventListener
 	
 	public void onMouseButtonEvent(int buttonId, int pressed)
 	{
+	}
+
+	public boolean onTouch(View v, MotionEvent event) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
 

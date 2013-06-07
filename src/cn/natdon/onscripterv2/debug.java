@@ -11,7 +11,7 @@ public static void put(String s,String name){
 	try
 	{
 
-	FileOutputStream outStream = new FileOutputStream("/sdcard/"+name+".txt",true);
+	FileOutputStream outStream = new FileOutputStream(Globals.CurrentDirectoryPath+name+".txt",true);
 	OutputStreamWriter writer = new OutputStreamWriter(outStream,"gb2312");
 	writer.write(s);
 	writer.write("\n");

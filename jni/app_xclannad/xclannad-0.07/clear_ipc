@@ -1,0 +1,8 @@
+#!/bin/sh
+# IPC のmessage queue／shared memory が残ってしまっている
+# 時に、それを全部消去するためのスクリプト
+
+killall -KILL test xlovesys xclannad
+ipcs | grep '^q' | awk '{print $2;}' | perl -ne 'chomp; system "ipcrm -q $_";'
+ipcs | grep '^m' | awk '{print $2;}' | perl -ne 'chomp; system "ipcrm -m $_";'
+ipcs | grep '^s' | awk '{print $2;}' | perl -ne 'chomp; system "ipcrm -s $_";'
